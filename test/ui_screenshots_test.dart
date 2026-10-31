@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:neo_reader/core/l10n/app_strings.dart';
 import 'package:neo_reader/core/theme/app_theme.dart';
 import 'package:neo_reader/core/theme/reading_theme.dart';
+import 'package:neo_reader/domain/models/annotation.dart';
 import 'package:neo_reader/domain/models/app_settings.dart';
 import 'package:neo_reader/domain/models/book.dart';
 import 'package:neo_reader/domain/models/reading_stats.dart';
@@ -102,6 +103,35 @@ void main() {
     ),
   ];
 
+
+  final demoAnnotations = [
+    Annotation(
+      id: 'a1',
+      bookId: '1',
+      type: AnnotationType.highlight,
+      createdAt: DateTime(2026, 10, 20),
+      chapter: '第一章',
+      selectedText: '竖排与自定义字体让阅读更贴近纸书。',
+      progress: 0.12,
+    ),
+    Annotation(
+      id: 'a2',
+      bookId: '2',
+      type: AnnotationType.note,
+      createdAt: DateTime(2026, 10, 21),
+      note: '导出为 Markdown / TXT 方便备份。',
+      progress: 0.4,
+    ),
+    Annotation(
+      id: 'a3',
+      bookId: '1',
+      type: AnnotationType.bookmark,
+      createdAt: DateTime(2026, 10, 22),
+      chapter: '书签位置',
+      progress: 0.55,
+    ),
+  ];
+
   Future<void> pumpPhone(
     WidgetTester tester,
     Widget home, {
@@ -128,6 +158,7 @@ void main() {
               last7DaysSeconds: [600, 0, 1200, 900, 1800, 2400, 2520],
             ),
           ),
+          allAnnotationsProvider.overrideWith((ref) async => demoAnnotations),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -145,7 +176,7 @@ void main() {
     );
     await tester.pump();
     // Settle staggered / progress animations for stable goldens.
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pump(const Duration(milliseconds: 600));
   }
 
   testWidgets('chinese labels readable', (tester) async {
