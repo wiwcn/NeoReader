@@ -29,8 +29,7 @@ class _Cat {
   final String subtitle;
 }
 
-/// Top-level settings list (PiliPlus-style): categories push sub-pages on phone;
-/// tablet/landscape uses a master–detail split.
+/// Top-level settings list (PiliPlus-style): flat ListTiles; tablet master–detail.
 class SettingsHubScreen extends ConsumerStatefulWidget {
   const SettingsHubScreen({super.key});
 
@@ -124,15 +123,17 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
   Widget _buildList(BuildContext context, List<_Cat> items, bool isPortrait) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final titleStyle = theme.textTheme.titleMedium!;
-    final subStyle = theme.textTheme.bodySmall!.copyWith(
-      color: cs.onSurfaceVariant,
-    );
 
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       itemCount: items.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      separatorBuilder: (context, index) => Divider(
+        height: 1,
+        thickness: 1,
+        indent: 72,
+        endIndent: 0,
+        color: cs.outlineVariant.withValues(alpha: 0.4),
+      ),
       itemBuilder: (context, i) {
         final item = items[i];
         final selected = !isPortrait && item.type == _selected;
@@ -140,11 +141,32 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
           index: i,
           child: Material(
             color: selected
-                ? cs.secondaryContainer.withValues(alpha: 0.7)
-                : cs.surface.withValues(alpha: 0.55),
-            borderRadius: BorderRadius.circular(14),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
+                ? cs.secondaryContainer.withValues(alpha: 0.55)
+                : Colors.transparent,
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 4,
+              ),
+              leading: Icon(item.icon, color: cs.primary, size: 24),
+              title: Text(
+                item.title,
+                style: theme.textTheme.titleMedium,
+              ),
+              subtitle: Text(
+                item.subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: cs.outline,
+                ),
+              ),
+              trailing: isPortrait
+                  ? Icon(
+                      Icons.chevron_right_rounded,
+                      color: cs.onSurfaceVariant,
+                    )
+                  : null,
               onTap: () {
                 if (isPortrait) {
                   Navigator.of(context).push(
@@ -156,45 +178,6 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
                   setState(() => _selected = item.type);
                 }
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: cs.primary.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(item.icon, size: 22, color: cs.primary),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(item.title, style: titleStyle),
-                          const SizedBox(height: 2),
-                          Text(
-                            item.subtitle,
-                            style: subStyle,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (isPortrait)
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: cs.onSurfaceVariant,
-                      ),
-                  ],
-                ),
-              ),
             ),
           ),
         );

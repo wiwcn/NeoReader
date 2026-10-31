@@ -59,11 +59,11 @@ class AppTheme {
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      scaffoldBackgroundColor: const Color(0xFFF3F6F3),
+      scaffoldBackgroundColor: const Color(0xFFF7F9F7),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: Colors.white.withValues(alpha: 0.55),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        color: scheme.surfaceContainerLowest,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white.withValues(alpha: 0.65),

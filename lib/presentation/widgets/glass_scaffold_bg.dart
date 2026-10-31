@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Soft MD3 gradient backdrop so frosted glass has something to blur.
+/// Soft MD3 surface backdrop. Mild tint only — list body stays flat (PiliPlus).
 class GlassScaffoldBackground extends StatelessWidget {
   const GlassScaffoldBackground({super.key, required this.child});
 
@@ -13,18 +13,18 @@ class GlassScaffoldBackground extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: isDark
               ? [
                   cs.surface,
-                  Color.lerp(cs.surface, cs.primary, 0.18)!,
-                  Color.lerp(cs.surface, cs.tertiary, 0.12)!,
+                  Color.lerp(cs.surface, cs.primary, 0.08)!,
                 ]
               : [
-                  const Color(0xFFF5F8F5),
-                  Color.lerp(Colors.white, cs.primary, 0.12)!,
-                  Color.lerp(Colors.white, cs.tertiary, 0.10)!,
+                  // M3 surface / surfaceContainerLowest — less muddy green-white.
+                  cs.surface,
+                  cs.surfaceContainerLowest,
+                  Color.lerp(cs.surfaceContainerLowest, cs.primary, 0.04)!,
                 ],
         ),
       ),

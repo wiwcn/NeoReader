@@ -5,11 +5,18 @@ import 'package:flutter/material.dart';
 import '../../domain/models/book.dart';
 
 class BookCover extends StatelessWidget {
-  const BookCover({super.key, required this.book, this.width = 56, this.height = 72});
+  const BookCover({
+    super.key,
+    required this.book,
+    this.width = 56,
+    this.height = 72,
+    this.borderRadius = 12,
+  });
 
   final Book book;
   final double width;
   final double height;
+  final double borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +34,7 @@ class BookCover extends StatelessWidget {
       child = _placeholder(cs);
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(borderRadius),
       child: SizedBox(width: width, height: height, child: child),
     );
   }
