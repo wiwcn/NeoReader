@@ -72,8 +72,8 @@ class AppStrings {
       : 'Theme, seed color, glass blur';
   String get settingsReading => isZh ? '阅读' : 'Reading';
   String get settingsReadingSub => isZh
-      ? '默认字号、行距、阅读主题、翻页方式'
-      : 'Font size, line height, reading theme, page turn';
+      ? '字号、行距、主题、翻页、竖排、自定义字体'
+      : 'Size, line height, theme, page turn, vertical, fonts';
   String get settingsLibrary => isZh ? '书库与导入' : 'Library & import';
   String get settingsLibrarySub => isZh
       ? '排序默认、导入格式说明、清空缓存'
@@ -125,4 +125,46 @@ class AppStrings {
   String get openSourceRepo => isZh ? '开源仓库' : 'Source repository';
   String get versionLabel => isZh ? '版本' : 'Version';
   String get dangerAction => isZh ? '危险操作' : 'Destructive';
+
+  String get writingMode => isZh ? '排版方向' : 'Writing mode';
+  String get writingHorizontal => isZh ? '横排' : 'Horizontal';
+  String get writingVertical => isZh ? '竖排' : 'Vertical';
+  String get readingFont => isZh ? '正文字体' : 'Body font';
+  String get defaultFont => isZh ? '默认（Noto Sans SC）' : 'Default (Noto Sans SC)';
+  String get importFont => isZh ? '导入字体' : 'Import font';
+  String get importFontHint => isZh
+      ? '选择本机 TTF / OTF 字体文件'
+      : 'Pick a local TTF / OTF font file';
+  String get deleteFont => isZh ? '删除字体' : 'Delete font';
+  String get fontImported => isZh ? '字体已导入' : 'Font imported';
+  String get fontImportFailed => isZh ? '字体导入失败' : 'Font import failed';
+  String get horizontalMargin => isZh ? '左右边距' : 'Side margins';
+  String get paragraphSpacing => isZh ? '段间距' : 'Paragraph spacing';
+  String get pdfFitWidth => isZh ? '适合宽度' : 'Fit width';
+  String get pdfFitPage => isZh ? '适合页面' : 'Fit page';
+  String get pdfPrevPage => isZh ? '上一页' : 'Previous';
+  String get pdfNextPage => isZh ? '下一页' : 'Next';
+  String get pdfNightInvert => isZh ? '夜间反色' : 'Night invert';
+  String get decreaseFont => isZh ? '减小字号' : 'Smaller';
+  String get increaseFont => isZh ? '增大字号' : 'Larger';
+
+  String get bookDetails => isZh ? '书籍详情' : 'Book details';
+  String get editBook => isZh ? '编辑信息' : 'Edit details';
+  String get bookTitle => isZh ? '书名' : 'Title';
+  String get bookAuthor => isZh ? '作者' : 'Author';
+  String get bookTags => isZh ? '标签' : 'Tags';
+  String get bookTagsHint => isZh ? '用逗号分隔，例如：轻小说, 科幻' : 'Comma-separated, e.g. light-novel, sci-fi';
+  String get bookDescription => isZh ? '简介' : 'Description';
+  String get bookDescriptionHint => isZh ? '可选简介或备注' : 'Optional synopsis or notes';
+  String get changeCover => isZh ? '更换封面' : 'Change cover';
+  String get removeCover => isZh ? '移除封面' : 'Remove cover';
+  String get coverUpdated => isZh ? '封面已更新' : 'Cover updated';
+  String get coverRemoved => isZh ? '封面已移除' : 'Cover removed';
+  String get save => isZh ? '保存' : 'Save';
+  String get saved => isZh ? '已保存' : 'Saved';
+  String get moreActions => isZh ? '更多' : 'More';
+  String get openBook => isZh ? '开始阅读' : 'Start reading';
+  String get formatLabel => isZh ? '格式' : 'Format';
 }
+
+

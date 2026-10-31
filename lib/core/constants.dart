@@ -5,7 +5,7 @@ class AppConstants {
   static const String booksDirName = 'books';
   static const String coversDirName = 'covers';
   static const String dbName = 'neoreader.db';
-  static const int dbVersion = 2;
+  static const int dbVersion = 3;
 
   /// Formats with working local readers / parsers.
   static const Set<String> supportedExtensions = {
@@ -53,6 +53,7 @@ class AppConstants {
     'mhtml',
   ];
 
-  static const double defaultFontSize = 18;
-  static const double defaultLineHeight = 1.6;
+  static const double defaultFontSize = 19;
+  static const double defaultLineHeight = 1.75;
+  static const String fontsDirName = 'fonts';
 }

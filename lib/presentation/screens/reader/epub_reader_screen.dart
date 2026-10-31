@@ -4,12 +4,14 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/theme/reading_theme.dart';
 import '../../../data/parsers/epub_parser.dart';
+import '../../../data/services/reading_session_tracker.dart';
 import '../../../domain/models/annotation.dart';
 import '../../../domain/models/app_settings.dart';
 import '../../../domain/models/book.dart';
-import '../../../data/services/reading_session_tracker.dart';
 import '../../providers/providers.dart';
-import 'reading_controls.dart';
+import 'reader_controls_helper.dart';
+import 'reader_typography.dart';
+import 'vertical_text_view.dart';
 
 class EpubReaderScreen extends ConsumerStatefulWidget {
   const EpubReaderScreen({super.key, required this.book});
@@ -23,9 +25,8 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
   EpubBookData? _data;
   Object? _error;
   late final ScrollController _scroll;
-  ReadingSessionTracker? _tracker;
-  bool _paged = false;
   late final PageController _pageController;
+  ReadingSessionTracker? _tracker;
   double _progress = 0;
   int _chapterIndex = 0;
   bool _chromeVisible = true;
@@ -47,7 +48,12 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
       if (!mounted) return;
       setState(() => _data = data);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scroll.hasClients && _progress > 0 && !_paged) {
+        final settings =
+            ref.read(settingsProvider).value ?? const AppSettings();
+        if (_scroll.hasClients &&
+            _progress > 0 &&
+            settings.pageTurnMode == PageTurnMode.scroll &&
+            settings.writingMode == WritingMode.horizontal) {
           final max = _scroll.position.maxScrollExtent;
           _scroll.jumpTo(max * _progress.clamp(0, 1));
         }
@@ -60,8 +66,7 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
   void _onScroll() {
     if (!_scroll.hasClients) return;
     final max = _scroll.position.maxScrollExtent;
-    final p = max <= 0 ? 0.0 : (_scroll.offset / max).clamp(0.0, 1.0);
-    _progress = p;
+    _progress = max <= 0 ? 0.0 : (_scroll.offset / max).clamp(0.0, 1.0);
   }
 
   Future<void> _persist() async {
@@ -82,12 +87,127 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
     super.dispose();
   }
 
+  List<String> _paragraphs(String text) {
+    return text
+        .replaceAll('\r\n', '\n')
+        .replaceAll('\r', '\n')
+        .split(RegExp(r'\n{2,}|\n'))
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
+
+  Widget _chapterBody(
+    EpubChapter c,
+    AppSettings settings,
+    ReadingColors colors,
+  ) {
+    final style = ReaderTypography.body(settings, colors);
+    final titleStyle = ReaderTypography.title(settings, colors);
+    final paras = _paragraphs(c.content);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(c.title, style: titleStyle),
+        SizedBox(height: settings.paragraphSpacing),
+        for (final para in paras)
+          Padding(
+            padding: EdgeInsets.only(bottom: settings.paragraphSpacing),
+            child: SelectableText(
+              para,
+              style: style,
+              textAlign: TextAlign.justify,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildScroll(ReadingColors colors, AppSettings settings) {
+    final chapters = _data!.chapters;
+    final padding = ReaderTypography.bodyPadding(settings);
+    return ReaderTypography.constrainWidth(
+      context: context,
+      child: ListView.builder(
+        controller: _scroll,
+        padding: padding,
+        itemCount: chapters.length,
+        itemBuilder: (context, i) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: settings.paragraphSpacing + 16),
+            child: _chapterBody(chapters[i], settings, colors),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPaged(ReadingColors colors, AppSettings settings) {
+    final chapters = _data!.chapters;
+    final padding = ReaderTypography.bodyPadding(settings);
+    return PageView.builder(
+      controller: _pageController,
+      itemCount: chapters.length,
+      onPageChanged: (i) {
+        _chapterIndex = i;
+        _progress = chapters.isEmpty ? 0 : (i + 1) / chapters.length;
+        setState(() {});
+      },
+      itemBuilder: (context, i) {
+        return SingleChildScrollView(
+          padding: padding,
+          child: ReaderTypography.constrainWidth(
+            context: context,
+            child: _chapterBody(chapters[i], settings, colors),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildVertical(ReadingColors colors, AppSettings settings) {
+    final chapters = _data!.chapters;
+    final buf = StringBuffer();
+    for (final c in chapters) {
+      if (c.title.isNotEmpty) {
+        buf.writeln(c.title);
+        buf.writeln();
+      }
+      buf.writeln(c.content);
+      buf.writeln();
+    }
+    return VerticalTextView(
+      text: buf.toString(),
+      style: ReaderTypography.body(settings, colors),
+      controller: _scroll,
+      padding: ReaderTypography.bodyPadding(settings),
+      onScrollProgress: (p) {
+        _progress = p;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final strings = ref.watch(stringsProvider);
-    final settings =
-        ref.watch(settingsProvider).value ?? const AppSettings();
+    final settings = ref.watch(settingsProvider).value ?? const AppSettings();
     final colors = ReadingColors.of(settings.readingTheme);
+    final paged = settings.pageTurnMode == PageTurnMode.paged;
+    final vertical = settings.writingMode == WritingMode.vertical;
+
+    Widget body;
+    if (_error != null) {
+      body = Center(
+          child: Text('$_error', style: TextStyle(color: colors.foreground)));
+    } else if (_data == null) {
+      body = const Center(child: CircularProgressIndicator());
+    } else if (vertical) {
+      body = _buildVertical(colors, settings);
+    } else if (paged) {
+      body = _buildPaged(colors, settings);
+    } else {
+      body = _buildScroll(colors, settings);
+    }
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -102,25 +222,43 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
               ),
               actions: [
                 IconButton(
-                  tooltip: _paged ? strings.scrollMode : strings.pageMode,
-                  icon: Icon(_paged ? Icons.view_day_outlined : Icons.auto_stories_outlined),
-                  onPressed: () => setState(() => _paged = !_paged),
+                  tooltip: paged ? strings.scrollMode : strings.pageMode,
+                  icon: Icon(paged
+                      ? Icons.view_day_outlined
+                      : Icons.auto_stories_outlined),
+                  onPressed: () {
+                    ref.read(settingsProvider.notifier).saveSettings(
+                          (c) => c.copyWith(
+                            pageTurnMode: paged
+                                ? PageTurnMode.scroll
+                                : PageTurnMode.paged,
+                          ),
+                        );
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.tune_rounded),
-                  onPressed: () => _openControls(settings),
+                  onPressed: () => showReadingControls(
+                    context: context,
+                    ref: ref,
+                    settings: settings,
+                    onAddBookmark: () async {
+                      await _addAnnotation(AnnotationType.bookmark);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+                    onAddNote: () async {
+                      Navigator.pop(context);
+                      await _promptNote();
+                    },
+                  ),
                 ),
               ],
             )
           : null,
-      body: _error != null
-          ? Center(child: Text('$_error', style: TextStyle(color: colors.foreground)))
-          : _data == null
-              ? const Center(child: CircularProgressIndicator())
-              : GestureDetector(
-                  onTap: () => setState(() => _chromeVisible = !_chromeVisible),
-                  child: _paged ? _buildPaged(colors, settings) : _buildScroll(colors, settings),
-                ),
+      body: GestureDetector(
+        onTap: () => setState(() => _chromeVisible = !_chromeVisible),
+        child: body,
+      ),
       bottomNavigationBar: _chromeVisible
           ? SafeArea(
               child: Padding(
@@ -132,7 +270,10 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '${(_progress * 100).toStringAsFixed(1)}%',
-                      style: TextStyle(color: colors.foreground.withValues(alpha: 0.7), fontSize: 12),
+                      style: TextStyle(
+                        color: colors.foreground.withValues(alpha: 0.7),
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -142,120 +283,11 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
     );
   }
 
-  Widget _buildScroll(ReadingColors colors, AppSettings settings) {
-    final chapters = _data!.chapters;
-    return ListView.builder(
-      controller: _scroll,
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 48),
-      itemCount: chapters.length,
-      itemBuilder: (context, i) {
-        final c = chapters[i];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 28),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                c.title,
-                style: TextStyle(
-                  color: colors.foreground,
-                  fontSize: settings.fontSize + 4,
-                  fontWeight: FontWeight.w700,
-                  height: settings.lineHeight,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SelectableText(
-                c.content,
-                style: TextStyle(
-                  color: colors.foreground,
-                  fontSize: settings.fontSize,
-                  height: settings.lineHeight,
-                ),
-                onSelectionChanged: (sel, _) {},
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPaged(ReadingColors colors, AppSettings settings) {
-    final chapters = _data!.chapters;
-    return PageView.builder(
-      controller: _pageController,
-      itemCount: chapters.length,
-      onPageChanged: (i) {
-        _chapterIndex = i;
-        _progress = chapters.isEmpty ? 0 : (i + 1) / chapters.length;
-        setState(() {});
-      },
-      itemBuilder: (context, i) {
-        final c = chapters[i];
-        return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 48),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                c.title,
-                style: TextStyle(
-                  color: colors.foreground,
-                  fontSize: settings.fontSize + 4,
-                  fontWeight: FontWeight.w700,
-                  height: settings.lineHeight,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SelectableText(
-                c.content,
-                style: TextStyle(
-                  color: colors.foreground,
-                  fontSize: settings.fontSize,
-                  height: settings.lineHeight,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _openControls(AppSettings settings) {
-    final strings = ref.read(stringsProvider);
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        var local = settings;
-        return StatefulBuilder(
-          builder: (ctx, setModal) {
-            return ReadingControlsSheet(
-              strings: strings,
-              settings: local,
-              onChanged: (s) {
-                setModal(() => local = s);
-                ref.read(settingsProvider.notifier).saveSettings((_) => s);
-              },
-              onAddBookmark: () async {
-                await _addAnnotation(AnnotationType.bookmark);
-                if (ctx.mounted) Navigator.pop(ctx);
-              },
-              onAddNote: () async {
-                Navigator.pop(ctx);
-                await _promptNote();
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _addAnnotation(AnnotationType type, {String? note, String? selected}) async {
+  Future<void> _addAnnotation(
+    AnnotationType type, {
+    String? note,
+    String? selected,
+  }) async {
     final a = Annotation(
       id: const Uuid().v4(),
       bookId: widget.book.id,
@@ -263,7 +295,9 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
       createdAt: DateTime.now(),
       location: 'chapter:$_chapterIndex',
       chapter: _data?.chapters.isNotEmpty == true
-          ? _data!.chapters[_chapterIndex.clamp(0, _data!.chapters.length - 1)].title
+          ? _data!
+              .chapters[_chapterIndex.clamp(0, _data!.chapters.length - 1)]
+              .title
           : null,
       selectedText: selected,
       note: note,
@@ -284,8 +318,12 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
         title: Text(strings.addNote),
         content: TextField(controller: controller, maxLines: 4),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(strings.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(strings.confirm)),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(strings.cancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(strings.confirm)),
         ],
       ),
     );

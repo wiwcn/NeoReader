@@ -10,7 +10,10 @@ import '../../../domain/models/annotation.dart';
 import '../../../domain/models/app_settings.dart';
 import '../../../domain/models/book.dart';
 import '../../providers/providers.dart';
-import 'reading_controls.dart';
+import 'paginated_plain_text.dart';
+import 'reader_controls_helper.dart';
+import 'reader_typography.dart';
+import 'vertical_text_view.dart';
 
 typedef TextContentLoader = Future<TextContent> Function();
 
@@ -35,6 +38,7 @@ class _TextContentReaderScreenState
   TextContent? _content;
   Object? _error;
   late final ScrollController _scroll;
+  late final PageController _pageController;
   ReadingSessionTracker? _tracker;
   double _progress = 0;
   bool _chromeVisible = true;
@@ -43,6 +47,7 @@ class _TextContentReaderScreenState
   void initState() {
     super.initState();
     _scroll = ScrollController()..addListener(_onScroll);
+    _pageController = PageController();
     _progress = widget.book.progress;
     _tracker = ref.read(sessionTrackerProvider);
     _tracker!.start(widget.book.id);
@@ -86,7 +91,95 @@ class _TextContentReaderScreenState
     _persist();
     _tracker?.stop();
     _scroll.dispose();
+    _pageController.dispose();
     super.dispose();
+  }
+
+  List<String> _paragraphs(String text) {
+    return text
+        .replaceAll('\r\n', '\n')
+        .replaceAll('\r', '\n')
+        .split(RegExp(r'\n{2,}|\n'))
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
+
+  Widget _buildBody(AppSettings settings, ReadingColors colors) {
+    final content = _content!;
+    final style = ReaderTypography.body(settings, colors);
+    final padding = ReaderTypography.bodyPadding(settings);
+
+    if (content.isMarkdown &&
+        settings.writingMode == WritingMode.horizontal &&
+        settings.pageTurnMode == PageTurnMode.scroll) {
+      return Markdown(
+        controller: _scroll,
+        data: content.body,
+        selectable: true,
+        styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+          p: style,
+          h1: ReaderTypography.title(settings, colors),
+          h2: style.copyWith(
+            fontSize: settings.fontSize + 4,
+            fontWeight: FontWeight.bold,
+          ),
+          blockSpacing: settings.paragraphSpacing,
+        ),
+        padding: padding,
+      );
+    }
+
+    if (settings.writingMode == WritingMode.vertical) {
+      return VerticalTextView(
+        text: content.body,
+        style: style,
+        controller: _scroll,
+        padding: padding,
+        onScrollProgress: (p) => _progress = p,
+      );
+    }
+
+    if (settings.pageTurnMode == PageTurnMode.paged) {
+      return PaginatedPlainText(
+        text: content.body,
+        style: style,
+        padding: padding,
+        controller: _pageController,
+        onProgress: (p) {
+          _progress = p;
+          if (mounted) setState(() {});
+        },
+      );
+    }
+
+    final paras = _paragraphs(content.body);
+    final title = content.title;
+    return ReaderTypography.constrainWidth(
+      context: context,
+      child: ListView.builder(
+        controller: _scroll,
+        padding: padding,
+        itemCount: paras.length + (title.isNotEmpty ? 1 : 0),
+        itemBuilder: (context, i) {
+          if (title.isNotEmpty && i == 0) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: settings.paragraphSpacing + 4),
+              child: Text(title, style: ReaderTypography.title(settings, colors)),
+            );
+          }
+          final para = paras[title.isNotEmpty ? i - 1 : i];
+          return Padding(
+            padding: EdgeInsets.only(bottom: settings.paragraphSpacing),
+            child: SelectableText(
+              para,
+              style: style,
+              textAlign: TextAlign.justify,
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -108,7 +201,61 @@ class _TextContentReaderScreenState
               actions: [
                 IconButton(
                   icon: const Icon(Icons.tune_rounded),
-                  onPressed: () => _openControls(settings),
+                  onPressed: () => showReadingControls(
+                    context: context,
+                    ref: ref,
+                    settings: settings,
+                    onAddBookmark: () async {
+                      await ref.read(annotationRepositoryProvider).add(
+                            Annotation(
+                              id: const Uuid().v4(),
+                              bookId: widget.book.id,
+                              type: AnnotationType.bookmark,
+                              createdAt: DateTime.now(),
+                              progress: _progress,
+                              location:
+                                  'offset:${_scroll.hasClients ? _scroll.offset.round() : 0}',
+                            ),
+                          );
+                      ref.invalidate(allAnnotationsProvider);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+                    onAddNote: () async {
+                      Navigator.pop(context);
+                      final c = TextEditingController();
+                      final strings = ref.read(stringsProvider);
+                      final ok = await showDialog<bool>(
+                        context: context,
+                        builder: (d) => AlertDialog(
+                          title: Text(strings.addNote),
+                          content: TextField(controller: c, maxLines: 4),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(d, false),
+                              child: Text(strings.cancel),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.pop(d, true),
+                              child: Text(strings.confirm),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (ok == true && c.text.trim().isNotEmpty) {
+                        await ref.read(annotationRepositoryProvider).add(
+                              Annotation(
+                                id: const Uuid().v4(),
+                                bookId: widget.book.id,
+                                type: AnnotationType.note,
+                                createdAt: DateTime.now(),
+                                note: c.text.trim(),
+                                progress: _progress,
+                              ),
+                            );
+                        ref.invalidate(allAnnotationsProvider);
+                      }
+                    },
+                  ),
                 ),
               ],
             )
@@ -125,44 +272,7 @@ class _TextContentReaderScreenState
               : GestureDetector(
                   onTap: () =>
                       setState(() => _chromeVisible = !_chromeVisible),
-                  child: _content!.isMarkdown
-                      ? Markdown(
-                          controller: _scroll,
-                          data: _content!.body,
-                          selectable: true,
-                          styleSheet: MarkdownStyleSheet.fromTheme(
-                            Theme.of(context),
-                          ).copyWith(
-                            p: TextStyle(
-                              color: colors.foreground,
-                              fontSize: settings.fontSize,
-                              height: settings.lineHeight,
-                            ),
-                            h1: TextStyle(
-                              color: colors.foreground,
-                              fontSize: settings.fontSize + 8,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            h2: TextStyle(
-                              color: colors.foreground,
-                              fontSize: settings.fontSize + 4,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 48),
-                        )
-                      : SingleChildScrollView(
-                          controller: _scroll,
-                          padding: const EdgeInsets.fromLTRB(20, 12, 20, 48),
-                          child: SelectableText(
-                            _content!.body,
-                            style: TextStyle(
-                              color: colors.foreground,
-                              fontSize: settings.fontSize,
-                              height: settings.lineHeight,
-                            ),
-                          ),
-                        ),
+                  child: _buildBody(settings, colors),
                 ),
       bottomNavigationBar: _chromeVisible
           ? SafeArea(
@@ -172,76 +282,6 @@ class _TextContentReaderScreenState
               ),
             )
           : null,
-    );
-  }
-
-  void _openControls(AppSettings settings) {
-    final strings = ref.read(stringsProvider);
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        var local = settings;
-        return StatefulBuilder(
-          builder: (ctx, setModal) => ReadingControlsSheet(
-            strings: strings,
-            settings: local,
-            onChanged: (s) {
-              setModal(() => local = s);
-              ref.read(settingsProvider.notifier).saveSettings((_) => s);
-            },
-            onAddBookmark: () async {
-              await ref.read(annotationRepositoryProvider).add(
-                    Annotation(
-                      id: const Uuid().v4(),
-                      bookId: widget.book.id,
-                      type: AnnotationType.bookmark,
-                      createdAt: DateTime.now(),
-                      progress: _progress,
-                      location:
-                          'offset:${_scroll.hasClients ? _scroll.offset.round() : 0}',
-                    ),
-                  );
-              ref.invalidate(allAnnotationsProvider);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            onAddNote: () async {
-              Navigator.pop(ctx);
-              final c = TextEditingController();
-              final ok = await showDialog<bool>(
-                context: context,
-                builder: (d) => AlertDialog(
-                  title: Text(strings.addNote),
-                  content: TextField(controller: c, maxLines: 4),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(d, false),
-                      child: Text(strings.cancel),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.pop(d, true),
-                      child: Text(strings.confirm),
-                    ),
-                  ],
-                ),
-              );
-              if (ok == true && c.text.trim().isNotEmpty) {
-                await ref.read(annotationRepositoryProvider).add(
-                      Annotation(
-                        id: const Uuid().v4(),
-                        bookId: widget.book.id,
-                        type: AnnotationType.note,
-                        createdAt: DateTime.now(),
-                        note: c.text.trim(),
-                        progress: _progress,
-                      ),
-                    );
-                ref.invalidate(allAnnotationsProvider);
-              }
-            },
-          ),
-        );
-      },
     );
   }
 }

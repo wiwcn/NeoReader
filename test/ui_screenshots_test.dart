@@ -130,13 +130,20 @@ void main() {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(),
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(disableAnimations: true),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           home: home,
         ),
       ),
     );
     await tester.pump();
     // Settle staggered / progress animations for stable goldens.
-    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
   }
 
   testWidgets('chinese labels readable', (tester) async {
@@ -223,7 +230,7 @@ void main() {
             actions: const [Icon(Icons.tune_rounded), SizedBox(width: 12)],
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 48),
+            padding: const EdgeInsets.fromLTRB(22, 12, 22, 48),
             child: Text(
               'NeoReader — 欢迎\n\n'
               'NeoReader 是一款纯离线电子书阅读器，采用 Material Design 3 '
@@ -232,10 +239,11 @@ void main() {
               '一切数据留在本机 — 无账号、无云同步。',
               style: TextStyle(
                 color: colors.foreground,
-                fontSize: 18,
-                height: 1.6,
+                fontSize: 19,
+                height: 1.75,
                 fontFamily: AppTheme.fontFamily,
                 fontFamilyFallback: AppTheme.fontFamilyFallback,
+                letterSpacing: 0.15,
               ),
             ),
           ),

@@ -35,7 +35,9 @@ CREATE TABLE books (
   progress REAL NOT NULL DEFAULT 0,
   last_location TEXT,
   added_at TEXT NOT NULL,
-  last_read_at TEXT
+  last_read_at TEXT,
+  description TEXT NOT NULL DEFAULT '',
+  tags TEXT NOT NULL DEFAULT ''
 )
 ''');
         await db.execute('''
@@ -81,6 +83,14 @@ CREATE TABLE IF NOT EXISTS reading_sessions (
   duration_seconds INTEGER NOT NULL
 )
 ''');
+        }
+        if (oldVersion < 3) {
+          await db.execute(
+            "ALTER TABLE books ADD COLUMN description TEXT NOT NULL DEFAULT ''",
+          );
+          await db.execute(
+            "ALTER TABLE books ADD COLUMN tags TEXT NOT NULL DEFAULT ''",
+          );
         }
       },
     );

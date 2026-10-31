@@ -6,6 +6,7 @@ import '../../data/repositories/annotation_repository_impl.dart';
 import '../../data/repositories/book_repository_impl.dart';
 import '../../data/repositories/settings_repository_impl.dart';
 import '../../data/repositories/stats_repository_impl.dart';
+import '../../data/services/custom_font_service.dart';
 import '../../data/services/import_service.dart';
 import '../../data/services/reading_session_tracker.dart';
 import '../../domain/models/annotation.dart';
@@ -19,6 +20,7 @@ final annotationRepositoryProvider =
 final settingsRepositoryProvider = Provider((ref) => SettingsRepositoryImpl());
 final statsRepositoryProvider = Provider((ref) => StatsRepositoryImpl());
 final importServiceProvider = Provider((ref) => ImportService());
+final customFontServiceProvider = Provider((ref) => CustomFontService());
 final sessionTrackerProvider = Provider(
   (ref) => ReadingSessionTracker(ref.watch(statsRepositoryProvider)),
 );
@@ -70,7 +72,9 @@ final filteredLibraryProvider = Provider<AsyncValue<List<Book>>>((ref) {
           .where(
             (b) =>
                 b.title.toLowerCase().contains(query) ||
-                b.author.toLowerCase().contains(query),
+                b.author.toLowerCase().contains(query) ||
+                b.tags.any((t) => t.toLowerCase().contains(query)) ||
+                b.description.toLowerCase().contains(query),
           )
           .toList();
     }

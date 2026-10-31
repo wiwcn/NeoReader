@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +12,7 @@ import '../../widgets/empty_library.dart';
 import '../../widgets/glass_scaffold_bg.dart';
 import '../../widgets/motion.dart';
 import '../reader/reader_router.dart';
+import 'book_details_page.dart';
 
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
@@ -115,8 +114,7 @@ class LibraryScreen extends ConsumerWidget {
                         coverW: _coverW,
                         coverH: _coverH,
                         onOpen: () => openReader(context, book),
-                        onDelete: () =>
-                            _confirmDelete(context, ref, strings, book),
+                        onMore: () => _openDetails(context, book),
                       ),
                     ),
                   );
@@ -125,6 +123,14 @@ class LibraryScreen extends ConsumerWidget {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Future<void> _openDetails(BuildContext context, Book book) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => BookDetailsPage(bookId: book.id),
       ),
     );
   }
@@ -168,42 +174,6 @@ class LibraryScreen extends ConsumerWidget {
       ),
     );
   }
-
-  Future<void> _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    AppStrings strings,
-    Book book,
-  ) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(strings.delete),
-        content: Text(strings.deleteConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(strings.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(strings.confirm),
-          ),
-        ],
-      ),
-    );
-    if (ok != true) return;
-    try {
-      final file = File(book.filePath);
-      if (await file.exists()) await file.delete();
-      if (book.coverPath != null) {
-        final c = File(book.coverPath!);
-        if (await c.exists()) await c.delete();
-      }
-    } catch (_) {}
-    await ref.read(bookRepositoryProvider).delete(book.id);
-    await ref.read(libraryProvider.notifier).refresh();
-  }
 }
 
 /// One translucent glass card per book — flat content inside, no nested glass.
@@ -214,7 +184,7 @@ class _BookGlassCard extends StatelessWidget {
     required this.coverW,
     required this.coverH,
     required this.onOpen,
-    required this.onDelete,
+    required this.onMore,
   });
 
   final Book book;
@@ -222,7 +192,7 @@ class _BookGlassCard extends StatelessWidget {
   final double coverW;
   final double coverH;
   final VoidCallback onOpen;
-  final VoidCallback onDelete;
+  final VoidCallback onMore;
 
   @override
   Widget build(BuildContext context) {
@@ -239,7 +209,7 @@ class _BookGlassCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onOpen,
-          onLongPress: onDelete,
+          onLongPress: onMore,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -281,40 +251,39 @@ class _BookGlassCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    AnimatedProgressBar(
-                      value: book.progress,
-                      minHeight: 4,
+                    // Progress bar with trailing % label (no separate column).
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AnimatedProgressBar(
+                            value: book.progress,
+                            minHeight: 4,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          pct,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              // Shared trailing column: % then delete — aligned across cards.
-              SizedBox(
-                width: 48,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      pct,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 40,
-                        minHeight: 40,
-                      ),
-                      icon: const Icon(Icons.delete_outline_rounded, size: 22),
-                      tooltip: strings.delete,
-                      onPressed: onDelete,
-                    ),
-                  ],
+              const SizedBox(width: 4),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: 40,
+                  minHeight: 40,
                 ),
+                icon: const Icon(Icons.more_vert_rounded, size: 22),
+                tooltip: strings.moreActions,
+                onPressed: onMore,
               ),
             ],
           ),

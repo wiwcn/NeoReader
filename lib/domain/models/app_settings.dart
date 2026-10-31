@@ -8,16 +8,23 @@ enum AppThemeModePref { system, light, dark }
 
 enum PageTurnMode { scroll, paged }
 
+/// CJK horizontal (横排) vs vertical (竖排) writing for text-based readers.
+enum WritingMode { horizontal, vertical }
+
 class AppSettings extends Equatable {
   const AppSettings({
     this.localeCode = 'zh',
     this.themeMode = AppThemeModePref.system,
-    this.fontSize = 18,
-    this.lineHeight = 1.6,
+    this.fontSize = 19,
+    this.lineHeight = 1.75,
     this.readingTheme = ReadingThemeMode.day,
     this.seedColorValue = 0xFF2E7D32,
     this.glassBlur = 1.0,
     this.pageTurnMode = PageTurnMode.scroll,
+    this.writingMode = WritingMode.horizontal,
+    this.customFontFamily,
+    this.horizontalMargin = 22,
+    this.paragraphSpacing = 14,
     this.defaultSort = BookSort.added,
     this.libraryPinEnabled = false,
     this.showReadingDuration = true,
@@ -32,6 +39,13 @@ class AppSettings extends Equatable {
   /// 0.0–2.0 multiplier for frosted glass blur.
   final double glassBlur;
   final PageTurnMode pageTurnMode;
+  final WritingMode writingMode;
+  /// Null / empty → bundled NotoSansSC. Otherwise a registered custom family.
+  final String? customFontFamily;
+  /// Horizontal padding for body text (light-novel comfort).
+  final double horizontalMargin;
+  /// Extra space between paragraphs in scroll mode.
+  final double paragraphSpacing;
   final BookSort defaultSort;
   /// Roadmap placeholder — library lock / PIN.
   final bool libraryPinEnabled;
@@ -61,6 +75,11 @@ class AppSettings extends Equatable {
     int? seedColorValue,
     double? glassBlur,
     PageTurnMode? pageTurnMode,
+    WritingMode? writingMode,
+    String? customFontFamily,
+    bool clearCustomFont = false,
+    double? horizontalMargin,
+    double? paragraphSpacing,
     BookSort? defaultSort,
     bool? libraryPinEnabled,
     bool? showReadingDuration,
@@ -74,6 +93,12 @@ class AppSettings extends Equatable {
       seedColorValue: seedColorValue ?? this.seedColorValue,
       glassBlur: glassBlur ?? this.glassBlur,
       pageTurnMode: pageTurnMode ?? this.pageTurnMode,
+      writingMode: writingMode ?? this.writingMode,
+      customFontFamily: clearCustomFont
+          ? null
+          : (customFontFamily ?? this.customFontFamily),
+      horizontalMargin: horizontalMargin ?? this.horizontalMargin,
+      paragraphSpacing: paragraphSpacing ?? this.paragraphSpacing,
       defaultSort: defaultSort ?? this.defaultSort,
       libraryPinEnabled: libraryPinEnabled ?? this.libraryPinEnabled,
       showReadingDuration: showReadingDuration ?? this.showReadingDuration,
@@ -90,6 +115,10 @@ class AppSettings extends Equatable {
         seedColorValue,
         glassBlur,
         pageTurnMode,
+        writingMode,
+        customFontFamily,
+        horizontalMargin,
+        paragraphSpacing,
         defaultSort,
         libraryPinEnabled,
         showReadingDuration,

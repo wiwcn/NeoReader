@@ -90,6 +90,8 @@ class Book extends Equatable {
     this.lastLocation,
     required this.addedAt,
     this.lastReadAt,
+    this.description = '',
+    this.tags = const [],
   });
 
   final String id;
@@ -106,13 +108,21 @@ class Book extends Equatable {
   final DateTime addedAt;
   final DateTime? lastReadAt;
 
+  /// Free-form synopsis / notes about the book.
+  final String description;
+
+  /// User tags (stored as comma-separated in SQLite).
+  final List<String> tags;
+
   Book copyWith({
     String? title,
     String? author,
-    String? coverPath,
+    Object? coverPath = _unset,
     double? progress,
     String? lastLocation,
     DateTime? lastReadAt,
+    String? description,
+    List<String>? tags,
   }) {
     return Book(
       id: id,
@@ -120,12 +130,16 @@ class Book extends Equatable {
       author: author ?? this.author,
       format: format,
       filePath: filePath,
-      coverPath: coverPath ?? this.coverPath,
+      coverPath: identical(coverPath, _unset)
+          ? this.coverPath
+          : coverPath as String?,
       fileSize: fileSize,
       progress: progress ?? this.progress,
       lastLocation: lastLocation ?? this.lastLocation,
       addedAt: addedAt,
       lastReadAt: lastReadAt ?? this.lastReadAt,
+      description: description ?? this.description,
+      tags: tags ?? this.tags,
     );
   }
 
@@ -141,6 +155,8 @@ class Book extends Equatable {
         'last_location': lastLocation,
         'added_at': addedAt.toIso8601String(),
         'last_read_at': lastReadAt?.toIso8601String(),
+        'description': description,
+        'tags': encodeTags(tags),
       };
 
   factory Book.fromMap(Map<String, Object?> map) {
@@ -161,11 +177,30 @@ class Book extends Equatable {
       lastReadAt: map['last_read_at'] != null
           ? DateTime.parse(map['last_read_at']! as String)
           : null,
+      description: (map['description'] as String?) ?? '',
+      tags: decodeTags(map['tags'] as String?),
     );
   }
 
+  static String encodeTags(List<String> tags) => tags
+      .map((t) => t.trim())
+      .where((t) => t.isNotEmpty)
+      .join(',');
+
+  static List<String> decodeTags(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return const [];
+    return raw
+        .split(',')
+        .map((t) => t.trim())
+        .where((t) => t.isNotEmpty)
+        .toList(growable: false);
+  }
+
   @override
-  List<Object?> get props => [id, title, author, format, progress, lastReadAt];
+  List<Object?> get props =>
+      [id, title, author, format, progress, lastReadAt, description, tags];
 }
+
+const Object _unset = Object();
 
 enum BookSort { title, author, recent, added }
