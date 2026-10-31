@@ -3,6 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 /// Material Design 3 themes with frosted-glass helpers and CJK-capable typography.
+///
+/// NotoSansSC is applied **only** via [textTheme] / [primaryTextTheme] / nav
+/// [labelTextStyle]. Do **not** set [ThemeData.fontFamily] — that makes
+/// [Icon] widgets inherit NotoSansSC and render Material Icons as tofu (□).
 class AppTheme {
   static const Color seed = Color(0xFF2E7D32);
 
@@ -31,15 +35,25 @@ class AppTheme {
       seedColor: seedColor,
       brightness: Brightness.light,
     );
+    // No fontFamily on ThemeData — Icons must keep MaterialIcons.
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      fontFamily: fontFamily,
-      fontFamilyFallback: fontFamilyFallback,
     );
     return base.copyWith(
       textTheme: _textTheme(base.textTheme),
       primaryTextTheme: _textTheme(base.primaryTextTheme),
+      iconTheme: const IconThemeData(size: 24),
+      primaryIconTheme: const IconThemeData(size: 24),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.iOS: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.linux: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.macOS: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.windows: _FadeSlidePageTransitionsBuilder(),
+        },
+      ),
       appBarTheme: const AppBarTheme(
         centerTitle: false,
         scrolledUnderElevation: 0,
@@ -72,6 +86,10 @@ class AppTheme {
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        elevation: 4,
+      ),
     );
   }
 
@@ -83,12 +101,21 @@ class AppTheme {
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      fontFamily: fontFamily,
-      fontFamilyFallback: fontFamilyFallback,
     );
     return base.copyWith(
       textTheme: _textTheme(base.textTheme),
       primaryTextTheme: _textTheme(base.primaryTextTheme),
+      iconTheme: const IconThemeData(size: 24),
+      primaryIconTheme: const IconThemeData(size: 24),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.iOS: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.linux: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.macOS: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.windows: _FadeSlidePageTransitionsBuilder(),
+        },
+      ),
       appBarTheme: const AppBarTheme(
         centerTitle: false,
         scrolledUnderElevation: 0,
@@ -120,6 +147,43 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        elevation: 4,
+      ),
+    );
+  }
+}
+
+/// Soft fade + slight horizontal slide for settings hub → subpages (and others).
+class _FadeSlidePageTransitionsBuilder extends PageTransitionsBuilder {
+  const _FadeSlidePageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      return child;
+    }
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+    return FadeTransition(
+      opacity: curved,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0.04, 0),
+          end: Offset.zero,
+        ).animate(curved),
+        child: child,
       ),
     );
   }
@@ -172,7 +236,11 @@ class GlassSurface extends StatelessWidget {
         ),
       ],
     );
-    final painted = DecoratedBox(
+    final painted = AnimatedContainer(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
       decoration: decoration,
       child: padding == null ? child : Padding(padding: padding!, child: child),
     );

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../domain/models/book.dart';
 
 class BookCover extends StatelessWidget {
-  const BookCover({super.key, required this.book, this.width = 72, this.height = 96});
+  const BookCover({super.key, required this.book, this.width = 56, this.height = 72});
 
   final Book book;
   final double width;

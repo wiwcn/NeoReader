@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../providers/providers.dart';
 import '../../widgets/glass_scaffold_bg.dart';
+import '../../widgets/motion.dart';
 import 'settings_about_page.dart';
 import 'settings_appearance_page.dart';
 import 'settings_library_page.dart';
@@ -122,45 +123,82 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
 
   Widget _buildList(BuildContext context, List<_Cat> items, bool isPortrait) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final titleStyle = theme.textTheme.titleMedium!;
-    final subStyle = theme.textTheme.labelMedium!.copyWith(
-      color: theme.colorScheme.outline,
+    final subStyle = theme.textTheme.bodySmall!.copyWith(
+      color: cs.onSurfaceVariant,
     );
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 32),
-      children: [
-        for (final item in items)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Material(
-              color: (!isPortrait && item.type == _selected)
-                  ? theme.colorScheme.secondaryContainer.withValues(alpha: 0.65)
-                  : theme.colorScheme.surface.withValues(alpha: 0.55),
-              borderRadius: BorderRadius.circular(16),
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                leading: Icon(item.icon),
-                title: Text(item.title, style: titleStyle),
-                subtitle: Text(item.subtitle, style: subStyle),
-                trailing: isPortrait
-                    ? const Icon(Icons.chevron_right_rounded)
-                    : null,
-                onTap: () {
-                  if (isPortrait) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => _pageFor(item.type, showAppBar: true),
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      itemCount: items.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, i) {
+        final item = items[i];
+        final selected = !isPortrait && item.type == _selected;
+        return StaggeredFadeSlide(
+          index: i,
+          child: Material(
+            color: selected
+                ? cs.secondaryContainer.withValues(alpha: 0.7)
+                : cs.surface.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(14),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () {
+                if (isPortrait) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => _pageFor(item.type, showAppBar: true),
+                    ),
+                  );
+                } else {
+                  setState(() => _selected = item.type);
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: cs.primary.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
                       ),
-                    );
-                  } else {
-                    setState(() => _selected = item.type);
-                  }
-                },
+                      alignment: Alignment.center,
+                      child: Icon(item.icon, size: 22, color: cs.primary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(item.title, style: titleStyle),
+                          const SizedBox(height: 2),
+                          Text(
+                            item.subtitle,
+                            style: subStyle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isPortrait)
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: cs.onSurfaceVariant,
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
-      ],
+        );
+      },
     );
   }
 

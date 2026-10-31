@@ -115,7 +115,9 @@ class SettingsAppearancePage extends ConsumerWidget {
                         onTap: () => ref.read(settingsProvider.notifier).saveSettings(
                               (cur) => cur.copyWith(seedColorValue: c),
                             ),
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOutCubic,
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(

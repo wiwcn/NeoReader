@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +16,28 @@ import 'package:neo_reader/presentation/screens/stats/stats_screen.dart';
 import 'package:neo_reader/presentation/widgets/empty_library.dart';
 import 'package:neo_reader/presentation/widgets/glass_scaffold_bg.dart';
 
+Future<void> _loadMaterialIcons() async {
+  // flutter_test uses Ahem by default; Material Icons need the real glyph font.
+  final candidates = <String>[
+    if (Platform.environment['FLUTTER_ROOT'] != null)
+      '${Platform.environment['FLUTTER_ROOT']}/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf',
+    '/home/box/flutter/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf',
+  ];
+  File? fontFile;
+  for (final path in candidates) {
+    final f = File(path);
+    if (f.existsSync()) {
+      fontFile = f;
+      break;
+    }
+  }
+  if (fontFile == null) return;
+  final bytes = await fontFile.readAsBytes();
+  final loader = FontLoader('MaterialIcons')
+    ..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(bytes))));
+  await loader.load();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -27,6 +48,7 @@ void main() {
       ..addFont(rootBundle.load('assets/fonts/NotoSansSC-Regular.ttf'))
       ..addFont(rootBundle.load('assets/fonts/NotoSansSC-Medium.ttf'));
     await loader.load();
+    await _loadMaterialIcons();
   });
 
   final demoBooks = [
@@ -113,7 +135,8 @@ void main() {
       ),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 16));
+    // Settle staggered / progress animations for stable goldens.
+    await tester.pump(const Duration(milliseconds: 600));
   }
 
   testWidgets('chinese labels readable', (tester) async {
@@ -146,6 +169,7 @@ void main() {
       ),
     );
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     await expectLater(
       find.byType(MaterialApp),
       matchesGoldenFile('goldens/01_library_empty.png'),

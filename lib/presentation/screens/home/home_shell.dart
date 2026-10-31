@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/services/demo_seed_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/glass_scaffold_bg.dart';
+import '../../widgets/motion.dart';
 import '../annotations/annotations_screen.dart';
 import '../library/library_screen.dart';
 import '../settings/settings_screen.dart';
@@ -47,7 +48,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
     return GlassScaffoldBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: IndexedStack(index: _index, children: pages),
+        body: FadeIndexedStack(index: _index, children: pages),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),

@@ -12,10 +12,14 @@ import '../../providers/providers.dart';
 import '../../widgets/book_cover.dart';
 import '../../widgets/empty_library.dart';
 import '../../widgets/glass_scaffold_bg.dart';
+import '../../widgets/motion.dart';
 import '../reader/reader_router.dart';
 
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
+
+  static const double _coverW = 56;
+  static const double _coverH = 72;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,6 +29,7 @@ class LibraryScreen extends ConsumerWidget {
     return GlassScaffoldBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         appBar: GlassAppBar(
           title: Text(strings.library),
           actions: [
@@ -42,17 +47,18 @@ class LibraryScreen extends ConsumerWidget {
             ),
           ],
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(64),
+            preferredSize: const Size.fromHeight(56),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
               child: GlassSurface(
-                borderRadius: 16,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                borderRadius: 14,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: strings.searchHint,
                     border: InputBorder.none,
-                    icon: const Icon(Icons.search_rounded),
+                    isDense: true,
+                    icon: const Icon(Icons.search_rounded, size: 22),
                   ),
                   onChanged: (v) =>
                       ref.read(libraryQueryProvider.notifier).state = v,
@@ -61,10 +67,12 @@ class LibraryScreen extends ConsumerWidget {
             ),
           ),
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => _import(context, ref, strings),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(strings.importBook),
+        floatingActionButton: PressScale(
+          child: FloatingActionButton.extended(
+            onPressed: () => _import(context, ref, strings),
+            icon: const Icon(Icons.add_rounded),
+            label: Text(strings.importBook),
+          ),
         ),
         body: booksAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -72,74 +80,94 @@ class LibraryScreen extends ConsumerWidget {
           data: (books) {
             if (books.isEmpty) return EmptyLibrary(strings: strings);
             return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+              // Extra bottom padding so last card clears FAB + nav bar.
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 112),
               itemCount: books.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
               itemBuilder: (context, i) {
                 final book = books[i];
-                return GlassSurface(
-                  padding: const EdgeInsets.all(12),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () => openReader(context, book),
-                    onLongPress: () => _confirmDelete(context, ref, strings, book),
-                    child: Row(
-                      children: [
-                        BookCover(book: book),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                book.title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                book.author.isEmpty
-                                    ? strings.unknownAuthor
-                                    : book.author,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(99),
-                                      child: LinearProgressIndicator(
-                                        value: book.progress.clamp(0, 1),
-                                        minHeight: 6,
+                return StaggeredFadeSlide(
+                  index: i,
+                  child: GlassSurface(
+                    borderRadius: 16,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => openReader(context, book),
+                      onLongPress: () =>
+                          _confirmDelete(context, ref, strings, book),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          BookCover(
+                            book: book,
+                            width: _coverW,
+                            height: _coverH,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  book.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  book.author.isEmpty
+                                      ? strings.unknownAuthor
+                                      : book.author,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AnimatedProgressBar(
+                                        value: book.progress,
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${(book.progress * 100).round()}%',
-                                    style: Theme.of(context).textTheme.labelSmall,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                book.format.name.toUpperCase(),
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary,
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${(book.progress * 100).round()}%',
+                                      style:
+                                          Theme.of(context).textTheme.labelSmall,
                                     ),
-                              ),
-                            ],
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  book.format.name.toUpperCase(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline_rounded),
-                          tooltip: strings.delete,
-                          onPressed: () =>
-                              _confirmDelete(context, ref, strings, book),
-                        ),
-                      ],
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.delete_outline_rounded),
+                            tooltip: strings.delete,
+                            onPressed: () =>
+                                _confirmDelete(context, ref, strings, book),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -181,7 +209,14 @@ class LibraryScreen extends ConsumerWidget {
         : (lastError?.startsWith('planned_or_unsupported') == true
             ? strings.unsupportedFormat
             : '${strings.importFailed}: $lastError');
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 88),
+        dismissDirection: DismissDirection.horizontal,
+      ),
+    );
   }
 
   Future<void> _confirmDelete(
