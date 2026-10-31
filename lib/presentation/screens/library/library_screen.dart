@@ -18,9 +18,9 @@ import '../reader/reader_router.dart';
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
 
-  /// PiliPlus-like compact cover; shared left edge across rows.
-  static const double _coverW = 48;
-  static const double _coverH = 64;
+  /// Shared cover size / left edge across all book cards.
+  static const double _coverW = 52;
+  static const double _coverH = 68;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,17 +48,17 @@ class LibraryScreen extends ConsumerWidget {
               ],
             ),
           ],
+          // Search lives in chrome — filled pill, NOT a second GlassSurface.
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(52),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-              // Single filled field — no nested GlassSurface plate.
               child: TextField(
                 decoration: InputDecoration(
                   hintText: strings.searchHint,
                   isDense: true,
                   filled: true,
-                  fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.65),
+                  fillColor: cs.surface.withValues(alpha: 0.45),
                   prefixIcon: const Icon(Icons.search_rounded, size: 22),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -98,21 +98,14 @@ class LibraryScreen extends ConsumerWidget {
           data: (books) {
             if (books.isEmpty) return EmptyLibrary(strings: strings);
             return ListView.separated(
-              // FAB + nav clearance only — no empty glass regions.
-              padding: const EdgeInsets.fromLTRB(0, 4, 0, 112),
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 112),
               itemCount: books.length,
-              separatorBuilder: (context, index) => Divider(
-                height: 1,
-                thickness: 1,
-                indent: 16 + _coverW + 12,
-                endIndent: 16,
-                color: cs.outlineVariant.withValues(alpha: 0.45),
-              ),
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
               itemBuilder: (context, i) {
                 final book = books[i];
                 return StaggeredFadeSlide(
                   index: i,
-                  child: _BookListRow(
+                  child: _BookGlassCard(
                     book: book,
                     strings: strings,
                     coverW: _coverW,
@@ -207,9 +200,9 @@ class LibraryScreen extends ConsumerWidget {
   }
 }
 
-/// Flat PiliPlus-style book row (no GlassSurface card).
-class _BookListRow extends StatelessWidget {
-  const _BookListRow({
+/// One translucent glass card per book — flat content inside, no nested glass.
+class _BookGlassCard extends StatelessWidget {
+  const _BookGlassCard({
     required this.book,
     required this.strings,
     required this.coverW,
@@ -232,13 +225,15 @@ class _BookListRow extends StatelessWidget {
     final author = book.author.isEmpty ? strings.unknownAuthor : book.author;
     final pct = '${(book.progress * 100).round()}%';
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onOpen,
-        onLongPress: onDelete,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    return GlassSurface(
+      borderRadius: 18,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onOpen,
+          onLongPress: onDelete,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -246,7 +241,7 @@ class _BookListRow extends StatelessWidget {
                 book: book,
                 width: coverW,
                 height: coverH,
-                borderRadius: 8,
+                borderRadius: 10,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -275,20 +270,20 @@ class _BookListRow extends StatelessWidget {
                     Text(
                       book.format.name.toUpperCase(),
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: cs.outline,
+                        color: cs.primary,
                         letterSpacing: 0.4,
                       ),
                     ),
                     const SizedBox(height: 6),
                     AnimatedProgressBar(
                       value: book.progress,
-                      minHeight: 3,
+                      minHeight: 4,
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              // Shared trailing column: % then delete — aligned across rows.
+              // Shared trailing column: % then delete — aligned across cards.
               SizedBox(
                 width: 48,
                 child: Column(

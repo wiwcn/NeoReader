@@ -59,11 +59,11 @@ class AppTheme {
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      scaffoldBackgroundColor: const Color(0xFFF7F9F7),
+      scaffoldBackgroundColor: const Color(0xFFE8EFE9),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: scheme.surfaceContainerLowest,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: Colors.white.withValues(alpha: 0.38),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white.withValues(alpha: 0.65),
@@ -217,11 +217,17 @@ class GlassSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final fill = (isDark ? Colors.white : Colors.white).withValues(
-      alpha: opacity ?? (isDark ? 0.08 : 0.55),
-    );
-    final stroke = (isDark ? Colors.white : Colors.white).withValues(
-      alpha: isDark ? 0.12 : 0.65,
+    final cs = Theme.of(context).colorScheme;
+    // Light fill stays translucent so the wash underneath reads through frost.
+    final fillAlpha = opacity ?? (isDark ? 0.12 : 0.52);
+    final fill = Color.lerp(
+          Colors.white,
+          isDark ? cs.surface : cs.primaryContainer,
+          isDark ? 0.0 : 0.12,
+        )!
+        .withValues(alpha: fillAlpha);
+    final stroke = Colors.white.withValues(
+      alpha: isDark ? 0.16 : 0.55,
     );
 
     final decoration = BoxDecoration(
@@ -230,9 +236,9 @@ class GlassSurface extends StatelessWidget {
       border: border ? Border.all(color: stroke, width: 1) : null,
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
-          blurRadius: 24,
-          offset: const Offset(0, 8),
+          color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.10),
+          blurRadius: 20,
+          offset: const Offset(0, 6),
         ),
       ],
     );
@@ -282,11 +288,14 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: leading,
       actions: actions,
       bottom: bottom,
-      flexibleSpace: const GlassSurface(
+      flexibleSpace: GlassSurface(
         borderRadius: 0,
-        blur: 22,
+        blur: 20,
         border: false,
-        child: SizedBox.expand(),
+        // Chrome layer: lighter than content cards so search-in-bar + bar
+        // do not stack into a double white band.
+        opacity: Theme.of(context).brightness == Brightness.dark ? 0.08 : 0.32,
+        child: const SizedBox.expand(),
       ),
     );
   }

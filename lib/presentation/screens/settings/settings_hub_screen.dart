@@ -29,7 +29,7 @@ class _Cat {
   final String subtitle;
 }
 
-/// Top-level settings list (PiliPlus-style): flat ListTiles; tablet master–detail.
+/// Settings hub: PiliPlus menu hierarchy (hub → subpages) with glass cards.
 class SettingsHubScreen extends ConsumerStatefulWidget {
   const SettingsHubScreen({super.key});
 
@@ -123,61 +123,85 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
   Widget _buildList(BuildContext context, List<_Cat> items, bool isPortrait) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final titleStyle = theme.textTheme.titleMedium!;
+    final subStyle = theme.textTheme.bodySmall!.copyWith(
+      color: cs.onSurfaceVariant,
+    );
 
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
       itemCount: items.length,
-      separatorBuilder: (context, index) => Divider(
-        height: 1,
-        thickness: 1,
-        indent: 72,
-        endIndent: 0,
-        color: cs.outlineVariant.withValues(alpha: 0.4),
-      ),
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
       itemBuilder: (context, i) {
         final item = items[i];
         final selected = !isPortrait && item.type == _selected;
         return StaggeredFadeSlide(
           index: i,
-          child: Material(
-            color: selected
-                ? cs.secondaryContainer.withValues(alpha: 0.55)
-                : Colors.transparent,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 4,
-              ),
-              leading: Icon(item.icon, color: cs.primary, size: 24),
-              title: Text(
-                item.title,
-                style: theme.textTheme.titleMedium,
-              ),
-              subtitle: Text(
-                item.subtitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: cs.outline,
+          // Single GlassSurface per row — flat ink content inside.
+          child: GlassSurface(
+            borderRadius: 18,
+            opacity: selected ? (cs.brightness == Brightness.dark ? 0.16 : 0.52) : null,
+            child: Material(
+              color: selected
+                  ? cs.secondaryContainer.withValues(alpha: 0.35)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(18),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () {
+                  if (isPortrait) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => _pageFor(item.type, showAppBar: true),
+                      ),
+                    );
+                  } else {
+                    setState(() => _selected = item.type);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: cs.primary.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(item.icon, size: 22, color: cs.primary),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(item.title, style: titleStyle),
+                            const SizedBox(height: 2),
+                            Text(
+                              item.subtitle,
+                              style: subStyle,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (isPortrait)
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: cs.onSurfaceVariant,
+                        ),
+                    ],
+                  ),
                 ),
               ),
-              trailing: isPortrait
-                  ? Icon(
-                      Icons.chevron_right_rounded,
-                      color: cs.onSurfaceVariant,
-                    )
-                  : null,
-              onTap: () {
-                if (isPortrait) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => _pageFor(item.type, showAppBar: true),
-                    ),
-                  );
-                } else {
-                  setState(() => _selected = item.type);
-                }
-              },
             ),
           ),
         );
