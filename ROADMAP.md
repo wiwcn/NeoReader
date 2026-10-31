@@ -1,13 +1,13 @@
 # NeoReader Roadmap — Koodo offline feature parity (一个不少)
 
-v1 ships a solid offline core. Everything below is scaffolded in
-`FormatRegistry.plannedModules` / settings UI and tracked here for follow-up.
+v1 ships a solid offline core. Remaining items stay scaffolded in
+`FormatRegistry.plannedModules` / settings UI.
 **Goal: full parity with open-source Koodo Reader offline scope, plus NeoReader extras.**
 
 ## v1 core (done)
 
 - [x] Unlimited local library (list / search / sort / delete)
-- [x] Import local files (file_picker) — EPUB, PDF, TXT
+- [x] Import local files (file_picker)
 - [x] EPUB reader (scroll + paged chapters, font/line/theme, progress)
 - [x] PDF reader (pdfrx continuous view, zoom via viewer, progress)
 - [x] TXT reader (UTF-8/Latin1, same theme controls)
@@ -17,14 +17,18 @@ v1 ships a solid offline core. Everything below is scaffolded in
 - [x] Reading session stats (今日 / 累计 / 各书时长) — beyond Koodo
 - [x] MD3 + frosted glass UI
 - [x] Android minSdk 29, iOS 12.0 targets
+- [x] Demo sample books seeded once on first launch
 
-## Formats (planned — must ship for 1:1)
+## Formats
 
-- [ ] DRM-free Mobipocket / Kindle: `.mobi`, `.azw3`, `.azw`
-- [ ] FictionBook `.fb2`
-- [ ] Comic archives `.cbr`, `.cbz`, `.cbt`, `.cb7`
-- [ ] Rich text `.md`, `.docx`
-- [ ] HyperText `.html`, `.xml`, `.xhtml`, `.mhtml`, `.htm`
+- [x] DRM-free Mobipocket / Kindle text extract: `.mobi`, `.azw3`, `.azw` (PalmDOC; Huff/cdic & DRM still limited)
+- [x] FictionBook `.fb2`
+- [x] Comic ZIP `.cbz` (+ ZIP-mislabeled `.cbr`); true RAR `.cbr` / `.cbt` / `.cb7` still planned
+- [x] Markdown `.md` (flutter_markdown)
+- [x] DOCX text extract `.docx`
+- [x] HyperText `.html`, `.htm`, `.xhtml`, `.mhtml`
+- [ ] Comic RAR/7z (`.cbr` full, `.cbt`, `.cb7`)
+- [ ] Generic `.xml` (non-FB2)
 
 ## Reader chrome (planned)
 

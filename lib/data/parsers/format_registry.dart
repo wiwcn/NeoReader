@@ -1,8 +1,7 @@
 import '../../core/constants.dart';
 import '../../domain/models/book.dart';
 
-/// Registry for format handlers. v1 implements epub/pdf/txt;
-/// other Koodo formats are scaffolded as planned modules.
+/// Registry for format handlers.
 enum FormatSupport { implemented, planned, unsupported }
 
 class FormatRegistry {
@@ -20,13 +19,9 @@ class FormatRegistry {
   static BookFormat toBookFormat(String extension) =>
       bookFormatFromExtension(extension);
 
-  /// Scaffolded module ids matching Koodo offline feature surface.
+  /// Remaining Koodo offline modules still scaffolded (formats above are shipping).
   static const plannedModules = <String, String>{
-    'format.mobi_azw': 'Mobipocket / Kindle (mobi, azw3, azw)',
-    'format.fb2': 'FictionBook (fb2)',
-    'format.comic': 'Comic archives (cbr/cbz/cbt/cb7)',
-    'format.richtext': 'Markdown / DOCX',
-    'format.html': 'HTML / XHTML / MHTML',
+    'format.comic_rar_7z': 'Comic RAR/7z (cbr full / cbt / cb7) — use CBZ for now',
     'reader.vertical': 'Vertical layout',
     'reader.two_column': 'Two-column layout',
     'reader.tts': 'Text-to-speech (local)',

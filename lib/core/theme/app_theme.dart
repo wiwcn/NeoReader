@@ -69,6 +69,9 @@ class AppTheme {
 
 /// Frosted glass container (毛玻璃).
 class GlassSurface extends StatelessWidget {
+  /// Set false in screenshot/golden tests — BackdropFilter+toImage can hang under flutter_test.
+  static bool useFrostedBlur = true;
+
   const GlassSurface({
     super.key,
     required this.child,
@@ -96,26 +99,30 @@ class GlassSurface extends StatelessWidget {
       alpha: isDark ? 0.12 : 0.65,
     );
 
+    final decoration = BoxDecoration(
+      color: fill,
+      borderRadius: BorderRadius.circular(borderRadius),
+      border: border ? Border.all(color: stroke, width: 1) : null,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
+          blurRadius: 24,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    );
+    final painted = DecoratedBox(
+      decoration: decoration,
+      child: padding == null ? child : Padding(padding: padding!, child: child),
+    );
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: fill,
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: border ? Border.all(color: stroke, width: 1) : null,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: padding == null ? child : Padding(padding: padding!, child: child),
-        ),
-      ),
+      child: useFrostedBlur
+          ? BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+              child: painted,
+            )
+          : painted,
     );
   }
 }

@@ -37,6 +37,16 @@ class BookCover extends StatelessWidget {
       BookFormat.epub => Icons.menu_book_rounded,
       BookFormat.pdf => Icons.picture_as_pdf_rounded,
       BookFormat.txt => Icons.article_rounded,
+      BookFormat.md => Icons.tag_rounded,
+      BookFormat.docx => Icons.description_rounded,
+      BookFormat.html ||
+      BookFormat.htm ||
+      BookFormat.xhtml ||
+      BookFormat.mhtml =>
+        Icons.language_rounded,
+      BookFormat.fb2 => Icons.chrome_reader_mode_rounded,
+      BookFormat.mobi || BookFormat.azw3 || BookFormat.azw => Icons.tablet_mac_rounded,
+      BookFormat.cbz || BookFormat.cbr => Icons.auto_stories_rounded,
       BookFormat.unknown => Icons.book_rounded,
     };
     return Container(

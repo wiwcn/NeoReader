@@ -44,8 +44,8 @@ class AppStrings {
       isZh ? '纯离线：无账号、无同步、无云盘、无 Pro' : 'Offline only: no account, sync, cloud, or Pro';
   String get about => isZh ? '关于' : 'About';
   String get aboutBody => isZh
-      ? 'NeoReader 是全新 Flutter 离线阅读器，功能蓝本参考开源 Koodo Reader（AGPL-3.0），采用 Material Design 3 + 毛玻璃设计。本地书库无数量上限。'
-      : 'NeoReader is a new Flutter offline reader inspired by open-source Koodo Reader (AGPL-3.0), with Material Design 3 + frosted glass. Unlimited local library.';
+      ? 'NeoReader 是全新 Flutter 离线阅读器（GPL-3.0），功能蓝本参考开源 Koodo Reader，采用 Material Design 3 + 毛玻璃设计。本地书库无数量上限。'
+      : 'NeoReader is a new Flutter offline reader (GPL-3.0), inspired by open-source Koodo Reader’s feature set, with Material Design 3 + frosted glass. Unlimited local library.';
   String get progress => isZh ? '进度' : 'Progress';
   String get unknownAuthor => isZh ? '未知作者' : 'Unknown author';
   String get importFailed => isZh ? '导入失败' : 'Import failed';

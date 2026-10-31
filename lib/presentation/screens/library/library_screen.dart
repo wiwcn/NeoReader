@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/models/book.dart';
@@ -157,11 +158,7 @@ class LibraryScreen extends ConsumerWidget {
   ) async {
     final files = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: const [
-        'epub', 'pdf', 'txt',
-        // allow picking planned formats to show roadmap message
-        'mobi', 'azw3', 'azw', 'fb2', 'cbz', 'cbr', 'md', 'docx', 'html', 'htm',
-      ],
+      allowedExtensions: AppConstants.importPickerExtensions,
     );
     if (files.isEmpty) return;
     final import = ref.read(importServiceProvider);

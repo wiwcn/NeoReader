@@ -1,0 +1,13 @@
+NeoReader — Welcome
+
+NeoReader is an offline ebook reader with Material Design 3 and frosted glass UI.
+
+Supported in this build:
+• EPUB, PDF, TXT
+• MOBI / AZW / AZW3 (DRM-free text extract)
+• FictionBook FB2
+• Comic CBZ (and ZIP-based CBR)
+• Markdown, HTML / XHTML / MHTML
+• DOCX text extract
+
+Open Import to add your own books. Everything stays on device — no account, no cloud.

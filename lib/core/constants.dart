@@ -7,31 +7,51 @@ class AppConstants {
   static const String dbName = 'neoreader.db';
   static const int dbVersion = 2;
 
-  /// Supported import extensions for v1 core.
+  /// Formats with working local readers / parsers.
   static const Set<String> supportedExtensions = {
     'epub',
     'pdf',
     'txt',
-  };
-
-  /// Scaffolded formats (parsers planned / stubbed).
-  static const Set<String> plannedExtensions = {
     'mobi',
     'azw3',
     'azw',
     'fb2',
-    'cbr',
     'cbz',
+    'cbr',
+    'md',
+    'markdown',
+    'docx',
+    'html',
+    'htm',
+    'xhtml',
+    'mhtml',
+    'mht',
+  };
+
+  /// Still planned (no working viewer path yet).
+  static const Set<String> plannedExtensions = {
     'cbt',
     'cb7',
+    'xml', // generic XML (non-fb2) remains planned
+  };
+
+  static const List<String> importPickerExtensions = [
+    'epub',
+    'pdf',
+    'txt',
+    'mobi',
+    'azw3',
+    'azw',
+    'fb2',
+    'cbz',
+    'cbr',
     'md',
     'docx',
     'html',
     'htm',
     'xhtml',
-    'xml',
     'mhtml',
-  };
+  ];
 
   static const double defaultFontSize = 18;
   static const double defaultLineHeight = 1.6;

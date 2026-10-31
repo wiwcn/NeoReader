@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../data/services/demo_seed_service.dart';
 import '../../providers/providers.dart';
 import '../../widgets/glass_scaffold_bg.dart';
 import '../annotations/annotations_screen.dart';
@@ -17,6 +18,17 @@ class HomeShell extends ConsumerStatefulWidget {
 
 class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final n = await DemoSeedService().seedIfNeeded();
+      if (n > 0 && mounted) {
+        await ref.read(libraryProvider.notifier).refresh();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,23 @@
 import 'package:equatable/equatable.dart';
 
-enum BookFormat { epub, pdf, txt, unknown }
+enum BookFormat {
+  epub,
+  pdf,
+  txt,
+  mobi,
+  azw3,
+  azw,
+  fb2,
+  cbz,
+  cbr,
+  md,
+  docx,
+  html,
+  htm,
+  xhtml,
+  mhtml,
+  unknown,
+}
 
 BookFormat bookFormatFromExtension(String ext) {
   switch (ext.toLowerCase().replaceAll('.', '')) {
@@ -10,10 +27,55 @@ BookFormat bookFormatFromExtension(String ext) {
       return BookFormat.pdf;
     case 'txt':
       return BookFormat.txt;
+    case 'mobi':
+      return BookFormat.mobi;
+    case 'azw3':
+      return BookFormat.azw3;
+    case 'azw':
+      return BookFormat.azw;
+    case 'fb2':
+      return BookFormat.fb2;
+    case 'cbz':
+      return BookFormat.cbz;
+    case 'cbr':
+      return BookFormat.cbr;
+    case 'md':
+    case 'markdown':
+      return BookFormat.md;
+    case 'docx':
+      return BookFormat.docx;
+    case 'html':
+      return BookFormat.html;
+    case 'htm':
+      return BookFormat.htm;
+    case 'xhtml':
+      return BookFormat.xhtml;
+    case 'mhtml':
+    case 'mht':
+      return BookFormat.mhtml;
     default:
       return BookFormat.unknown;
   }
 }
+
+bool bookFormatIsComic(BookFormat f) =>
+    f == BookFormat.cbz || f == BookFormat.cbr;
+
+bool bookFormatIsTextLike(BookFormat f) => switch (f) {
+      BookFormat.txt ||
+      BookFormat.md ||
+      BookFormat.html ||
+      BookFormat.htm ||
+      BookFormat.xhtml ||
+      BookFormat.mhtml ||
+      BookFormat.fb2 ||
+      BookFormat.docx ||
+      BookFormat.mobi ||
+      BookFormat.azw3 ||
+      BookFormat.azw =>
+        true,
+      _ => false,
+    };
 
 class Book extends Equatable {
   const Book({

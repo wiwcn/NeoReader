@@ -1,93 +1,96 @@
 # NeoReader
 
-**NeoReader** is a brand-new **Flutter** offline ebook reader (mobile-primary:
-Android / iOS). Feature blueprint: open-source
-[Koodo Reader](https://github.com/koodo-reader/koodo-reader) offline scope
-(AGPL-3.0). UI: **Material Design 3 + frosted glass (毛玻璃)**.
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](./LICENSE)
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
+[![Platform](https://img.shields.io/badge/Android%2010%2B%20%7C%20iOS%2012%2B-green)](#platform-targets)
+[![Offline](https://img.shields.io/badge/offline--only-no%20cloud-success)](#)
 
-- Pure offline — **no** account, sync, cloud drive, Pro, or online updates
-- **Unlimited** local books (no 20-book free-tier gate)
-- Platforms: Android **10+ (API 29)**, iOS **12.0+**, Web (dev), Linux (analyze)
+**NeoReader** is a free, open-source **offline ebook reader** for Android and iOS, built with Flutter.  
+Material Design 3 + frosted glass (毛玻璃). Unlimited local library. **No accounts, sync, cloud, or Pro paywall.**
 
-> Inspired by Koodo Reader; not a code port of its Electron UI. See
-> [ATTRIBUTION.md](./ATTRIBUTION.md). Licensed under **AGPL-3.0**.
+Feature scope is inspired by [Koodo Reader](https://github.com/koodo-reader/koodo-reader)’s offline capabilities; the Flutter codebase is original (see [ATTRIBUTION.md](./ATTRIBUTION.md)).
 
-## Features (v1)
+**Repo:** <https://github.com/wiwcn/NeoReader>
 
-| Area | Status |
-|------|--------|
-| Library list / search / sort / delete | Done |
-| Import EPUB / PDF / TXT | Done |
-| EPUB reader (scroll/page, theme, progress) | Done |
-| PDF reader (pdfrx, zoom, progress) | Done |
-| TXT reader + themes | Done |
-| Bookmarks / notes / highlights (local DB) | Done |
-| ZH/EN UI, day/night/sepia reading themes | Done |
-| Reading time stats (today / total / per book) | Done (NeoReader+) |
-| mobi/azw3, fb2, comics, md/docx/html, TTS, dict, OCR, vertical, 2-col, export, PIN… | Planned — see [ROADMAP.md](./ROADMAP.md) |
+| | |
+|---|---|
+| 中文说明 | [README_cn.md](./README_cn.md) |
+| Roadmap | [ROADMAP.md](./ROADMAP.md) |
+| License | [GPL-3.0](./LICENSE) |
 
-## Offline policy
+## Screenshots
 
-No network account features. Import is local-file only. Remaining Koodo items
-are tracked in the roadmap and scaffolded as modules — **一个不少**.
+Real UI captures from the NeoReader Flutter widgets:
 
-## HarmonyOS / OpenHarmony notes
+| Library (empty) | Library | Import FAB |
+| :---: | :---: | :---: |
+| ![empty](docs/screenshots/01_library_empty.png) | ![library](docs/screenshots/02_library_with_books.png) | ![import](docs/screenshots/03_import_fab.png) |
 
-Flutter Android APKs often sideload on **HarmonyOS** devices that keep an
-Android compatibility layer (older HarmonyOS 2–4.x). **HarmonyOS NEXT /
-OpenHarmony** without Android APIs need a separate OpenHarmony/Flutter embedder
-target — not shipped in v1. NeoReader avoids exotic Google-only Play APIs in the
-core path (local files + sqflite + pdfrx). Expect to validate sideload on your
-device; NEXT-native packaging is future work.
+| Stats | Settings | Reader |
+| :---: | :---: | :---: |
+| ![stats](docs/screenshots/04_stats.png) | ![settings](docs/screenshots/05_settings.png) | ![reader](docs/screenshots/06_reader_txt_glass.png) |
 
-## Requirements
+## Features
 
-- Flutter SDK 3.47+ (`/home/box/flutter` on the build box)
-- Android SDK (API 29+) for APK; Xcode for iOS
+### Working now
+
+| Area | Details |
+|------|---------|
+| Library | Import, search, sort, delete — **unlimited** books, all on-device |
+| Formats | **EPUB**, **PDF**, **TXT**, **MOBI/AZW/AZW3** (DRM-free text), **FB2**, **CBZ** (+ ZIP-based CBR), **Markdown**, **HTML/XHTML/MHTML**, **DOCX** (text extract) |
+| Reading | Themes (day / night / sepia), font size & line height, progress, bookmarks / notes |
+| Stats | Today / total reading time, per-book duration (beyond Koodo) |
+| Design | MD3 `ColorScheme.fromSeed`, frosted glass surfaces, light & dark |
+| Privacy | Offline-only by design |
+
+### Roadmap (scaffolded)
+
+Vertical / two-column layouts, TTS, local dictionary, OCR, note export, PIN lock, full RAR/7z comics (CBR/CBT/CB7), richer charts — see [ROADMAP.md](./ROADMAP.md). Goal: Koodo offline feature parity **一个不少**, plus NeoReader extras.
+
+## Platform targets
+
+- **Android:** minSdk **29** (Android 10+)
+- **iOS:** deployment target **12.0+**
+- **HarmonyOS:** Android APK often sideloads via compatibility layer. NeoReader avoids exotic Google-only APIs where practical. Native HarmonyOS NEXT / OpenHarmony packaging is not claimed yet; DRM and some system APIs may differ.
+
+## Quick start
 
 ```bash
-export PATH="/home/box/flutter/bin:$PATH"
-export ANDROID_HOME=/home/box/Android/Sdk   # if installed
-export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
-```
-
-## Run
-
-```bash
-cd koodo-flutter-offline-app   # or your clone root
+git clone https://github.com/wiwcn/NeoReader.git
+cd NeoReader
 flutter pub get
-flutter analyze
-flutter run                    # device / emulator
-# or open the folder in Android Studio / VS Code and Run
+flutter run
 ```
 
-### Build debug APK
+First launch seeds demo books from `assets/samples/` (TXT, MD, HTML, FB2, CBZ, DOCX).
+
+## Build APK
 
 ```bash
+flutter pub get
 flutter build apk --debug
-# output: build/app/outputs/flutter-apk/app-debug.apk
+# → build/app/outputs/flutter-apk/app-debug.apk
+
+# Release requires your own keystore:
+# flutter build apk --release
 ```
 
-If Android SDK is missing:
-
-1. Install Android Studio or cmdline-tools
-2. `sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"`
-3. Accept licenses: `yes | sdkmanager --licenses`
-4. Re-run `flutter build apk`
-
-## Architecture
+## Project layout
 
 ```
 lib/
-  core/           theme (MD3+glass), l10n, constants
-  domain/         models + repository interfaces
-  data/           sqflite, parsers (EPUB/TXT), import, stats
-  presentation/   Riverpod + Material screens
+  data/parsers/     # EPUB, FB2, MOBI, comic, HTML, MD, DOCX, …
+  presentation/     # Library, readers, stats, settings (MD3 + glass)
+  domain/           # Models & repository interfaces
+assets/samples/     # Demo books for first-run / screenshots
 ```
 
-Key packages: `flutter_riverpod`, `file_picker`, `path_provider`, `sqflite`,
-`pdfrx`, `archive`+`xml`+`html` (custom EPUB), `shared_preferences`, `uuid`.
+## Contributing
+
+Issues and PRs welcome. Please keep the offline-only policy (no cloud sync / account / Pro). Match existing MD3 + glass style when touching UI. Run `flutter analyze` before opening a PR.
 
 ## License
 
-[AGPL-3.0](./LICENSE) — see also [ATTRIBUTION.md](./ATTRIBUTION.md).
+[GNU General Public License v3.0](./LICENSE) — **GPL-3.0**.
+
+NeoReader is original Flutter code. Koodo Reader is credited as **feature inspiration** only; we do not distribute Koodo’s AGPL sources. See [ATTRIBUTION.md](./ATTRIBUTION.md).

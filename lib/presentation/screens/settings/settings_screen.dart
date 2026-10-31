@@ -145,7 +145,7 @@ class SettingsScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(strings.aboutBody),
                   const SizedBox(height: 8),
-                  Text('NeoReader v1.0.0 · AGPL-3.0', style: Theme.of(context).textTheme.labelSmall),
+                  Text('NeoReader v1.0.0 · GPL-3.0', style: Theme.of(context).textTheme.labelSmall),
                 ],
               ),
             ),
