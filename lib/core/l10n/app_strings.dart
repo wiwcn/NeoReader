@@ -64,4 +64,65 @@ class AppStrings {
   String get comingSoon => isZh ? '即将推出' : 'Coming soon';
   String get minutes => isZh ? '分钟' : 'min';
   String get hours => isZh ? '小时' : 'h';
+
+  // Settings hub categories (PiliPlus-style)
+  String get settingsAppearance => isZh ? '外观' : 'Appearance';
+  String get settingsAppearanceSub => isZh
+      ? '主题亮/暗/跟随系统、种子色、毛玻璃强度'
+      : 'Theme, seed color, glass blur';
+  String get settingsReading => isZh ? '阅读' : 'Reading';
+  String get settingsReadingSub => isZh
+      ? '默认字号、行距、阅读主题、翻页方式'
+      : 'Font size, line height, reading theme, page turn';
+  String get settingsLibrary => isZh ? '书库与导入' : 'Library & import';
+  String get settingsLibrarySub => isZh
+      ? '排序默认、导入格式说明、清空缓存'
+      : 'Default sort, import formats, clear cache';
+  String get settingsPrivacy => isZh ? '隐私与安全' : 'Privacy & security';
+  String get settingsPrivacySub => isZh
+      ? 'PIN/库锁、导出笔记路径说明'
+      : 'PIN/library lock, notes export path';
+  String get settingsStats => isZh ? '统计' : 'Stats';
+  String get settingsStatsSub => isZh
+      ? '阅读时长展示、重置统计'
+      : 'Show reading time, reset stats';
+  String get settingsAboutSub => isZh
+      ? '版本、许可证、致谢与开源仓库'
+      : 'Version, license, credits, repository';
+
+  String get seedColor => isZh ? '种子色' : 'Seed color';
+  String get glassBlur => isZh ? '毛玻璃强度' : 'Glass blur';
+  String get pageTurn => isZh ? '翻页方式' : 'Page turn';
+  String get defaultSort => isZh ? '默认排序' : 'Default sort';
+  String get importFormats => isZh ? '支持的导入格式' : 'Supported import formats';
+  String get importFormatsBody => isZh
+      ? '已实现：EPUB、PDF、TXT、MOBI/AZW3、FB2、CBZ/CBR、Markdown、HTML、DOCX。更多格式见路线图。'
+      : 'Implemented: EPUB, PDF, TXT, MOBI/AZW3, FB2, CBZ/CBR, Markdown, HTML, DOCX. More on the roadmap.';
+  String get clearCache => isZh ? '清空缓存' : 'Clear cache';
+  String get clearCacheConfirm => isZh
+      ? '将删除封面缓存等临时文件，不会删除书库中的图书。确定继续？'
+      : 'This removes temporary cover cache files, not your books. Continue?';
+  String get clearCacheDone => isZh ? '缓存已清空' : 'Cache cleared';
+  String get libraryPin => isZh ? '库锁（PIN）' : 'Library lock (PIN)';
+  String get libraryPinSub => isZh
+      ? '占位开关，后续版本可设置 PIN 保护书库'
+      : 'Placeholder — PIN lock coming in a later release';
+  String get exportNotesPath => isZh ? '导出笔记路径' : 'Notes export path';
+  String get exportNotesPathBody => isZh
+      ? '笔记与标注保存在本机应用目录，导出功能将写入你选择的本地文件夹（后续版本）。'
+      : 'Notes stay in the app documents directory; export will write to a folder you choose (coming later).';
+  String get showReadingDuration => isZh ? '展示阅读时长' : 'Show reading duration';
+  String get resetStats => isZh ? '重置统计' : 'Reset stats';
+  String get resetStatsConfirm => isZh
+      ? '将清空全部阅读时长记录，此操作不可撤销。确定重置？'
+      : 'This permanently clears all reading-time records. Reset?';
+  String get resetStatsDone => isZh ? '统计已重置' : 'Stats reset';
+  String get license => isZh ? '许可证' : 'License';
+  String get thanksKoodo => isZh ? '致谢' : 'Credits';
+  String get thanksKoodoBody => isZh
+      ? '功能蓝本参考开源项目 Koodo Reader；UI 中文字体使用 Noto Sans SC（SIL OFL）。'
+      : 'Feature scope inspired by open-source Koodo Reader; UI CJK font is Noto Sans SC (SIL OFL).';
+  String get openSourceRepo => isZh ? '开源仓库' : 'Source repository';
+  String get versionLabel => isZh ? '版本' : 'Version';
+  String get dangerAction => isZh ? '危险操作' : 'Destructive';
 }

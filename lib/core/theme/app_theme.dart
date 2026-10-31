@@ -2,75 +2,136 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-/// Material Design 3 themes with frosted-glass helpers.
+/// Material Design 3 themes with frosted-glass helpers and CJK-capable typography.
 class AppTheme {
   static const Color seed = Color(0xFF2E7D32);
 
-  static ThemeData light([Color seedColor = seed]) => ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seedColor,
-          brightness: Brightness.light,
-        ),
-        appBarTheme: const AppBarTheme(
-          centerTitle: false,
-          scrolledUnderElevation: 0,
-          backgroundColor: Colors.transparent,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF3F6F3),
-        cardTheme: CardThemeData(
-          elevation: 0,
-          color: Colors.white.withValues(alpha: 0.55),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        ),
-        navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: Colors.white.withValues(alpha: 0.65),
-          elevation: 0,
-          indicatorColor: seedColor.withValues(alpha: 0.18),
-        ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          backgroundColor: seedColor.withValues(alpha: 0.92),
-          foregroundColor: Colors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        ),
-      );
+  /// Bundled Noto Sans SC (assets/fonts). Covers Latin + Simplified Chinese offline.
+  static const String fontFamily = 'NotoSansSC';
 
-  static ThemeData dark([Color seedColor = seed]) => ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seedColor,
-          brightness: Brightness.dark,
+  /// System CJK fallbacks when a glyph is missing from the bundled face.
+  static const List<String> fontFamilyFallback = [
+    'Noto Sans CJK SC',
+    'Source Han Sans SC',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    'sans-serif',
+  ];
+
+  static TextTheme _textTheme(TextTheme base) {
+    return base.apply(
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
+    );
+  }
+
+  static ThemeData light([Color seedColor = seed]) {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: seedColor,
+      brightness: Brightness.light,
+    );
+    final base = ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
+    );
+    return base.copyWith(
+      textTheme: _textTheme(base.textTheme),
+      primaryTextTheme: _textTheme(base.primaryTextTheme),
+      appBarTheme: const AppBarTheme(
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
+      scaffoldBackgroundColor: const Color(0xFFF3F6F3),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: Colors.white.withValues(alpha: 0.55),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white.withValues(alpha: 0.65),
+        elevation: 0,
+        indicatorColor: seedColor.withValues(alpha: 0.18),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontFamily: fontFamily,
+            fontFamilyFallback: fontFamilyFallback,
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w600
+                : FontWeight.w500,
+          ),
         ),
-        appBarTheme: const AppBarTheme(
-          centerTitle: false,
-          scrolledUnderElevation: 0,
-          backgroundColor: Colors.transparent,
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: seedColor.withValues(alpha: 0.92),
+        foregroundColor: Colors.white,
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+    );
+  }
+
+  static ThemeData dark([Color seedColor = seed]) {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: seedColor,
+      brightness: Brightness.dark,
+    );
+    final base = ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
+    );
+    return base.copyWith(
+      textTheme: _textTheme(base.textTheme),
+      primaryTextTheme: _textTheme(base.primaryTextTheme),
+      appBarTheme: const AppBarTheme(
+        centerTitle: false,
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
+      scaffoldBackgroundColor: const Color(0xFF0E1210),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: Colors.white.withValues(alpha: 0.06),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.black.withValues(alpha: 0.35),
+        elevation: 0,
+        indicatorColor: seedColor.withValues(alpha: 0.28),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontFamily: fontFamily,
+            fontFamilyFallback: fontFamilyFallback,
+            fontSize: 12,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w600
+                : FontWeight.w500,
+          ),
         ),
-        scaffoldBackgroundColor: const Color(0xFF0E1210),
-        cardTheme: CardThemeData(
-          elevation: 0,
-          color: Colors.white.withValues(alpha: 0.06),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        ),
-        navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: Colors.black.withValues(alpha: 0.35),
-          elevation: 0,
-          indicatorColor: seedColor.withValues(alpha: 0.28),
-        ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          backgroundColor: seedColor.withValues(alpha: 0.9),
-          foregroundColor: Colors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        ),
-      );
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: seedColor.withValues(alpha: 0.9),
+        foregroundColor: Colors.white,
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+    );
+  }
 }
 
 /// Frosted glass container (毛玻璃).
 class GlassSurface extends StatelessWidget {
   /// Set false in screenshot/golden tests — BackdropFilter+toImage can hang under flutter_test.
   static bool useFrostedBlur = true;
+
+  /// Global blur strength multiplier (1.0 = default). Driven by settings.
+  static double blurStrength = 1.0;
 
   const GlassSurface({
     super.key,
@@ -115,11 +176,12 @@ class GlassSurface extends StatelessWidget {
       decoration: decoration,
       child: padding == null ? child : Padding(padding: padding!, child: child),
     );
+    final effectiveBlur = blur * blurStrength;
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: useFrostedBlur
+      child: useFrostedBlur && effectiveBlur > 0.5
           ? BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+              filter: ImageFilter.blur(sigmaX: effectiveBlur, sigmaY: effectiveBlur),
               child: painted,
             )
           : painted,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neo_reader/core/l10n/app_strings.dart';
@@ -11,7 +12,7 @@ import 'package:neo_reader/domain/models/book.dart';
 import 'package:neo_reader/domain/models/reading_stats.dart';
 import 'package:neo_reader/presentation/providers/providers.dart';
 import 'package:neo_reader/presentation/screens/library/library_screen.dart';
-import 'package:neo_reader/presentation/screens/settings/settings_screen.dart';
+import 'package:neo_reader/presentation/screens/settings/settings_hub_screen.dart';
 import 'package:neo_reader/presentation/screens/stats/stats_screen.dart';
 import 'package:neo_reader/presentation/widgets/empty_library.dart';
 import 'package:neo_reader/presentation/widgets/glass_scaffold_bg.dart';
@@ -19,15 +20,20 @@ import 'package:neo_reader/presentation/widgets/glass_scaffold_bg.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
+  setUpAll(() async {
     GlassSurface.useFrostedBlur = false;
+    // flutter_test defaults to Ahem (all □). Load bundled CJK face for readable goldens.
+    final loader = FontLoader(AppTheme.fontFamily)
+      ..addFont(rootBundle.load('assets/fonts/NotoSansSC-Regular.ttf'))
+      ..addFont(rootBundle.load('assets/fonts/NotoSansSC-Medium.ttf'));
+    await loader.load();
   });
 
   final demoBooks = [
     Book(
       id: '1',
-      title: 'Moonlit Path',
-      author: 'Ada River',
+      title: '月光小径',
+      author: '艾达·河',
       format: BookFormat.fb2,
       filePath: '/tmp/story.fb2',
       progress: 0.35,
@@ -36,7 +42,7 @@ void main() {
     ),
     Book(
       id: '2',
-      title: 'NeoReader Markdown Guide',
+      title: 'NeoReader Markdown 指南',
       author: 'Markdown',
       format: BookFormat.md,
       filePath: '/tmp/guide.md',
@@ -45,8 +51,8 @@ void main() {
     ),
     Book(
       id: '3',
-      title: 'Welcome',
-      author: 'Unknown',
+      title: '欢迎使用 NeoReader',
+      author: '未知作者',
       format: BookFormat.txt,
       filePath: '/tmp/welcome.txt',
       progress: 0.1,
@@ -54,7 +60,7 @@ void main() {
     ),
     Book(
       id: '4',
-      title: 'Demo Comic',
+      title: '演示漫画',
       author: 'Comic',
       format: BookFormat.cbz,
       filePath: '/tmp/demo.cbz',
@@ -63,7 +69,7 @@ void main() {
     ),
     Book(
       id: '5',
-      title: 'A Short Essay on Offline Reading',
+      title: '离线阅读短论',
       author: 'NeoReader Demo',
       format: BookFormat.html,
       filePath: '/tmp/essay.html',
@@ -106,9 +112,19 @@ void main() {
         ),
       ),
     );
-    await tester.pump(); // one frame
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 16));
   }
+
+  testWidgets('chinese labels readable', (tester) async {
+    await pumpPhone(tester, const SettingsHubScreen());
+    expect(find.textContaining('外观'), findsWidgets);
+    expect(find.textContaining('阅读'), findsWidgets);
+    expect(find.text('书库与导入'), findsOneWidget);
+    expect(find.text('设置'), findsWidgets);
+    expect(find.text('隐私与安全'), findsOneWidget);
+    expect(find.text('统计'), findsOneWidget);
+  });
 
   testWidgets('01_library_empty', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
@@ -161,7 +177,7 @@ void main() {
   });
 
   testWidgets('05_settings', (tester) async {
-    await pumpPhone(tester, const SettingsScreen());
+    await pumpPhone(tester, const SettingsHubScreen());
     await expectLater(
       find.byType(MaterialApp),
       matchesGoldenFile('goldens/05_settings.png'),
@@ -179,21 +195,23 @@ void main() {
           appBar: AppBar(
             backgroundColor: colors.background.withValues(alpha: 0.92),
             foregroundColor: colors.foreground,
-            title: const Text('Welcome'),
+            title: const Text('欢迎使用 NeoReader'),
             actions: const [Icon(Icons.tune_rounded), SizedBox(width: 12)],
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 48),
             child: Text(
-              'NeoReader — Welcome\n\n'
-              'NeoReader is an offline ebook reader with Material Design 3 '
-              'and frosted glass UI.\n\n'
-              'Supported: EPUB, PDF, TXT, MOBI/AZW3, FB2, CBZ, Markdown, HTML, DOCX.\n\n'
-              'Everything stays on device — no account, no cloud.',
+              'NeoReader — 欢迎\n\n'
+              'NeoReader 是一款纯离线电子书阅读器，采用 Material Design 3 '
+              '与毛玻璃界面。\n\n'
+              '支持：EPUB、PDF、TXT、MOBI/AZW3、FB2、CBZ、Markdown、HTML、DOCX。\n\n'
+              '一切数据留在本机 — 无账号、无云同步。',
               style: TextStyle(
                 color: colors.foreground,
                 fontSize: 18,
                 height: 1.6,
+                fontFamily: AppTheme.fontFamily,
+                fontFamilyFallback: AppTheme.fontFamilyFallback,
               ),
             ),
           ),

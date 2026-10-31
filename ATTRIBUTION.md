@@ -25,3 +25,9 @@ and no cloud / account / Pro gates.
 If you redistribute NeoReader (or a modified version), GPL-3.0 applies to the
 NeoReader codebase as distributed here. Third-party packages keep their own
 licenses (see `pubspec.yaml` / pub.dev).
+
+
+## Fonts
+
+- [Noto Sans SC](https://fonts.google.com/noto/specimen/Noto+Sans+SC) (SIL Open Font License 1.1),
+  bundled under `assets/fonts/` for offline CJK UI rendering.

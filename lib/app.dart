@@ -16,6 +16,9 @@ class NeoReaderApp extends ConsumerWidget {
         ref.watch(settingsProvider).value ?? const AppSettings();
     final strings = ref.watch(stringsProvider);
 
+    // Keep glass strength in sync with persisted settings.
+    GlassSurface.blurStrength = settings.glassBlur;
+
     return MaterialApp(
       title: 'NeoReader',
       debugShowCheckedModeBanner: false,

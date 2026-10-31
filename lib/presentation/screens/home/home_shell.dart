@@ -23,6 +23,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final settings = await ref.read(settingsProvider.future);
+      if (mounted) {
+        ref.read(librarySortProvider.notifier).state = settings.defaultSort;
+      }
       final n = await DemoSeedService().seedIfNeeded();
       if (n > 0 && mounted) {
         await ref.read(libraryProvider.notifier).refresh();
