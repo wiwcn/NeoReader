@@ -19,6 +19,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
   static const _kMargin = 'horizontal_margin';
   static const _kPara = 'paragraph_spacing';
   static const _kSort = 'default_sort';
+  static const _kLayout = 'library_layout';
   static const _kPin = 'library_pin';
   static const _kShowDuration = 'show_reading_duration';
 
@@ -54,6 +55,10 @@ class SettingsRepositoryImpl implements SettingsRepository {
         (e) => e.name == p.getString(_kSort),
         orElse: () => BookSort.added,
       ),
+      libraryLayout: LibraryLayout.values.firstWhere(
+        (e) => e.name == p.getString(_kLayout),
+        orElse: () => LibraryLayout.list,
+      ),
       libraryPinEnabled: p.getBool(_kPin) ?? false,
       showReadingDuration: p.getBool(_kShowDuration) ?? true,
     );
@@ -80,6 +85,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
     await p.setDouble(_kMargin, settings.horizontalMargin);
     await p.setDouble(_kPara, settings.paragraphSpacing);
     await p.setString(_kSort, settings.defaultSort.name);
+    await p.setString(_kLayout, settings.libraryLayout.name);
     await p.setBool(_kPin, settings.libraryPinEnabled);
     await p.setBool(_kShowDuration, settings.showReadingDuration);
   }

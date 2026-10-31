@@ -53,7 +53,14 @@ class AppStrings {
   String get unsupportedFormat =>
       isZh ? '该格式已列入路线图，v1 核心支持 EPUB/PDF/TXT' : 'Format on roadmap; v1 core supports EPUB/PDF/TXT';
   String get noAnnotations => isZh ? '暂无标注' : 'No annotations yet';
-  String get exportLater => isZh ? '导出（后续版本）' : 'Export (coming later)';
+  String get export => isZh ? '导出' : 'Export';
+  String get exportAnnotations => isZh ? '导出标注' : 'Export annotations';
+  String get exportSuccess => isZh ? '标注已导出' : 'Annotations exported';
+  String get exportFailed => isZh ? '导出失败' : 'Export failed';
+  String get exportSavedTo => isZh ? '已保存到' : 'Saved to';
+  String get exportFormatMd => isZh ? '导出为 Markdown' : 'Export as Markdown';
+  String get exportFormatTxt => isZh ? '导出为 TXT' : 'Export as TXT';
+  String get exportLater => exportAnnotations;
   String get toc => isZh ? '目录' : 'Contents';
   String get scrollMode => isZh ? '滚动' : 'Scroll';
   String get pageMode => isZh ? '翻页' : 'Paged';
@@ -109,8 +116,8 @@ class AppStrings {
       : 'Placeholder — PIN lock coming in a later release';
   String get exportNotesPath => isZh ? '导出笔记路径' : 'Notes export path';
   String get exportNotesPathBody => isZh
-      ? '笔记与标注保存在本机应用目录，导出功能将写入你选择的本地文件夹（后续版本）。'
-      : 'Notes stay in the app documents directory; export will write to a folder you choose (coming later).';
+      ? '标注可从「标注」页导出为 Markdown / TXT，默认写入应用目录 exports/，也可另存到你选择的位置。'
+      : 'Export annotations as Markdown / TXT from the Annotations tab. Files go to app documents/exports/, or a folder you pick.';
   String get showReadingDuration => isZh ? '展示阅读时长' : 'Show reading duration';
   String get resetStats => isZh ? '重置统计' : 'Reset stats';
   String get resetStatsConfirm => isZh
@@ -165,6 +172,14 @@ class AppStrings {
   String get moreActions => isZh ? '更多' : 'More';
   String get openBook => isZh ? '开始阅读' : 'Start reading';
   String get formatLabel => isZh ? '格式' : 'Format';
+
+  // Local grid / metadata menu aliases (alongside book-details keys above)
+  String get editMetadata => editBook;
+  String get moreOptions => moreActions;
+  String get layoutList => isZh ? '列表视图' : 'List view';
+  String get layoutGrid => isZh ? '封面视图' : 'Cover grid';
+  String get readingStreak => isZh ? '连续阅读' : 'Reading streak';
+  String get streakDays => isZh ? '天' : 'days';
+  String get last7Days => isZh ? '近 7 天' : 'Last 7 days';
+  String get metadataSaved => isZh ? '已保存图书信息' : 'Book info saved';
 }
-
-

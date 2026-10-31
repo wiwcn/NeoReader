@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ import 'package:neo_reader/domain/models/app_settings.dart';
 import 'package:neo_reader/domain/models/book.dart';
 import 'package:neo_reader/domain/models/reading_stats.dart';
 import 'package:neo_reader/presentation/providers/providers.dart';
+import 'package:neo_reader/presentation/screens/annotations/annotations_screen.dart';
 import 'package:neo_reader/presentation/screens/library/library_screen.dart';
 import 'package:neo_reader/presentation/screens/settings/settings_hub_screen.dart';
 import 'package:neo_reader/presentation/screens/stats/stats_screen.dart';
@@ -100,11 +102,14 @@ void main() {
     ),
   ];
 
-  Future<void> pumpPhone(WidgetTester tester, Widget home) async {
-    const settings = AppSettings(
+  Future<void> pumpPhone(
+    WidgetTester tester,
+    Widget home, {
+    AppSettings settings = const AppSettings(
       themeMode: AppThemeModePref.light,
       localeCode: 'zh',
-    );
+    ),
+  }) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     await tester.pumpWidget(
       ProviderScope(
@@ -118,12 +123,9 @@ void main() {
               totalSeconds: 5 * 3600 + 20 * 60,
               booksStarted: 4,
               booksFinished: 1,
-              perBookSeconds: {
-                '1': 3600,
-                '2': 1800,
-                '3': 900,
-                '4': 1200,
-              },
+              perBookSeconds: {'1': 3600, '2': 1800, '3': 900, '4': 1200},
+              currentStreakDays: 3,
+              last7DaysSeconds: [600, 0, 1200, 900, 1800, 2400, 2520],
             ),
           ),
         ],
@@ -212,6 +214,31 @@ void main() {
     await expectLater(
       find.byType(MaterialApp),
       matchesGoldenFile('goldens/05_settings.png'),
+    );
+  });
+
+  testWidgets('07_library_grid', (tester) async {
+    await pumpPhone(
+      tester,
+      const LibraryScreen(),
+      settings: const AppSettings(
+        themeMode: AppThemeModePref.light,
+        localeCode: 'zh',
+        libraryLayout: LibraryLayout.grid,
+      ),
+    );
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/07_library_grid.png'),
+    );
+  });
+
+  testWidgets('08_annotations_export', (tester) async {
+    await pumpPhone(tester, const AnnotationsScreen());
+    expect(find.text('导出'), findsWidgets);
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/08_annotations_export.png'),
     );
   });
 

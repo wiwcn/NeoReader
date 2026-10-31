@@ -56,4 +56,5 @@ class AppConstants {
   static const double defaultFontSize = 19;
   static const double defaultLineHeight = 1.75;
   static const String fontsDirName = 'fonts';
+  static const String exportsDirName = 'exports';
 }
