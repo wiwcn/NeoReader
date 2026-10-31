@@ -19,16 +19,16 @@ class CustomFontInfo {
   final String fileName;
 
   Map<String, String> toJson() => {
-        'family': family,
-        'displayName': displayName,
-        'fileName': fileName,
-      };
+    'family': family,
+    'displayName': displayName,
+    'fileName': fileName,
+  };
 
   factory CustomFontInfo.fromJson(Map<String, dynamic> json) => CustomFontInfo(
-        family: json['family'] as String,
-        displayName: json['displayName'] as String? ?? json['family'] as String,
-        fileName: json['fileName'] as String,
-      );
+    family: json['family'] as String,
+    displayName: json['displayName'] as String? ?? json['family'] as String,
+    fileName: json['fileName'] as String,
+  );
 }
 
 class CustomFontService {
@@ -53,7 +53,9 @@ class CustomFontService {
     try {
       final list = jsonDecode(raw) as List<dynamic>;
       return list
-          .map((e) => CustomFontInfo.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => CustomFontInfo.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
     } catch (_) {
       return const [];

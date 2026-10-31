@@ -49,10 +49,11 @@ class BookCover extends StatelessWidget {
       BookFormat.html ||
       BookFormat.htm ||
       BookFormat.xhtml ||
-      BookFormat.mhtml =>
-        Icons.language_rounded,
+      BookFormat.mhtml => Icons.language_rounded,
       BookFormat.fb2 => Icons.chrome_reader_mode_rounded,
-      BookFormat.mobi || BookFormat.azw3 || BookFormat.azw => Icons.tablet_mac_rounded,
+      BookFormat.mobi ||
+      BookFormat.azw3 ||
+      BookFormat.azw => Icons.tablet_mac_rounded,
       BookFormat.cbz || BookFormat.cbr => Icons.auto_stories_rounded,
       BookFormat.unknown => Icons.book_rounded,
     };

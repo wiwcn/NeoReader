@@ -25,8 +25,14 @@ class SettingsLibraryPage extends ConsumerWidget {
         title: Text(strings.clearCache),
         content: Text(strings.clearCacheConfirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(strings.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(strings.confirm)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(strings.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(strings.confirm),
+          ),
         ],
       ),
     );
@@ -44,9 +50,8 @@ class SettingsLibraryPage extends ConsumerWidget {
       }
     } catch (_) {}
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(strings.clearCacheDone)),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(strings.clearCacheDone)));
     }
   }
 
@@ -56,11 +61,11 @@ class SettingsLibraryPage extends ConsumerWidget {
     final settings = ref.watch(settingsProvider).value ?? const AppSettings();
 
     String sortLabel(BookSort s) => switch (s) {
-          BookSort.title => strings.sortTitle,
-          BookSort.author => strings.sortAuthor,
-          BookSort.recent => strings.sortRecent,
-          BookSort.added => strings.sortAdded,
-        };
+      BookSort.title => strings.sortTitle,
+      BookSort.author => strings.sortAuthor,
+      BookSort.recent => strings.sortRecent,
+      BookSort.added => strings.sortAdded,
+    };
 
     final body = ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -70,33 +75,36 @@ class SettingsLibraryPage extends ConsumerWidget {
           child: Material(
             type: MaterialType.transparency,
             child: Column(
-            children: [
-              ListTile(
-                title: Text(strings.defaultSort),
-                subtitle: Text(sortLabel(settings.defaultSort)),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final s in BookSort.values)
-                      ChoiceChip(
-                        label: Text(sortLabel(s)),
-                        selected: settings.defaultSort == s,
-                        onSelected: (_) {
-                          ref.read(settingsProvider.notifier).saveSettings(
-                                (c) => c.copyWith(defaultSort: s),
-                              );
-                          ref.read(librarySortProvider.notifier).state = s;
-                        },
-                      ),
-                  ],
+              children: [
+                ListTile(
+                  title: Text(strings.defaultSort),
+                  subtitle: Text(sortLabel(settings.defaultSort)),
                 ),
-              ),
-            ],
-          )),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final s in BookSort.values)
+                        ChoiceChip(
+                          label: Text(sortLabel(s)),
+                          selected: settings.defaultSort == s,
+                          onSelected: (_) {
+                            ref
+                                .read(settingsProvider.notifier)
+                                .saveSettings(
+                                  (c) => c.copyWith(defaultSort: s),
+                                );
+                            ref.read(librarySortProvider.notifier).state = s;
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 12),
         GlassSurface(
@@ -104,18 +112,24 @@ class SettingsLibraryPage extends ConsumerWidget {
           child: Material(
             type: MaterialType.transparency,
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(strings.importFormats, style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              Text(strings.importFormatsBody),
-              const SizedBox(height: 8),
-              Text(
-                AppConstants.importPickerExtensions.map((e) => '.$e').join('  '),
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ],
-          )),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  strings.importFormats,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(strings.importFormatsBody),
+                const SizedBox(height: 8),
+                Text(
+                  AppConstants.importPickerExtensions
+                      .map((e) => '.$e')
+                      .join('  '),
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 12),
         Material(
@@ -123,7 +137,10 @@ class SettingsLibraryPage extends ConsumerWidget {
           borderRadius: BorderRadius.circular(20),
           clipBehavior: Clip.antiAlias,
           child: ListTile(
-            leading: Icon(Icons.delete_sweep_outlined, color: Theme.of(context).colorScheme.error),
+            leading: Icon(
+              Icons.delete_sweep_outlined,
+              color: Theme.of(context).colorScheme.error,
+            ),
             title: Text(strings.clearCache),
             subtitle: Text(strings.dangerAction),
             onTap: () => _clearCache(context, ref),

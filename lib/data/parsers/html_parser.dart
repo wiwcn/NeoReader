@@ -25,17 +25,23 @@ class HtmlBookParser {
 
     final doc = html_parser.parse(raw);
     final title = doc.querySelector('title')?.text.trim();
-    final author = doc.querySelector('meta[name="author"]')?.attributes['content']?.trim();
+    final author = doc
+        .querySelector('meta[name="author"]')
+        ?.attributes['content']
+        ?.trim();
 
     // Prefer article/main body
-    final root = doc.querySelector('article') ??
+    final root =
+        doc.querySelector('article') ??
         doc.querySelector('main') ??
         doc.querySelector('body') ??
         doc.documentElement;
 
     final buf = StringBuffer();
     if (root != null) {
-      for (final node in root.querySelectorAll('h1,h2,h3,h4,p,li,pre,blockquote')) {
+      for (final node in root.querySelectorAll(
+        'h1,h2,h3,h4,p,li,pre,blockquote',
+      )) {
         final t = node.text.trim();
         if (t.isEmpty) continue;
         final tag = node.localName;

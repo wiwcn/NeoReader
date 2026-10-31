@@ -20,7 +20,10 @@ class SettingsStatsPage extends ConsumerWidget {
         title: Text(strings.resetStats),
         content: Text(strings.resetStatsConfirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(strings.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(strings.cancel),
+          ),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(ctx).colorScheme.error,
@@ -36,9 +39,8 @@ class SettingsStatsPage extends ConsumerWidget {
     await db.delete('reading_sessions');
     ref.invalidate(statsSummaryProvider);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(strings.resetStatsDone)),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(strings.resetStatsDone)));
     }
   }
 
@@ -55,24 +57,28 @@ class SettingsStatsPage extends ConsumerWidget {
           child: Material(
             type: MaterialType.transparency,
             child: Column(
-            children: [
-              SwitchListTile(
-                secondary: const Icon(Icons.timer_outlined),
-                title: Text(strings.showReadingDuration),
-                value: settings.showReadingDuration,
-                onChanged: (v) => ref.read(settingsProvider.notifier).saveSettings(
-                      (c) => c.copyWith(showReadingDuration: v),
-                    ),
-              ),
-              const Divider(height: 8),
-              ListTile(
-                leading: Icon(Icons.restart_alt, color: Theme.of(context).colorScheme.error),
-                title: Text(strings.resetStats),
-                subtitle: Text(strings.dangerAction),
-                onTap: () => _reset(context, ref),
-              ),
-            ],
-          )),
+              children: [
+                SwitchListTile(
+                  secondary: const Icon(Icons.timer_outlined),
+                  title: Text(strings.showReadingDuration),
+                  value: settings.showReadingDuration,
+                  onChanged: (v) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(showReadingDuration: v)),
+                ),
+                const Divider(height: 8),
+                ListTile(
+                  leading: Icon(
+                    Icons.restart_alt,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  title: Text(strings.resetStats),
+                  subtitle: Text(strings.dangerAction),
+                  onTap: () => _reset(context, ref),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

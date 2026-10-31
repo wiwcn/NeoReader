@@ -28,17 +28,17 @@ class Annotation extends Equatable {
   final double? progress;
 
   Map<String, Object?> toMap() => {
-        'id': id,
-        'book_id': bookId,
-        'type': type.name,
-        'created_at': createdAt.toIso8601String(),
-        'location': location,
-        'chapter': chapter,
-        'selected_text': selectedText,
-        'note': note,
-        'color_hex': colorHex,
-        'progress': progress,
-      };
+    'id': id,
+    'book_id': bookId,
+    'type': type.name,
+    'created_at': createdAt.toIso8601String(),
+    'location': location,
+    'chapter': chapter,
+    'selected_text': selectedText,
+    'note': note,
+    'color_hex': colorHex,
+    'progress': progress,
+  };
 
   factory Annotation.fromMap(Map<String, Object?> map) {
     return Annotation(

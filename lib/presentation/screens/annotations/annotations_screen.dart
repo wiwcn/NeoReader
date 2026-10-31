@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../data/services/annotation_export_service.dart';
 import '../../../domain/models/annotation.dart';
 import '../../providers/providers.dart';
 import '../../widgets/glass_scaffold_bg.dart';
@@ -28,13 +29,32 @@ class AnnotationsScreen extends ConsumerWidget {
         appBar: GlassAppBar(
           title: Text(strings.annotations),
           actions: [
-            TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(strings.exportLater)),
-                );
-              },
-              child: Text(strings.exportLater),
+            PopupMenuButton<AnnotationExportFormat>(
+              tooltip: strings.exportAnnotations,
+              onSelected: (format) =>
+                  _export(context, ref, format, async.value ?? []),
+              itemBuilder: (_) => [
+                PopupMenuItem(
+                  value: AnnotationExportFormat.markdown,
+                  child: Text(strings.exportFormatMd),
+                ),
+                PopupMenuItem(
+                  value: AnnotationExportFormat.txt,
+                  child: Text(strings.exportFormatTxt),
+                ),
+              ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Center(
+                  child: Text(
+                    strings.export,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -61,7 +81,11 @@ class AnnotationsScreen extends ConsumerWidget {
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(icon),
-                    title: Text(bookTitle(a.bookId), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    title: Text(
+                      bookTitle(a.bookId),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     subtitle: Text(
                       [
                         a.type.name,
@@ -77,7 +101,9 @@ class AnnotationsScreen extends ConsumerWidget {
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline),
                       onPressed: () async {
-                        await ref.read(annotationRepositoryProvider).delete(a.id);
+                        await ref
+                            .read(annotationRepositoryProvider)
+                            .delete(a.id);
                         ref.invalidate(allAnnotationsProvider);
                       },
                     ),
@@ -89,5 +115,39 @@ class AnnotationsScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _export(
+    BuildContext context,
+    WidgetRef ref,
+    AnnotationExportFormat format,
+    List<Annotation> items,
+  ) async {
+    final strings = ref.read(stringsProvider);
+    final books = ref.read(libraryProvider).value ?? [];
+    try {
+      final result = await ref
+          .read(annotationExportServiceProvider)
+          .export(annotations: items, books: books, format: format);
+      if (!context.mounted) return;
+      final path = result.pickedUri?.toString() ?? result.primaryPath;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${strings.exportSuccess}\n${strings.exportSavedTo}: $path',
+          ),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${strings.exportFailed}: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }

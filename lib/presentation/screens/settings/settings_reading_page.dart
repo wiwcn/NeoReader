@@ -45,9 +45,9 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
       if (path == null) return;
       final info = await ref.read(customFontServiceProvider).importFont(path);
       await _reloadFonts();
-      await ref.read(settingsProvider.notifier).saveSettings(
-            (c) => c.copyWith(customFontFamily: info.family),
-          );
+      await ref
+          .read(settingsProvider.notifier)
+          .saveSettings((c) => c.copyWith(customFontFamily: info.family));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${strings.fontImported}: ${info.displayName}')),
@@ -80,43 +80,42 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
                   min: 12,
                   max: 36,
                   value: settings.fontSize.clamp(12, 36),
-                  onChanged: (v) =>
-                      ref.read(settingsProvider.notifier).saveSettings(
-                            (c) => c.copyWith(fontSize: v),
-                          ),
+                  onChanged: (v) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(fontSize: v)),
                 ),
                 Text(
-                    '${strings.lineHeight}: ${settings.lineHeight.toStringAsFixed(2)}'),
+                  '${strings.lineHeight}: ${settings.lineHeight.toStringAsFixed(2)}',
+                ),
                 Slider(
                   min: 1.2,
                   max: 2.4,
                   value: settings.lineHeight.clamp(1.2, 2.4),
-                  onChanged: (v) =>
-                      ref.read(settingsProvider.notifier).saveSettings(
-                            (c) => c.copyWith(lineHeight: v),
-                          ),
+                  onChanged: (v) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(lineHeight: v)),
                 ),
                 Text(
-                    '${strings.horizontalMargin}: ${settings.horizontalMargin.round()}'),
+                  '${strings.horizontalMargin}: ${settings.horizontalMargin.round()}',
+                ),
                 Slider(
                   min: 12,
                   max: 40,
                   value: settings.horizontalMargin.clamp(12, 40),
-                  onChanged: (v) =>
-                      ref.read(settingsProvider.notifier).saveSettings(
-                            (c) => c.copyWith(horizontalMargin: v),
-                          ),
+                  onChanged: (v) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(horizontalMargin: v)),
                 ),
                 Text(
-                    '${strings.paragraphSpacing}: ${settings.paragraphSpacing.round()}'),
+                  '${strings.paragraphSpacing}: ${settings.paragraphSpacing.round()}',
+                ),
                 Slider(
                   min: 4,
                   max: 32,
                   value: settings.paragraphSpacing.clamp(4, 32),
-                  onChanged: (v) =>
-                      ref.read(settingsProvider.notifier).saveSettings(
-                            (c) => c.copyWith(paragraphSpacing: v),
-                          ),
+                  onChanged: (v) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(paragraphSpacing: v)),
                 ),
                 const SizedBox(height: 8),
                 Text(strings.readingTheme),
@@ -125,19 +124,22 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
                   showSelectedIcon: false,
                   segments: [
                     ButtonSegment(
-                        value: ReadingThemeMode.day, label: Text(strings.day)),
+                      value: ReadingThemeMode.day,
+                      label: Text(strings.day),
+                    ),
                     ButtonSegment(
-                        value: ReadingThemeMode.night,
-                        label: Text(strings.night)),
+                      value: ReadingThemeMode.night,
+                      label: Text(strings.night),
+                    ),
                     ButtonSegment(
-                        value: ReadingThemeMode.sepia,
-                        label: Text(strings.sepia)),
+                      value: ReadingThemeMode.sepia,
+                      label: Text(strings.sepia),
+                    ),
                   ],
                   selected: {settings.readingTheme},
-                  onSelectionChanged: (s) =>
-                      ref.read(settingsProvider.notifier).saveSettings(
-                            (c) => c.copyWith(readingTheme: s.first),
-                          ),
+                  onSelectionChanged: (s) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(readingTheme: s.first)),
                 ),
                 const SizedBox(height: 16),
                 Text(strings.pageTurn),
@@ -146,17 +148,18 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
                   showSelectedIcon: false,
                   segments: [
                     ButtonSegment(
-                        value: PageTurnMode.scroll,
-                        label: Text(strings.scrollMode)),
+                      value: PageTurnMode.scroll,
+                      label: Text(strings.scrollMode),
+                    ),
                     ButtonSegment(
-                        value: PageTurnMode.paged,
-                        label: Text(strings.pageMode)),
+                      value: PageTurnMode.paged,
+                      label: Text(strings.pageMode),
+                    ),
                   ],
                   selected: {settings.pageTurnMode},
-                  onSelectionChanged: (s) =>
-                      ref.read(settingsProvider.notifier).saveSettings(
-                            (c) => c.copyWith(pageTurnMode: s.first),
-                          ),
+                  onSelectionChanged: (s) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(pageTurnMode: s.first)),
                 ),
                 const SizedBox(height: 16),
                 Text(strings.writingMode),
@@ -165,17 +168,18 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
                   showSelectedIcon: false,
                   segments: [
                     ButtonSegment(
-                        value: WritingMode.horizontal,
-                        label: Text(strings.writingHorizontal)),
+                      value: WritingMode.horizontal,
+                      label: Text(strings.writingHorizontal),
+                    ),
                     ButtonSegment(
-                        value: WritingMode.vertical,
-                        label: Text(strings.writingVertical)),
+                      value: WritingMode.vertical,
+                      label: Text(strings.writingVertical),
+                    ),
                   ],
                   selected: {settings.writingMode},
-                  onSelectionChanged: (s) =>
-                      ref.read(settingsProvider.notifier).saveSettings(
-                            (c) => c.copyWith(writingMode: s.first),
-                          ),
+                  onSelectionChanged: (s) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(writingMode: s.first)),
                 ),
                 const SizedBox(height: 16),
                 Text(strings.readingFont),
@@ -191,12 +195,14 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
                   children: [
                     ChoiceChip(
                       label: Text(strings.defaultFont),
-                      selected: settings.customFontFamily == null ||
+                      selected:
+                          settings.customFontFamily == null ||
                           settings.customFontFamily!.isEmpty,
-                      onSelected: (_) =>
-                          ref.read(settingsProvider.notifier).saveSettings(
-                                (c) => c.copyWith(clearCustomFont: true),
-                              ),
+                      onSelected: (_) => ref
+                          .read(settingsProvider.notifier)
+                          .saveSettings(
+                            (c) => c.copyWith(clearCustomFont: true),
+                          ),
                     ),
                     for (final f in _fonts)
                       InputChip(
@@ -208,11 +214,11 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
                           ),
                         ),
                         selected: settings.customFontFamily == f.family,
-                        onPressed: () =>
-                            ref.read(settingsProvider.notifier).saveSettings(
-                                  (c) =>
-                                      c.copyWith(customFontFamily: f.family),
-                                ),
+                        onPressed: () => ref
+                            .read(settingsProvider.notifier)
+                            .saveSettings(
+                              (c) => c.copyWith(customFontFamily: f.family),
+                            ),
                         onDeleted: () async {
                           await ref
                               .read(customFontServiceProvider)
@@ -228,8 +234,10 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
                         },
                       ),
                     ActionChip(
-                      avatar:
-                          const Icon(Icons.font_download_outlined, size: 18),
+                      avatar: const Icon(
+                        Icons.font_download_outlined,
+                        size: 18,
+                      ),
                       label: Text(strings.importFont),
                       onPressed: _importFont,
                     ),

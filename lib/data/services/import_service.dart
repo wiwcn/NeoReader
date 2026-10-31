@@ -28,7 +28,7 @@ class ImportResult {
 
 class ImportService {
   ImportService({BookRepositoryImpl? books})
-      : _books = books ?? BookRepositoryImpl();
+    : _books = books ?? BookRepositoryImpl();
 
   final BookRepositoryImpl _books;
   final _uuid = const Uuid();
@@ -51,7 +51,9 @@ class ImportService {
     try {
       final docs = await getApplicationDocumentsDirectory();
       final booksDir = Directory(p.join(docs.path, AppConstants.booksDirName));
-      final coversDir = Directory(p.join(docs.path, AppConstants.coversDirName));
+      final coversDir = Directory(
+        p.join(docs.path, AppConstants.coversDirName),
+      );
       if (!await booksDir.exists()) await booksDir.create(recursive: true);
       if (!await coversDir.exists()) await coversDir.create(recursive: true);
 
@@ -85,9 +87,9 @@ class ImportService {
           title = data.title;
           author = data.author;
         case BookFormat.html ||
-             BookFormat.htm ||
-             BookFormat.xhtml ||
-             BookFormat.mhtml:
+            BookFormat.htm ||
+            BookFormat.xhtml ||
+            BookFormat.mhtml:
           final data = await _html.parseFile(destPath, fallbackTitle: title);
           title = data.title;
           author = data.author;

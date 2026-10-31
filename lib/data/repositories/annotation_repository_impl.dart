@@ -6,7 +6,7 @@ import '../db/app_database.dart';
 
 class AnnotationRepositoryImpl implements AnnotationRepository {
   AnnotationRepositoryImpl({AppDatabase? db})
-      : _db = db ?? AppDatabase.instance;
+    : _db = db ?? AppDatabase.instance;
 
   final AppDatabase _db;
 

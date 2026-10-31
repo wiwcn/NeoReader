@@ -80,8 +80,14 @@ class ComicParser {
   }
 
   int _naturalCompare(String a, String b) {
-    final ra = RegExp(r'(\d+|\D+)').allMatches(a.toLowerCase()).map((m) => m[0]!).toList();
-    final rb = RegExp(r'(\d+|\D+)').allMatches(b.toLowerCase()).map((m) => m[0]!).toList();
+    final ra = RegExp(r'(\d+|\D+)')
+        .allMatches(a.toLowerCase())
+        .map((m) => m[0]!)
+        .toList();
+    final rb = RegExp(r'(\d+|\D+)')
+        .allMatches(b.toLowerCase())
+        .map((m) => m[0]!)
+        .toList();
     final n = ra.length < rb.length ? ra.length : rb.length;
     for (var i = 0; i < n; i++) {
       final ca = ra[i];

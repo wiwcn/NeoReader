@@ -78,7 +78,9 @@ class _TextContentReaderScreenState
   }
 
   Future<void> _persist() async {
-    await ref.read(bookRepositoryProvider).updateProgress(
+    await ref
+        .read(bookRepositoryProvider)
+        .updateProgress(
           widget.book.id,
           _progress,
           'offset:${_scroll.hasClients ? _scroll.offset.round() : 0}',
@@ -165,7 +167,10 @@ class _TextContentReaderScreenState
           if (title.isNotEmpty && i == 0) {
             return Padding(
               padding: EdgeInsets.only(bottom: settings.paragraphSpacing + 4),
-              child: Text(title, style: ReaderTypography.title(settings, colors)),
+              child: Text(
+                title,
+                style: ReaderTypography.title(settings, colors),
+              ),
             );
           }
           final para = paras[title.isNotEmpty ? i - 1 : i];
@@ -206,7 +211,9 @@ class _TextContentReaderScreenState
                     ref: ref,
                     settings: settings,
                     onAddBookmark: () async {
-                      await ref.read(annotationRepositoryProvider).add(
+                      await ref
+                          .read(annotationRepositoryProvider)
+                          .add(
                             Annotation(
                               id: const Uuid().v4(),
                               bookId: widget.book.id,
@@ -242,7 +249,9 @@ class _TextContentReaderScreenState
                         ),
                       );
                       if (ok == true && c.text.trim().isNotEmpty) {
-                        await ref.read(annotationRepositoryProvider).add(
+                        await ref
+                            .read(annotationRepositoryProvider)
+                            .add(
                               Annotation(
                                 id: const Uuid().v4(),
                                 bookId: widget.book.id,
@@ -268,12 +277,11 @@ class _TextContentReaderScreenState
               ),
             )
           : _content == null
-              ? const Center(child: CircularProgressIndicator())
-              : GestureDetector(
-                  onTap: () =>
-                      setState(() => _chromeVisible = !_chromeVisible),
-                  child: _buildBody(settings, colors),
-                ),
+          ? const Center(child: CircularProgressIndicator())
+          : GestureDetector(
+              onTap: () => setState(() => _chromeVisible = !_chromeVisible),
+              child: _buildBody(settings, colors),
+            ),
       bottomNavigationBar: _chromeVisible
           ? SafeArea(
               child: Padding(

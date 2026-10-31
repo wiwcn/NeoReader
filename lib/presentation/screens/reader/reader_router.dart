@@ -19,40 +19,41 @@ void openReader(BuildContext context, Book book) {
     BookFormat.txt => TxtReaderScreen(book: book),
     BookFormat.cbz || BookFormat.cbr => ComicReaderScreen(book: book),
     BookFormat.md => TextContentReaderScreen(
-        book: book,
-        loader: () => MdParser().parseFile(book.filePath, fallbackTitle: book.title),
-      ),
+      book: book,
+      loader: () =>
+          MdParser().parseFile(book.filePath, fallbackTitle: book.title),
+    ),
     BookFormat.fb2 => TextContentReaderScreen(
-        book: book,
-        loader: () => Fb2Parser().parseFile(book.filePath, fallbackTitle: book.title),
-      ),
+      book: book,
+      loader: () =>
+          Fb2Parser().parseFile(book.filePath, fallbackTitle: book.title),
+    ),
     BookFormat.html ||
     BookFormat.htm ||
     BookFormat.xhtml ||
-    BookFormat.mhtml =>
-      TextContentReaderScreen(
-        book: book,
-        loader: () =>
-            HtmlBookParser().parseFile(book.filePath, fallbackTitle: book.title),
-      ),
+    BookFormat.mhtml => TextContentReaderScreen(
+      book: book,
+      loader: () =>
+          HtmlBookParser().parseFile(book.filePath, fallbackTitle: book.title),
+    ),
     BookFormat.docx => TextContentReaderScreen(
-        book: book,
-        loader: () =>
-            DocxParser().parseFile(book.filePath, fallbackTitle: book.title),
-      ),
-    BookFormat.mobi || BookFormat.azw3 || BookFormat.azw =>
-      TextContentReaderScreen(
-        book: book,
-        loader: () =>
-            MobiParser().parseFile(book.filePath, fallbackTitle: book.title),
-      ),
+      book: book,
+      loader: () =>
+          DocxParser().parseFile(book.filePath, fallbackTitle: book.title),
+    ),
+    BookFormat.mobi ||
+    BookFormat.azw3 ||
+    BookFormat.azw => TextContentReaderScreen(
+      book: book,
+      loader: () =>
+          MobiParser().parseFile(book.filePath, fallbackTitle: book.title),
+    ),
     BookFormat.unknown => null,
   };
 
   if (page == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Unsupported format')),
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Unsupported format')));
     return;
   }
   Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));

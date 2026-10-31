@@ -32,9 +32,9 @@ v1 ships a solid offline core. Remaining items stay scaffolded in
 
 ## Reader chrome (planned)
 
-- [ ] Vertical layout books
+- [x] Vertical layout books
 - [ ] Single-column / two-column / continuous layouts (full parity)
-- [ ] Font family, paragraph spacing, margins, brightness
+- [x] Font family, paragraph spacing, margins, brightness
 - [ ] Highlight styles: underline, bold, italics, shadow
 - [ ] Touch-optimized gestures batch
 
@@ -48,16 +48,16 @@ v1 ships a solid offline core. Remaining items stay scaffolded in
 ## Library & privacy
 
 - [ ] One-click export all books
-- [ ] Export notes/highlights → CSV / Markdown / HTML / TXT / PDF
+- [x] Export notes/highlights → Markdown / TXT (CSV / HTML / PDF still planned)
 - [ ] Library password / PIN / biometric lock
 - [ ] Library snapshots & version control
 - [ ] Batch import polish
 
 ## Stats & polish
 
-- [ ] Richer reading statistics charts
-- [ ] Per-session heatmap / streaks
-- [ ] Cover mode / list mode toggle (grid)
+- [x] Richer reading statistics charts (last-7-days bars)
+- [x] Per-session heatmap / streaks (current streak + 7-day)
+- [x] Cover mode / list mode toggle (grid)
 - [ ] HarmonyOS NEXT packaging notes & smoke tests
 
 ## Explicitly out of scope (offline policy)

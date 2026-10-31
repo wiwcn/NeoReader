@@ -6,6 +6,7 @@ import '../../data/repositories/annotation_repository_impl.dart';
 import '../../data/repositories/book_repository_impl.dart';
 import '../../data/repositories/settings_repository_impl.dart';
 import '../../data/repositories/stats_repository_impl.dart';
+import '../../data/services/annotation_export_service.dart';
 import '../../data/services/custom_font_service.dart';
 import '../../data/services/import_service.dart';
 import '../../data/services/reading_session_tracker.dart';
@@ -15,12 +16,16 @@ import '../../domain/models/book.dart';
 import '../../domain/models/reading_stats.dart';
 
 final bookRepositoryProvider = Provider((ref) => BookRepositoryImpl());
-final annotationRepositoryProvider =
-    Provider((ref) => AnnotationRepositoryImpl());
+final annotationRepositoryProvider = Provider(
+  (ref) => AnnotationRepositoryImpl(),
+);
 final settingsRepositoryProvider = Provider((ref) => SettingsRepositoryImpl());
 final statsRepositoryProvider = Provider((ref) => StatsRepositoryImpl());
 final importServiceProvider = Provider((ref) => ImportService());
 final customFontServiceProvider = Provider((ref) => CustomFontService());
+final annotationExportServiceProvider = Provider(
+  (ref) => AnnotationExportService(),
+);
 final sessionTrackerProvider = Provider(
   (ref) => ReadingSessionTracker(ref.watch(statsRepositoryProvider)),
 );
@@ -37,8 +42,9 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
   }
 }
 
-final settingsProvider =
-    AsyncNotifierProvider<SettingsNotifier, AppSettings>(SettingsNotifier.new);
+final settingsProvider = AsyncNotifierProvider<SettingsNotifier, AppSettings>(
+  SettingsNotifier.new,
+);
 
 final stringsProvider = Provider<AppStrings>((ref) {
   final settings = ref.watch(settingsProvider).value ?? const AppSettings();
@@ -55,8 +61,9 @@ class LibraryNotifier extends AsyncNotifier<List<Book>> {
   }
 }
 
-final libraryProvider =
-    AsyncNotifierProvider<LibraryNotifier, List<Book>>(LibraryNotifier.new);
+final libraryProvider = AsyncNotifierProvider<LibraryNotifier, List<Book>>(
+  LibraryNotifier.new,
+);
 
 final libraryQueryProvider = StateProvider<String>((ref) => '');
 final librarySortProvider = StateProvider<BookSort>((ref) => BookSort.added);
@@ -104,8 +111,8 @@ final statsSummaryProvider = FutureProvider<ReadingStatsSummary>((ref) {
 
 final annotationsForBookProvider =
     FutureProvider.family<List<Annotation>, String>((ref, bookId) {
-  return ref.read(annotationRepositoryProvider).forBook(bookId);
-});
+      return ref.read(annotationRepositoryProvider).forBook(bookId);
+    });
 
 final allAnnotationsProvider = FutureProvider<List<Annotation>>((ref) {
   ref.watch(libraryProvider);

@@ -41,7 +41,9 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
   }
 
   Future<void> _persist() async {
-    await ref.read(bookRepositoryProvider).updateProgress(
+    await ref
+        .read(bookRepositoryProvider)
+        .updateProgress(
           widget.book.id,
           _progress,
           _controller.isReady ? 'page:${_controller.pageNumber}' : null,
@@ -68,12 +70,16 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
       final view = _controller.viewSize;
       final layout = _controller.layout;
       if (view.width <= 0 || layout.pageLayouts.isEmpty) return;
-      final pageRect = layout.pageLayouts[
-          (_currentPage - 1).clamp(0, layout.pageLayouts.length - 1)];
+      final pageRect =
+          layout.pageLayouts[(_currentPage - 1).clamp(
+            0,
+            layout.pageLayouts.length - 1,
+          )];
       const margin = 8.0;
       late final double targetZoom;
       if (_fitMode == _PdfFitMode.fitWidth) {
-        targetZoom = _controller.alternativeFitScale ??
+        targetZoom =
+            _controller.alternativeFitScale ??
             ((view.width - margin * 2) / pageRect.width);
       } else {
         final zx = (view.width - margin * 2) / pageRect.width;
@@ -105,8 +111,11 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
       appBar: _chromeVisible
           ? AppBar(
               backgroundColor: bg.withValues(alpha: 0.92),
-              title: Text(widget.book.title,
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text(
+                widget.book.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               actions: [
                 IconButton(
                   tooltip: strings.pdfFitWidth,
@@ -151,7 +160,9 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
                   tooltip: strings.addBookmark,
                   icon: const Icon(Icons.bookmark_add_outlined),
                   onPressed: () async {
-                    await ref.read(annotationRepositoryProvider).add(
+                    await ref
+                        .read(annotationRepositoryProvider)
+                        .add(
                           Annotation(
                             id: const Uuid().v4(),
                             bookId: widget.book.id,
@@ -190,10 +201,26 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
             backgroundColor: bg,
             pageImageColorFilter: useInvert
                 ? const ColorFilter.matrix(<double>[
-                    -1, 0, 0, 0, 255,
-                    0, -1, 0, 0, 255,
-                    0, 0, -1, 0, 255,
-                    0, 0, 0, 1, 0,
+                    -1,
+                    0,
+                    0,
+                    0,
+                    255,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    255,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    255,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
                   ])
                 : null,
             pageAnchor: PdfPageAnchor.top,
@@ -207,8 +234,10 @@ class _PdfReaderScreenState extends ConsumerState<PdfReaderScreen> {
             onViewerReady: (doc, controller) async {
               _pageCount = doc.pages.length;
               if (_progress > 0 && _pageCount > 0) {
-                final page =
-                    (_progress * _pageCount).round().clamp(1, _pageCount);
+                final page = (_progress * _pageCount).round().clamp(
+                  1,
+                  _pageCount,
+                );
                 await controller.goToPage(pageNumber: page);
                 _currentPage = page;
               }
@@ -284,9 +313,8 @@ class _NavChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(
-            alpha: 0.85,
-          ),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest
+          .withValues(alpha: 0.85),
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),

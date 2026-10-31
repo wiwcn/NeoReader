@@ -28,8 +28,12 @@ class Fb2Parser {
         break;
       }
     }
-    final firstNames = doc.findAllElements('first-name').map((e) => e.innerText.trim());
-    final lastNames = doc.findAllElements('last-name').map((e) => e.innerText.trim());
+    final firstNames = doc
+        .findAllElements('first-name')
+        .map((e) => e.innerText.trim());
+    final lastNames = doc
+        .findAllElements('last-name')
+        .map((e) => e.innerText.trim());
     final parts = <String>[
       ...firstNames.where((e) => e.isNotEmpty),
       ...lastNames.where((e) => e.isNotEmpty),

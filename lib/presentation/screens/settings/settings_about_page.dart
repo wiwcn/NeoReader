@@ -25,52 +25,59 @@ class SettingsAboutPage extends ConsumerWidget {
           child: Material(
             type: MaterialType.transparency,
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(strings.about, style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              Text(strings.aboutBody),
-              const SizedBox(height: 16),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.tag),
-                title: Text(strings.versionLabel),
-                subtitle: const Text('NeoReader v1.0.0'),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.gavel_outlined),
-                title: Text(strings.license),
-                subtitle: const Text('GPL-3.0'),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.favorite_outline),
-                title: Text(strings.thanksKoodo),
-                subtitle: Text(strings.thanksKoodoBody),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.code),
-                title: Text(strings.openSourceRepo),
-                subtitle: const Text(_repo),
-                onTap: () async {
-                  await Clipboard.setData(const ClipboardData(text: _repo));
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          strings.isZh ? '仓库链接已复制' : 'Repository URL copied',
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  strings.about,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(strings.aboutBody),
+                const SizedBox(height: 16),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.tag),
+                  title: Text(strings.versionLabel),
+                  subtitle: const Text('NeoReader v1.0.0'),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.gavel_outlined),
+                  title: Text(strings.license),
+                  subtitle: const Text('GPL-3.0'),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.favorite_outline),
+                  title: Text(strings.thanksKoodo),
+                  subtitle: Text(strings.thanksKoodoBody),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.code),
+                  title: Text(strings.openSourceRepo),
+                  subtitle: const Text(_repo),
+                  onTap: () async {
+                    await Clipboard.setData(const ClipboardData(text: _repo));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            strings.isZh ? '仓库链接已复制' : 'Repository URL copied',
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 8),
-              Text(strings.offlinePolicy, style: Theme.of(context).textTheme.bodySmall),
-            ],
-          )),
+                      );
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  strings.offlinePolicy,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

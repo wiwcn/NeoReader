@@ -6,7 +6,10 @@ void main() {
   testWidgets('NeoReader app builds', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: NeoReaderApp()));
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.textContaining('NeoReader'), findsNothing); // may still be loading settings
+    expect(
+      find.textContaining('NeoReader'),
+      findsNothing,
+    ); // may still be loading settings
     // Smoke: MaterialApp is present via pump without throw
     expect(tester.takeException(), isNull);
   });

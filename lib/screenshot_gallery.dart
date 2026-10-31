@@ -8,6 +8,7 @@ import 'domain/models/app_settings.dart';
 import 'domain/models/book.dart';
 import 'domain/models/reading_stats.dart';
 import 'presentation/providers/providers.dart';
+import 'presentation/screens/annotations/annotations_screen.dart';
 import 'presentation/screens/library/library_screen.dart';
 import 'presentation/screens/settings/settings_hub_screen.dart';
 import 'presentation/screens/stats/stats_screen.dart';
@@ -74,7 +75,10 @@ class _GalleryApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const settings = AppSettings(themeMode: AppThemeModePref.light, localeCode: 'zh');
+    const settings = AppSettings(
+      themeMode: AppThemeModePref.light,
+      localeCode: 'zh',
+    );
     return ProviderScope(
       overrides: [
         settingsProvider.overrideWith(() => _FixedSettings(settings)),
@@ -87,6 +91,8 @@ class _GalleryApp extends StatelessWidget {
             booksStarted: 4,
             booksFinished: 1,
             perBookSeconds: {'1': 3600, '2': 1800, '3': 900, '4': 1200},
+            currentStreakDays: 3,
+            last7DaysSeconds: [600, 0, 1200, 900, 1800, 2400, 2520],
           ),
         ),
       ],
@@ -99,18 +105,20 @@ class _GalleryApp extends StatelessWidget {
         routes: {
           '/': (_) => const _Index(),
           '/empty': (_) => GlassScaffoldBackground(
-                child: Scaffold(
-                  backgroundColor: Colors.transparent,
-                  appBar: GlassAppBar(title: const Text('书库')),
-                  floatingActionButton: FloatingActionButton.extended(
-                    onPressed: () {},
-                    icon: const Icon(Icons.add_rounded),
-                    label: const Text('导入'),
-                  ),
-                  body: EmptyLibrary(strings: AppStrings(true)),
-                ),
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: GlassAppBar(title: const Text('书库')),
+              floatingActionButton: FloatingActionButton.extended(
+                onPressed: () {},
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('导入'),
               ),
+              body: EmptyLibrary(strings: AppStrings(true)),
+            ),
+          ),
           '/library': (_) => const LibraryScreen(),
+          '/library_grid': (_) => const LibraryScreen(),
+          '/annotations': (_) => const AnnotationsScreen(),
           '/stats': (_) => const StatsScreen(),
           '/settings': (_) => const SettingsHubScreen(),
           '/reader': (_) {

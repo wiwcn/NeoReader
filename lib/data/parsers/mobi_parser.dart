@@ -60,16 +60,21 @@ class MobiParser {
             .trim();
       }
       // EXTH
-      final exthFlag = rec0.length > 0x80 ? rec0bd.getUint32(0x80, Endian.big) : 0;
+      final exthFlag = rec0.length > 0x80
+          ? rec0bd.getUint32(0x80, Endian.big)
+          : 0;
       if ((exthFlag & 0x40) != 0 && headerLen + 16 < rec0.length) {
         final exthStart = 16 + headerLen;
         if (exthStart + 12 <= rec0.length &&
-            ascii.decode(rec0.sublist(exthStart, exthStart + 4),
-                    allowInvalid: true) ==
+            ascii.decode(
+                  rec0.sublist(exthStart, exthStart + 4),
+                  allowInvalid: true,
+                ) ==
                 'EXTH') {
-          final exthLen = ByteData.sublistView(rec0).getUint32(exthStart + 4, Endian.big);
-          final exthCount =
-              ByteData.sublistView(rec0).getUint32(exthStart + 8, Endian.big);
+          final exthLen = ByteData.sublistView(rec0)
+              .getUint32(exthStart + 4, Endian.big);
+          final exthCount = ByteData.sublistView(rec0)
+              .getUint32(exthStart + 8, Endian.big);
           var p = exthStart + 12;
           final end = (exthStart + exthLen).clamp(0, rec0.length);
           for (var i = 0; i < exthCount && p + 8 <= end; i++) {
@@ -129,7 +134,8 @@ class MobiParser {
     if (body.length < 40) {
       final loose = utf8.decode(data, allowMalformed: true);
       final doc = html_parser.parse(loose);
-      final t = doc.body?.text.replaceAll(RegExp(r'\n{3,}'), '\n\n').trim() ?? '';
+      final t =
+          doc.body?.text.replaceAll(RegExp(r'\n{3,}'), '\n\n').trim() ?? '';
       if (t.length > body.length) body = t;
     }
 
@@ -140,11 +146,14 @@ class MobiParser {
           'Try converting to EPUB/TXT with Calibre.';
     }
 
-    final title = (fullName.isEmpty ? null : fullName) ??
-        fallbackTitle ??
-        'Kindle book';
+    final title =
+        (fullName.isEmpty ? null : fullName) ?? fallbackTitle ?? 'Kindle book';
 
-    return TextContent(title: title, author: author.isEmpty ? 'Kindle' : author, body: body);
+    return TextContent(
+      title: title,
+      author: author.isEmpty ? 'Kindle' : author,
+      body: body,
+    );
   }
 
   Uint8List _record(Uint8List data, List<int> offsets, int index) {

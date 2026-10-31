@@ -44,7 +44,8 @@ class _ComicReaderScreenState extends ConsumerState<ComicReaderScreen> {
         fallbackTitle: widget.book.title,
       );
       if (!mounted) return;
-      final initial = widget.book.lastLocation != null &&
+      final initial =
+          widget.book.lastLocation != null &&
               widget.book.lastLocation!.startsWith('page:')
           ? int.tryParse(widget.book.lastLocation!.substring(5)) ?? 0
           : (widget.book.progress * (data.pages.length - 1)).round();
@@ -67,11 +68,9 @@ class _ComicReaderScreenState extends ConsumerState<ComicReaderScreen> {
   }
 
   Future<void> _persist() async {
-    await ref.read(bookRepositoryProvider).updateProgress(
-          widget.book.id,
-          _progress,
-          'page:$_index',
-        );
+    await ref
+        .read(bookRepositoryProvider)
+        .updateProgress(widget.book.id, _progress, 'page:$_index');
     await ref.read(libraryProvider.notifier).refresh();
   }
 
@@ -113,7 +112,9 @@ class _ComicReaderScreenState extends ConsumerState<ComicReaderScreen> {
                       ? null
                       : () async {
                           final messenger = ScaffoldMessenger.of(context);
-                          await ref.read(annotationRepositoryProvider).add(
+                          await ref
+                              .read(annotationRepositoryProvider)
+                              .add(
                                 Annotation(
                                   id: const Uuid().v4(),
                                   bookId: widget.book.id,
@@ -144,30 +145,29 @@ class _ComicReaderScreenState extends ConsumerState<ComicReaderScreen> {
               ),
             )
           : _data == null
-              ? const Center(child: CircularProgressIndicator())
-              : GestureDetector(
-                  onTap: () =>
-                      setState(() => _chromeVisible = !_chromeVisible),
-                  child: PageView.builder(
-                    controller: _pages,
-                    itemCount: _data!.pages.length,
-                    onPageChanged: (i) => setState(() => _index = i),
-                    itemBuilder: (context, i) {
-                      final page = _data!.pages[i];
-                      return InteractiveViewer(
-                        minScale: 0.8,
-                        maxScale: 4,
-                        child: Center(
-                          child: Image.memory(
-                            page.bytes,
-                            fit: BoxFit.contain,
-                            filterQuality: FilterQuality.high,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+          ? const Center(child: CircularProgressIndicator())
+          : GestureDetector(
+              onTap: () => setState(() => _chromeVisible = !_chromeVisible),
+              child: PageView.builder(
+                controller: _pages,
+                itemCount: _data!.pages.length,
+                onPageChanged: (i) => setState(() => _index = i),
+                itemBuilder: (context, i) {
+                  final page = _data!.pages[i];
+                  return InteractiveViewer(
+                    minScale: 0.8,
+                    maxScale: 4,
+                    child: Center(
+                      child: Image.memory(
+                        page.bytes,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
       bottomNavigationBar: _chromeVisible && _data != null
           ? SafeArea(
               child: Padding(

@@ -13,14 +13,7 @@ import 'settings_privacy_page.dart';
 import 'settings_reading_page.dart';
 import 'settings_stats_page.dart';
 
-enum _SettingsCategory {
-  appearance,
-  reading,
-  library,
-  privacy,
-  stats,
-  about,
-}
+enum _SettingsCategory { appearance, reading, library, privacy, stats, about }
 
 class _Cat {
   const _Cat(this.type, this.icon, this.title, this.subtitle);
@@ -106,9 +99,7 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
                   Expanded(flex: 4, child: list),
                   VerticalDivider(
                     width: 1,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .outline
+                    color: Theme.of(context).colorScheme.outline
                         .withValues(alpha: 0.15),
                   ),
                   Expanded(
@@ -119,14 +110,15 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
                           : const Duration(milliseconds: 300),
                       transitionBuilder:
                           (child, primaryAnimation, secondaryAnimation) {
-                        return SharedAxisTransition(
-                          animation: primaryAnimation,
-                          secondaryAnimation: secondaryAnimation,
-                          transitionType: SharedAxisTransitionType.horizontal,
-                          fillColor: Colors.transparent,
-                          child: child,
-                        );
-                      },
+                            return SharedAxisTransition(
+                              animation: primaryAnimation,
+                              secondaryAnimation: secondaryAnimation,
+                              transitionType:
+                                  SharedAxisTransitionType.horizontal,
+                              fillColor: Colors.transparent,
+                              child: child,
+                            );
+                          },
                       child: KeyedSubtree(
                         key: ValueKey(_selected),
                         child: _pageFor(_selected, showAppBar: false),
@@ -175,8 +167,7 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
                     if (isPortrait) {
                       Navigator.of(context).push(
                         SharedAxisPageRoute<void>(
-                          builder: (_) =>
-                              _pageFor(item.type, showAppBar: true),
+                          builder: (_) => _pageFor(item.type, showAppBar: true),
                         ),
                       );
                     } else {
@@ -236,8 +227,9 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
 
   Widget _pageFor(_SettingsCategory type, {required bool showAppBar}) {
     return switch (type) {
-      _SettingsCategory.appearance =>
-        SettingsAppearancePage(showAppBar: showAppBar),
+      _SettingsCategory.appearance => SettingsAppearancePage(
+        showAppBar: showAppBar,
+      ),
       _SettingsCategory.reading => SettingsReadingPage(showAppBar: showAppBar),
       _SettingsCategory.library => SettingsLibraryPage(showAppBar: showAppBar),
       _SettingsCategory.privacy => SettingsPrivacyPage(showAppBar: showAppBar),

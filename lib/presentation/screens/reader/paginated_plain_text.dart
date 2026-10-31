@@ -16,6 +16,7 @@ class PaginatedPlainText extends StatefulWidget {
   final TextStyle style;
   final EdgeInsets padding;
   final PageController? controller;
+
   /// Called with progress 0–1 when the page changes or pages are measured.
   final ValueChanged<double>? onProgress;
   final int initialPage;
@@ -41,7 +42,10 @@ class _PaginatedPlainTextState extends State<PaginatedPlainText> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = Size(
-          (constraints.maxWidth - widget.padding.horizontal).clamp(40.0, 4000.0),
+          (constraints.maxWidth - widget.padding.horizontal).clamp(
+            40.0,
+            4000.0,
+          ),
           (constraints.maxHeight - widget.padding.vertical).clamp(40.0, 4000.0),
         );
         if (_pages.isEmpty ||

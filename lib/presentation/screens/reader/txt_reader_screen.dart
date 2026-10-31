@@ -66,7 +66,9 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
   }
 
   Future<void> _persist() async {
-    await ref.read(bookRepositoryProvider).updateProgress(
+    await ref
+        .read(bookRepositoryProvider)
+        .updateProgress(
           widget.book.id,
           _progress,
           'offset:${_scroll.hasClients ? _scroll.offset.round() : 0}',
@@ -153,8 +155,11 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
           ? AppBar(
               backgroundColor: colors.background.withValues(alpha: 0.9),
               foregroundColor: colors.foreground,
-              title: Text(widget.book.title,
-                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text(
+                widget.book.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.tune_rounded),
@@ -163,7 +168,9 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
                     ref: ref,
                     settings: settings,
                     onAddBookmark: () async {
-                      await ref.read(annotationRepositoryProvider).add(
+                      await ref
+                          .read(annotationRepositoryProvider)
+                          .add(
                             Annotation(
                               id: const Uuid().v4(),
                               bookId: widget.book.id,
@@ -199,7 +206,9 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
                         ),
                       );
                       if (ok == true && c.text.trim().isNotEmpty) {
-                        await ref.read(annotationRepositoryProvider).add(
+                        await ref
+                            .read(annotationRepositoryProvider)
+                            .add(
                               Annotation(
                                 id: const Uuid().v4(),
                                 bookId: widget.book.id,
@@ -220,12 +229,11 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
       body: _error != null
           ? Center(child: Text('$_error'))
           : _text == null
-              ? const Center(child: CircularProgressIndicator())
-              : GestureDetector(
-                  onTap: () =>
-                      setState(() => _chromeVisible = !_chromeVisible),
-                  child: _buildBody(settings, colors),
-                ),
+          ? const Center(child: CircularProgressIndicator())
+          : GestureDetector(
+              onTap: () => setState(() => _chromeVisible = !_chromeVisible),
+              child: _buildBody(settings, colors),
+            ),
       bottomNavigationBar: _chromeVisible
           ? SafeArea(
               child: Padding(

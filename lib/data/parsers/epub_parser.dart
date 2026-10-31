@@ -48,8 +48,9 @@ class EpubParser {
     if (containerFile == null) {
       throw StateError('Invalid EPUB: missing META-INF/container.xml');
     }
-    final containerXml =
-        XmlDocument.parse(utf8.decode(containerFile.content as List<int>));
+    final containerXml = XmlDocument.parse(
+      utf8.decode(containerFile.content as List<int>),
+    );
     final rootfile = containerXml
         .findAllElements('rootfile')
         .map((e) => e.getAttribute('full-path'))
@@ -65,7 +66,8 @@ class EpubParser {
     final opf = XmlDocument.parse(utf8.decode(opfFile.content as List<int>));
 
     final title = _firstText(opf, const ['dc:title', 'title']) ?? 'Untitled';
-    final author = _firstText(opf, const ['dc:creator', 'creator']) ?? 'Unknown';
+    final author =
+        _firstText(opf, const ['dc:creator', 'creator']) ?? 'Unknown';
 
     final manifest = <String, String>{};
     String? coverId;

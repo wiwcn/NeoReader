@@ -37,10 +37,7 @@ class AppTheme {
       brightness: Brightness.light,
     );
     // No fontFamily on ThemeData — Icons must keep MaterialIcons.
-    final base = ThemeData(
-      useMaterial3: true,
-      colorScheme: scheme,
-    );
+    final base = ThemeData(useMaterial3: true, colorScheme: scheme);
     return base.copyWith(
       textTheme: _textTheme(base.textTheme),
       primaryTextTheme: _textTheme(base.primaryTextTheme),
@@ -99,10 +96,7 @@ class AppTheme {
       seedColor: seedColor,
       brightness: Brightness.dark,
     );
-    final base = ThemeData(
-      useMaterial3: true,
-      colorScheme: scheme,
-    );
+    final base = ThemeData(useMaterial3: true, colorScheme: scheme);
     return base.copyWith(
       textTheme: _textTheme(base.textTheme),
       primaryTextTheme: _textTheme(base.primaryTextTheme),
@@ -230,8 +224,9 @@ class GlassSurface extends StatelessWidget {
 
     final radius = BorderRadius.circular(borderRadius);
     final effectiveBlur = blur * blurStrength;
-    final content =
-        padding == null ? child : Padding(padding: padding!, child: child);
+    final content = padding == null
+        ? child
+        : Padding(padding: padding!, child: child);
 
     Widget frost = Stack(
       fit: StackFit.passthrough,
@@ -248,10 +243,7 @@ class GlassSurface extends StatelessWidget {
           ),
         Positioned.fill(
           child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: fill,
-              borderRadius: radius,
-            ),
+            decoration: BoxDecoration(color: fill, borderRadius: radius),
           ),
         ),
         content,

@@ -8,7 +8,10 @@ class TxtBookData {
 }
 
 class TxtParser {
-  Future<TxtBookData> parseFile(String filePath, {String? fallbackTitle}) async {
+  Future<TxtBookData> parseFile(
+    String filePath, {
+    String? fallbackTitle,
+  }) async {
     final file = File(filePath);
     final bytes = await file.readAsBytes();
     String text;
@@ -20,10 +23,13 @@ class TxtParser {
     if (text.startsWith('\uFEFF')) {
       text = text.substring(1);
     }
-    final name = fallbackTitle ??
+    final name =
+        fallbackTitle ??
         (file.uri.pathSegments.isNotEmpty
-            ? file.uri.pathSegments.last
-                .replaceAll(RegExp(r'\.txt$', caseSensitive: false), '')
+            ? file.uri.pathSegments.last.replaceAll(
+                RegExp(r'\.txt$', caseSensitive: false),
+                '',
+              )
             : 'Text');
     return TxtBookData(title: name, content: text);
   }

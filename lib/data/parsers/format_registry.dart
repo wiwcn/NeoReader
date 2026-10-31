@@ -21,16 +21,16 @@ class FormatRegistry {
 
   /// Remaining Koodo offline modules still scaffolded (formats above are shipping).
   static const plannedModules = <String, String>{
-    'format.comic_rar_7z': 'Comic RAR/7z (cbr full / cbt / cb7) — use CBZ for now',
-    'reader.vertical': 'Vertical layout',
+    'format.comic_rar_7z':
+        'Comic RAR/7z (cbr full / cbt / cb7) — use CBZ for now',
     'reader.two_column': 'Two-column layout',
     'reader.tts': 'Text-to-speech (local)',
     'reader.dictionary': 'Local MDX dictionary',
     'reader.ocr': 'Local OCR',
     'reader.translation': 'Local translation plugins',
-    'library.export': 'One-click export books / notes (CSV/MD/HTML/TXT/PDF)',
+    'library.export_books': 'One-click export all books',
+    'library.export_notes_extra': 'Notes export CSV / HTML / PDF',
     'library.lock': 'PIN / biometric library lock',
     'library.snapshot': 'Library snapshots / version control',
-    'stats.charts': 'Rich reading statistics charts',
   };
 }

@@ -82,11 +82,7 @@ class AnimatedProgressBar extends StatelessWidget {
 
 /// Light press scale for FAB / tappable controls.
 class PressScale extends StatefulWidget {
-  const PressScale({
-    super.key,
-    required this.child,
-    this.pressedScale = 0.94,
-  });
+  const PressScale({super.key, required this.child, this.pressedScale = 0.94});
 
   final Widget child;
   final double pressedScale;
@@ -133,10 +129,7 @@ class FadeIndexedStack extends StatelessWidget {
   Widget build(BuildContext context) {
     final reduce = MediaQuery.disableAnimationsOf(context);
     if (reduce) {
-      return KeyedSubtree(
-        key: ValueKey<int>(index),
-        child: children[index],
-      );
+      return KeyedSubtree(key: ValueKey<int>(index), child: children[index]);
     }
     return PageTransitionSwitcher(
       duration: duration,
@@ -149,10 +142,7 @@ class FadeIndexedStack extends StatelessWidget {
           child: child,
         );
       },
-      child: KeyedSubtree(
-        key: ValueKey<int>(index),
-        child: children[index],
-      ),
+      child: KeyedSubtree(key: ValueKey<int>(index), child: children[index]),
     );
   }
 }
@@ -165,19 +155,19 @@ class SharedAxisPageRoute<T> extends PageRouteBuilder<T> {
         SharedAxisTransitionType.horizontal,
     super.settings,
   }) : super(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              builder(context),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            if (MediaQuery.disableAnimationsOf(context)) return child;
-            return SharedAxisTransition(
-              animation: animation,
-              secondaryAnimation: secondaryAnimation,
-              transitionType: transitionType,
-              fillColor: Colors.transparent,
-              child: child,
-            );
-          },
-          transitionDuration: const Duration(milliseconds: 300),
-          reverseTransitionDuration: const Duration(milliseconds: 300),
-        );
+         pageBuilder: (context, animation, secondaryAnimation) =>
+             builder(context),
+         transitionsBuilder: (context, animation, secondaryAnimation, child) {
+           if (MediaQuery.disableAnimationsOf(context)) return child;
+           return SharedAxisTransition(
+             animation: animation,
+             secondaryAnimation: secondaryAnimation,
+             transitionType: transitionType,
+             fillColor: Colors.transparent,
+             child: child,
+           );
+         },
+         transitionDuration: const Duration(milliseconds: 300),
+         reverseTransitionDuration: const Duration(milliseconds: 300),
+       );
 }

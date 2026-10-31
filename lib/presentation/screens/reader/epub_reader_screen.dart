@@ -70,11 +70,9 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
   }
 
   Future<void> _persist() async {
-    await ref.read(bookRepositoryProvider).updateProgress(
-          widget.book.id,
-          _progress,
-          'chapter:$_chapterIndex',
-        );
+    await ref
+        .read(bookRepositoryProvider)
+        .updateProgress(widget.book.id, _progress, 'chapter:$_chapterIndex');
     await ref.read(libraryProvider.notifier).refresh();
   }
 
@@ -198,7 +196,8 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
     Widget body;
     if (_error != null) {
       body = Center(
-          child: Text('$_error', style: TextStyle(color: colors.foreground)));
+        child: Text('$_error', style: TextStyle(color: colors.foreground)),
+      );
     } else if (_data == null) {
       body = const Center(child: CircularProgressIndicator());
     } else if (vertical) {
@@ -223,11 +222,15 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
               actions: [
                 IconButton(
                   tooltip: paged ? strings.scrollMode : strings.pageMode,
-                  icon: Icon(paged
-                      ? Icons.view_day_outlined
-                      : Icons.auto_stories_outlined),
+                  icon: Icon(
+                    paged
+                        ? Icons.view_day_outlined
+                        : Icons.auto_stories_outlined,
+                  ),
                   onPressed: () {
-                    ref.read(settingsProvider.notifier).saveSettings(
+                    ref
+                        .read(settingsProvider.notifier)
+                        .saveSettings(
                           (c) => c.copyWith(
                             pageTurnMode: paged
                                 ? PageTurnMode.scroll
@@ -296,8 +299,8 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
       location: 'chapter:$_chapterIndex',
       chapter: _data?.chapters.isNotEmpty == true
           ? _data!
-              .chapters[_chapterIndex.clamp(0, _data!.chapters.length - 1)]
-              .title
+                .chapters[_chapterIndex.clamp(0, _data!.chapters.length - 1)]
+                .title
           : null,
       selectedText: selected,
       note: note,
@@ -319,11 +322,13 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
         content: TextField(controller: controller, maxLines: 4),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(strings.cancel)),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(strings.cancel),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(strings.confirm)),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(strings.confirm),
+          ),
         ],
       ),
     );

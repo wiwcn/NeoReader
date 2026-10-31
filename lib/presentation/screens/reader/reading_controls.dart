@@ -49,18 +49,26 @@ class ReadingControlsSheet extends StatelessWidget {
                 ),
               ),
             ),
-            Text(strings.readingTheme,
-                style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              strings.readingTheme,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             const SizedBox(height: 8),
             SegmentedButton<ReadingThemeMode>(
               showSelectedIcon: false,
               segments: [
                 ButtonSegment(
-                    value: ReadingThemeMode.day, label: Text(strings.day)),
+                  value: ReadingThemeMode.day,
+                  label: Text(strings.day),
+                ),
                 ButtonSegment(
-                    value: ReadingThemeMode.night, label: Text(strings.night)),
+                  value: ReadingThemeMode.night,
+                  label: Text(strings.night),
+                ),
                 ButtonSegment(
-                    value: ReadingThemeMode.sepia, label: Text(strings.sepia)),
+                  value: ReadingThemeMode.sepia,
+                  label: Text(strings.sepia),
+                ),
               ],
               selected: {settings.readingTheme},
               onSelectionChanged: (s) =>
@@ -71,9 +79,11 @@ class ReadingControlsSheet extends StatelessWidget {
               children: [
                 IconButton(
                   tooltip: strings.decreaseFont,
-                  onPressed: () => onChanged(settings.copyWith(
-                    fontSize: (settings.fontSize - 1).clamp(12, 36),
-                  )),
+                  onPressed: () => onChanged(
+                    settings.copyWith(
+                      fontSize: (settings.fontSize - 1).clamp(12, 36),
+                    ),
+                  ),
                   icon: const Icon(Icons.text_decrease_rounded),
                 ),
                 Expanded(
@@ -84,9 +94,11 @@ class ReadingControlsSheet extends StatelessWidget {
                 ),
                 IconButton(
                   tooltip: strings.increaseFont,
-                  onPressed: () => onChanged(settings.copyWith(
-                    fontSize: (settings.fontSize + 1).clamp(12, 36),
-                  )),
+                  onPressed: () => onChanged(
+                    settings.copyWith(
+                      fontSize: (settings.fontSize + 1).clamp(12, 36),
+                    ),
+                  ),
                   icon: const Icon(Icons.text_increase_rounded),
                 ),
               ],
@@ -98,7 +110,8 @@ class ReadingControlsSheet extends StatelessWidget {
               onChanged: (v) => onChanged(settings.copyWith(fontSize: v)),
             ),
             Text(
-                '${strings.lineHeight}: ${settings.lineHeight.toStringAsFixed(2)}'),
+              '${strings.lineHeight}: ${settings.lineHeight.toStringAsFixed(2)}',
+            ),
             Slider(
               min: 1.2,
               max: 2.4,
@@ -106,7 +119,8 @@ class ReadingControlsSheet extends StatelessWidget {
               onChanged: (v) => onChanged(settings.copyWith(lineHeight: v)),
             ),
             Text(
-                '${strings.horizontalMargin}: ${settings.horizontalMargin.round()}'),
+              '${strings.horizontalMargin}: ${settings.horizontalMargin.round()}',
+            ),
             Slider(
               min: 12,
               max: 40,
@@ -121,10 +135,13 @@ class ReadingControlsSheet extends StatelessWidget {
               showSelectedIcon: false,
               segments: [
                 ButtonSegment(
-                    value: PageTurnMode.scroll,
-                    label: Text(strings.scrollMode)),
+                  value: PageTurnMode.scroll,
+                  label: Text(strings.scrollMode),
+                ),
                 ButtonSegment(
-                    value: PageTurnMode.paged, label: Text(strings.pageMode)),
+                  value: PageTurnMode.paged,
+                  label: Text(strings.pageMode),
+                ),
               ],
               selected: {settings.pageTurnMode},
               onSelectionChanged: (s) =>
@@ -137,11 +154,13 @@ class ReadingControlsSheet extends StatelessWidget {
               showSelectedIcon: false,
               segments: [
                 ButtonSegment(
-                    value: WritingMode.horizontal,
-                    label: Text(strings.writingHorizontal)),
+                  value: WritingMode.horizontal,
+                  label: Text(strings.writingHorizontal),
+                ),
                 ButtonSegment(
-                    value: WritingMode.vertical,
-                    label: Text(strings.writingVertical)),
+                  value: WritingMode.vertical,
+                  label: Text(strings.writingVertical),
+                ),
               ],
               selected: {settings.writingMode},
               onSelectionChanged: (s) =>
@@ -156,11 +175,11 @@ class ReadingControlsSheet extends StatelessWidget {
               children: [
                 ChoiceChip(
                   label: Text(strings.defaultFont),
-                  selected: settings.customFontFamily == null ||
+                  selected:
+                      settings.customFontFamily == null ||
                       settings.customFontFamily!.isEmpty,
-                  onSelected: (_) => onChanged(
-                    settings.copyWith(clearCustomFont: true),
-                  ),
+                  onSelected: (_) =>
+                      onChanged(settings.copyWith(clearCustomFont: true)),
                 ),
                 for (final f in customFonts)
                   InputChip(

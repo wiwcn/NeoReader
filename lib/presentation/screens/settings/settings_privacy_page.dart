@@ -24,34 +24,35 @@ class SettingsPrivacyPage extends ConsumerWidget {
           child: Material(
             type: MaterialType.transparency,
             child: Column(
-            children: [
-              SwitchListTile(
-                secondary: const Icon(Icons.lock_outline),
-                title: Text(strings.libraryPin),
-                subtitle: Text(strings.libraryPinSub),
-                value: settings.libraryPinEnabled,
-                onChanged: (v) => ref.read(settingsProvider.notifier).saveSettings(
-                      (c) => c.copyWith(libraryPinEnabled: v),
-                    ),
-              ),
-              const Divider(height: 8),
-              ListTile(
-                leading: const Icon(Icons.folder_outlined),
-                title: Text(strings.exportNotesPath),
-                subtitle: Text(strings.exportNotesPathBody),
-              ),
-              const Divider(height: 8),
-              ListTile(
-                leading: const Icon(Icons.cloud_off_outlined),
-                title: Text(strings.offlinePolicy),
-                subtitle: Text(
-                  strings.isZh
-                      ? '数据仅保存在本机，不会上传。'
-                      : 'Data stays on this device and is never uploaded.',
+              children: [
+                SwitchListTile(
+                  secondary: const Icon(Icons.lock_outline),
+                  title: Text(strings.libraryPin),
+                  subtitle: Text(strings.libraryPinSub),
+                  value: settings.libraryPinEnabled,
+                  onChanged: (v) => ref
+                      .read(settingsProvider.notifier)
+                      .saveSettings((c) => c.copyWith(libraryPinEnabled: v)),
                 ),
-              ),
-            ],
-          )),
+                const Divider(height: 8),
+                ListTile(
+                  leading: const Icon(Icons.folder_outlined),
+                  title: Text(strings.exportNotesPath),
+                  subtitle: Text(strings.exportNotesPathBody),
+                ),
+                const Divider(height: 8),
+                ListTile(
+                  leading: const Icon(Icons.cloud_off_outlined),
+                  title: Text(strings.offlinePolicy),
+                  subtitle: Text(
+                    strings.isZh
+                        ? '数据仅保存在本机，不会上传。'
+                        : 'Data stays on this device and is never uploaded.',
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

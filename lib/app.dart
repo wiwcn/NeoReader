@@ -12,8 +12,7 @@ class NeoReaderApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings =
-        ref.watch(settingsProvider).value ?? const AppSettings();
+    final settings = ref.watch(settingsProvider).value ?? const AppSettings();
     final strings = ref.watch(stringsProvider);
 
     // Keep glass strength in sync with persisted settings.

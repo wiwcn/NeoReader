@@ -78,6 +78,59 @@ class StatsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+                GlassSurface(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.local_fire_department_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 36,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              strings.readingStreak,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              isZh
+                                  ? '${s.currentStreakDays} ${strings.streakDays}'
+                                  : '${s.currentStreakDays} ${strings.streakDays}',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                GlassSurface(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        strings.last7Days,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 160,
+                        child: _Last7DaysChart(
+                          seconds: s.last7DaysSeconds,
+                          isZh: isZh,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 16),
                 GlassSurface(
                   padding: const EdgeInsets.all(16),
@@ -90,18 +143,32 @@ class StatsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       if (s.perBookSeconds.isEmpty)
-                        Text(isZh ? '暂无记录，打开一本书开始阅读即可累计。' : 'No sessions yet. Open a book to track time.')
+                        Text(
+                          isZh
+                              ? '暂无记录，打开一本书开始阅读即可累计。'
+                              : 'No sessions yet. Open a book to track time.',
+                        )
                       else
                         ...s.perBookSeconds.entries.map((e) {
-                          final matches = books.where((b) => b.id == e.key).toList();
-                          final title = matches.isEmpty ? e.key : matches.first.title;
+                          final matches = books
+                              .where((b) => b.id == e.key)
+                              .toList();
+                          final title = matches.isEmpty
+                              ? e.key
+                              : matches.first.title;
                           final book = matches.isEmpty ? null : matches.first;
                           return ListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            title: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                             subtitle: book == null
                                 ? null
-                                : LinearProgressIndicator(value: book.progress.clamp(0, 1)),
+                                : LinearProgressIndicator(
+                                    value: book.progress.clamp(0, 1),
+                                  ),
                             trailing: Text(_fmt(e.value, isZh: isZh)),
                           );
                         }),
@@ -116,7 +183,12 @@ class StatsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _statCard(BuildContext context, String label, String value, IconData icon) {
+  Widget _statCard(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
     return GlassSurface(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -128,6 +200,87 @@ class StatsScreen extends ConsumerWidget {
           Text(label, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
+    );
+  }
+}
+
+class _Last7DaysChart extends StatelessWidget {
+  const _Last7DaysChart({required this.seconds, required this.isZh});
+
+  final List<int> seconds;
+  final bool isZh;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final values = seconds.length == 7 ? seconds : List<int>.filled(7, 0);
+    final maxV = values.fold<int>(0, (a, b) => a > b ? a : b);
+    final today = DateTime.now();
+    const en = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const zh = ['一', '二', '三', '四', '五', '六', '日'];
+    final labels = isZh ? zh : en;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final labelBand = 36.0;
+        final available = (constraints.maxHeight - labelBand).clamp(40.0, 200.0);
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: List.generate(7, (i) {
+            final day = DateTime(
+              today.year,
+              today.month,
+              today.day,
+            ).subtract(Duration(days: 6 - i));
+            final v = values[i];
+            final frac = maxV <= 0 ? 0.0 : (v / maxV).clamp(0.0, 1.0);
+            final barH = 8.0 + frac * (available - 8.0);
+            final label = labels[(day.weekday - 1) % 7];
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: SizedBox(
+                  height: constraints.maxHeight,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 420),
+                            curve: Curves.easeOutCubic,
+                            width: double.infinity,
+                            height: barH,
+                            decoration: BoxDecoration(
+                              color: cs.primary
+                                  .withValues(alpha: v > 0 ? 0.85 : 0.18),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        label,
+                        style: Theme.of(context).textTheme.labelSmall
+                            ?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                      Text(
+                        v <= 0 ? ' ' : (v < 60 ? '${v}s' : '${v ~/ 60}m'),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontSize: 10,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }

@@ -29,8 +29,10 @@ class VerticalTextView extends StatelessWidget {
         final fontSize = style.fontSize ?? 18;
         final height = style.height ?? 1.75;
         final charH = fontSize * height;
-        final usableH =
-            (constraints.maxHeight - padding.vertical).clamp(80.0, 4000.0);
+        final usableH = (constraints.maxHeight - padding.vertical).clamp(
+          80.0,
+          4000.0,
+        );
         final charsPerCol = (usableH / charH).floor().clamp(4, 200);
         final columns = _buildColumns(text, charsPerCol);
         final colW = fontSize * 1.15;
@@ -39,8 +41,10 @@ class VerticalTextView extends StatelessWidget {
           onNotification: (n) {
             if (onScrollProgress != null && n.metrics.maxScrollExtent > 0) {
               // Reverse axis: offset 0 is the start (right).
-              final p =
-                  (n.metrics.pixels / n.metrics.maxScrollExtent).clamp(0.0, 1.0);
+              final p = (n.metrics.pixels / n.metrics.maxScrollExtent).clamp(
+                0.0,
+                1.0,
+              );
               onScrollProgress!(p);
             }
             return false;

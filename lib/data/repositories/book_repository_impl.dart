@@ -19,8 +19,12 @@ class BookRepositoryImpl implements BookRepository {
   @override
   Future<Book?> getById(String id) async {
     final db = await _db.database;
-    final rows =
-        await db.query('books', where: 'id = ?', whereArgs: [id], limit: 1);
+    final rows = await db.query(
+      'books',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
     if (rows.isEmpty) return null;
     return Book.fromMap(rows.first);
   }
