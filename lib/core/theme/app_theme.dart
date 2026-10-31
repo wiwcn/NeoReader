@@ -59,10 +59,10 @@ class AppTheme {
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      scaffoldBackgroundColor: const Color(0xFFE8EFE9),
+      scaffoldBackgroundColor: const Color(0xFFF3F6F3),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: Colors.white.withValues(alpha: 0.38),
+        color: Colors.white.withValues(alpha: 0.68),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -205,6 +205,7 @@ class GlassSurface extends StatelessWidget {
     this.padding,
     this.opacity,
     this.border = true,
+    this.elevate = true,
   });
 
   final Widget child;
@@ -213,52 +214,68 @@ class GlassSurface extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final double? opacity;
   final bool border;
+  /// When false (e.g. full-bleed app bar), skip outer shadow.
+  final bool elevate;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cs = Theme.of(context).colorScheme;
-    // Light fill stays translucent so the wash underneath reads through frost.
-    final fillAlpha = opacity ?? (isDark ? 0.12 : 0.52);
-    final fill = Color.lerp(
-          Colors.white,
-          isDark ? cs.surface : cs.primaryContainer,
-          isDark ? 0.0 : 0.12,
-        )!
-        .withValues(alpha: fillAlpha);
-    final stroke = Colors.white.withValues(
-      alpha: isDark ? 0.16 : 0.55,
+    // Layering (MD3 soft frost / common Flutter glass pattern):
+    // 1) tinted wash underneath (GlassScaffoldBackground)
+    // 2) content cards: pure white translucent fill — never primaryContainer lerp
+    // 3) chrome (GlassAppBar): lower opacity so it does not double-stack white
+    // 4) shadow OUTSIDE ClipRRect so elevation is visible (clipping shadows = 两层白)
+    final fill = Colors.white.withValues(
+      alpha: opacity ?? (isDark ? 0.10 : 0.68),
     );
+    // Light: soft dark hairline reads on soft gray-green wash; dark: light rim.
+    final stroke = isDark
+        ? Colors.white.withValues(alpha: 0.14)
+        : Colors.black.withValues(alpha: 0.06);
 
-    final decoration = BoxDecoration(
+    final radius = BorderRadius.circular(borderRadius);
+    final surfaceDecoration = BoxDecoration(
       color: fill,
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: radius,
       border: border ? Border.all(color: stroke, width: 1) : null,
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.10),
-          blurRadius: 20,
-          offset: const Offset(0, 6),
-        ),
-      ],
     );
     final painted = AnimatedContainer(
       duration: MediaQuery.disableAnimationsOf(context)
           ? Duration.zero
           : const Duration(milliseconds: 220),
       curve: Curves.easeOutCubic,
-      decoration: decoration,
+      decoration: surfaceDecoration,
       child: padding == null ? child : Padding(padding: padding!, child: child),
     );
     final effectiveBlur = blur * blurStrength;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
+    final frosted = ClipRRect(
+      borderRadius: radius,
       child: useFrostedBlur && effectiveBlur > 0.5
           ? BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: effectiveBlur, sigmaY: effectiveBlur),
+              filter: ImageFilter.blur(
+                sigmaX: effectiveBlur,
+                sigmaY: effectiveBlur,
+              ),
               child: painted,
             )
           : painted,
+    );
+
+    // Elevation lives outside the clip so soft shadows are not discarded.
+    if (!elevate) return frosted;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.32 : 0.08),
+            blurRadius: isDark ? 22 : 14,
+            offset: const Offset(0, 5),
+            spreadRadius: isDark ? 0 : -0.5,
+          ),
+        ],
+      ),
+      child: frosted,
     );
   }
 }
@@ -290,11 +307,11 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
       bottom: bottom,
       flexibleSpace: GlassSurface(
         borderRadius: 0,
-        blur: 20,
+        blur: 18,
         border: false,
-        // Chrome layer: lighter than content cards so search-in-bar + bar
-        // do not stack into a double white band.
-        opacity: Theme.of(context).brightness == Brightness.dark ? 0.08 : 0.32,
+        elevate: false,
+        // Chrome: more translucent than content cards (avoids 两层白 with search).
+        opacity: Theme.of(context).brightness == Brightness.dark ? 0.08 : 0.28,
         child: const SizedBox.expand(),
       ),
     );
