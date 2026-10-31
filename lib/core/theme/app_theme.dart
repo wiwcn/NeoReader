@@ -62,11 +62,11 @@ class AppTheme {
       scaffoldBackgroundColor: const Color(0xFFF3F6F3),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: Colors.white.withValues(alpha: 0.68),
+        color: Colors.white.withValues(alpha: 0.14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: Colors.white.withValues(alpha: 0.65),
+        backgroundColor: Colors.white.withValues(alpha: 0.10),
         elevation: 0,
         indicatorColor: seedColor.withValues(alpha: 0.18),
         labelTextStyle: WidgetStateProperty.resolveWith(
@@ -189,7 +189,10 @@ class _FadeSlidePageTransitionsBuilder extends PageTransitionsBuilder {
   }
 }
 
-/// Frosted glass container (毛玻璃).
+/// Flat MD3 frosted glass (毛玻璃) — blur + low-alpha frost + thin rim.
+///
+/// Pattern mirrors common Flutter glass kits (ClipRRect → BackdropFilter →
+/// frost fill ~0.1 → thin white border). No BoxShadow / plastic elevation.
 class GlassSurface extends StatelessWidget {
   /// Set false in screenshot/golden tests — BackdropFilter+toImage can hang under flutter_test.
   static bool useFrostedBlur = true;
@@ -201,11 +204,11 @@ class GlassSurface extends StatelessWidget {
     super.key,
     required this.child,
     this.borderRadius = 20,
-    this.blur = 18,
+    this.blur = 20,
     this.padding,
     this.opacity,
     this.border = true,
-    this.elevate = true,
+    this.elevate = false,
   });
 
   final Widget child;
@@ -214,69 +217,70 @@ class GlassSurface extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final double? opacity;
   final bool border;
-  /// When false (e.g. full-bleed app bar), skip outer shadow.
+
+  /// Kept for API compatibility. Soft drop shadows are removed (flat frost).
   final bool elevate;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Layering (MD3 soft frost / common Flutter glass pattern):
-    // 1) tinted wash underneath (GlassScaffoldBackground)
-    // 2) content cards: pure white translucent fill — never primaryContainer lerp
-    // 3) chrome (GlassAppBar): lower opacity so it does not double-stack white
-    // 4) shadow OUTSIDE ClipRRect so elevation is visible (clipping shadows = 两层白)
-    final fill = Colors.white.withValues(
-      alpha: opacity ?? (isDark ? 0.10 : 0.68),
-    );
-    // Light: soft dark hairline reads on soft gray-green wash; dark: light rim.
+    // Content cards: low frost so BackdropFilter reads against the wash.
+    // Chrome/AppBar should pass a lower [opacity] (~0.06–0.10).
+    final fillAlpha = opacity ?? (isDark ? 0.10 : 0.14);
+    final fill = Colors.white.withValues(alpha: fillAlpha.clamp(0.0, 1.0));
+    // Light white rim (not dark hairline) — reads as glass edge on tinted wash.
     final stroke = isDark
-        ? Colors.white.withValues(alpha: 0.14)
-        : Colors.black.withValues(alpha: 0.06);
+        ? Colors.white.withValues(alpha: 0.18)
+        : Colors.white.withValues(alpha: 0.30);
 
     final radius = BorderRadius.circular(borderRadius);
-    final surfaceDecoration = BoxDecoration(
-      color: fill,
-      borderRadius: radius,
-      border: border ? Border.all(color: stroke, width: 1) : null,
-    );
-    final painted = AnimatedContainer(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      decoration: surfaceDecoration,
-      child: padding == null ? child : Padding(padding: padding!, child: child),
-    );
     final effectiveBlur = blur * blurStrength;
-    final frosted = ClipRRect(
-      borderRadius: radius,
-      child: useFrostedBlur && effectiveBlur > 0.5
-          ? BackdropFilter(
+    final content =
+        padding == null ? child : Padding(padding: padding!, child: child);
+
+    Widget frost = Stack(
+      fit: StackFit.passthrough,
+      children: [
+        if (useFrostedBlur && effectiveBlur > 0.5)
+          Positioned.fill(
+            child: BackdropFilter(
               filter: ImageFilter.blur(
                 sigmaX: effectiveBlur,
                 sigmaY: effectiveBlur,
               ),
-              child: painted,
-            )
-          : painted,
+              child: const SizedBox.expand(),
+            ),
+          ),
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: fill,
+              borderRadius: radius,
+            ),
+          ),
+        ),
+        content,
+      ],
     );
 
-    // Elevation lives outside the clip so soft shadows are not discarded.
-    if (!elevate) return frosted;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.32 : 0.08),
-            blurRadius: isDark ? 22 : 14,
-            offset: const Offset(0, 5),
-            spreadRadius: isDark ? 0 : -0.5,
-          ),
-        ],
-      ),
-      child: frosted,
+    frost = ClipRRect(
+      borderRadius: radius,
+      clipBehavior: Clip.antiAlias,
+      child: frost,
     );
+
+    if (border) {
+      frost = DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          border: Border.all(color: stroke, width: 0.75),
+        ),
+        child: frost,
+      );
+    }
+
+    // [elevate] is intentionally a no-op — flat MD3 frost, no soft shadows.
+    return frost;
   }
 }
 
@@ -300,6 +304,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
       title: title,
       leading: leading,
@@ -307,11 +312,11 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
       bottom: bottom,
       flexibleSpace: GlassSurface(
         borderRadius: 0,
-        blur: 18,
+        blur: 20,
         border: false,
         elevate: false,
-        // Chrome: more translucent than content cards (avoids 两层白 with search).
-        opacity: Theme.of(context).brightness == Brightness.dark ? 0.08 : 0.28,
+        // Chrome: lower than content cards so it does not double-stack frost.
+        opacity: isDark ? 0.06 : 0.08,
         child: const SizedBox.expand(),
       ),
     );

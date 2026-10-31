@@ -140,7 +140,7 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
           // Single GlassSurface per row — flat ink content inside.
           child: GlassSurface(
             borderRadius: 18,
-            opacity: selected ? (cs.brightness == Brightness.dark ? 0.16 : 0.52) : null,
+            opacity: selected ? (cs.brightness == Brightness.dark ? 0.14 : 0.20) : null,
             child: Material(
               color: selected
                   ? cs.secondaryContainer.withValues(alpha: 0.35)
