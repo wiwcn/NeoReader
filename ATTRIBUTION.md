@@ -31,3 +31,11 @@ licenses (see `pubspec.yaml` / pub.dev).
 
 - [Noto Sans SC](https://fonts.google.com/noto/specimen/Noto+Sans+SC) (SIL Open Font License 1.1),
   bundled under `assets/fonts/` for offline CJK UI rendering.
+
+## Motion / animation packages
+
+- [`animations`](https://pub.dev/packages/animations) (BSD-3-Clause) — Flutter team's Material motion
+  helpers (`SharedAxisTransition`, `FadeThroughTransition`, `OpenContainer`).
+- [`flutter_staggered_animations`](https://pub.dev/packages/flutter_staggered_animations) (MIT) —
+  staggered list/grid entrance animations.
+

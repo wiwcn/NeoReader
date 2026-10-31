@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -112,7 +113,25 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
                   ),
                   Expanded(
                     flex: 6,
-                    child: _pageFor(_selected, showAppBar: false),
+                    child: PageTransitionSwitcher(
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 300),
+                      transitionBuilder:
+                          (child, primaryAnimation, secondaryAnimation) {
+                        return SharedAxisTransition(
+                          animation: primaryAnimation,
+                          secondaryAnimation: secondaryAnimation,
+                          transitionType: SharedAxisTransitionType.horizontal,
+                          fillColor: Colors.transparent,
+                          child: child,
+                        );
+                      },
+                      child: KeyedSubtree(
+                        key: ValueKey(_selected),
+                        child: _pageFor(_selected, showAppBar: false),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -128,84 +147,90 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
       color: cs.onSurfaceVariant,
     );
 
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
-      itemCount: items.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 10),
-      itemBuilder: (context, i) {
-        final item = items[i];
-        final selected = !isPortrait && item.type == _selected;
-        return StaggeredFadeSlide(
-          index: i,
-          // Single GlassSurface per row — flat ink content inside.
-          child: GlassSurface(
-            borderRadius: 18,
-            opacity: selected ? (cs.brightness == Brightness.dark ? 0.14 : 0.20) : null,
-            child: Material(
-              color: selected
-                  ? cs.secondaryContainer.withValues(alpha: 0.35)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(18),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: () {
-                  if (isPortrait) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => _pageFor(item.type, showAppBar: true),
-                      ),
-                    );
-                  } else {
-                    setState(() => _selected = item.type);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: cs.primary.withValues(alpha: 0.12),
-                          shape: BoxShape.circle,
+    return staggeredListView(
+      context: context,
+      listView: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
+        itemCount: items.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 10),
+        itemBuilder: (context, i) {
+          final item = items[i];
+          final selected = !isPortrait && item.type == _selected;
+          return StaggeredFadeSlide(
+            index: i,
+            // Single GlassSurface per row — flat ink content inside.
+            child: GlassSurface(
+              borderRadius: 18,
+              opacity: selected
+                  ? (cs.brightness == Brightness.dark ? 0.14 : 0.20)
+                  : null,
+              child: Material(
+                color: selected
+                    ? cs.secondaryContainer.withValues(alpha: 0.35)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(18),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () {
+                    if (isPortrait) {
+                      Navigator.of(context).push(
+                        SharedAxisPageRoute<void>(
+                          builder: (_) =>
+                              _pageFor(item.type, showAppBar: true),
                         ),
-                        alignment: Alignment.center,
-                        child: Icon(item.icon, size: 22, color: cs.primary),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(item.title, style: titleStyle),
-                            const SizedBox(height: 2),
-                            Text(
-                              item.subtitle,
-                              style: subStyle,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                      );
+                    } else {
+                      setState(() => _selected = item.type);
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: cs.primary.withValues(alpha: 0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(item.icon, size: 22, color: cs.primary),
                         ),
-                      ),
-                      if (isPortrait)
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: cs.onSurfaceVariant,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(item.title, style: titleStyle),
+                              const SizedBox(height: 2),
+                              Text(
+                                item.subtitle,
+                                style: subStyle,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
-                    ],
+                        if (isPortrait)
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: cs.onSurfaceVariant,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

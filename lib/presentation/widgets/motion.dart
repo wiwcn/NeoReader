@@ -1,6 +1,11 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
-/// Staggered fade + slight upward slide for list cards.
+/// Thin wrapper around [flutter_staggered_animations] for one import site.
+///
+/// Call sites wrap the [ListView] with [AnimationLimiter] (or use
+/// [staggeredListView]) and each row with [StaggeredFadeSlide].
 class StaggeredFadeSlide extends StatelessWidget {
   const StaggeredFadeSlide({
     super.key,
@@ -8,37 +13,37 @@ class StaggeredFadeSlide extends StatelessWidget {
     required this.child,
     this.baseDelay = const Duration(milliseconds: 40),
     this.duration = const Duration(milliseconds: 320),
+    this.verticalOffset = 12.0,
   });
 
   final int index;
   final Widget child;
   final Duration baseDelay;
   final Duration duration;
+  final double verticalOffset;
 
   @override
   Widget build(BuildContext context) {
     if (MediaQuery.disableAnimationsOf(context)) return child;
-    final delayMs = (baseDelay.inMilliseconds * index).clamp(0, 280);
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: duration + Duration(milliseconds: delayMs),
-      curve: Interval(
-        delayMs / (duration.inMilliseconds + delayMs).clamp(1, 9999),
-        1,
-        curve: Curves.easeOutCubic,
+    return AnimationConfiguration.staggeredList(
+      position: index,
+      duration: duration,
+      delay: baseDelay,
+      child: SlideAnimation(
+        verticalOffset: verticalOffset,
+        child: FadeInAnimation(child: child),
       ),
-      builder: (context, t, child) {
-        return Opacity(
-          opacity: t.clamp(0.0, 1.0),
-          child: Transform.translate(
-            offset: Offset(0, (1 - t) * 12),
-            child: child,
-          ),
-        );
-      },
-      child: child,
     );
   }
+}
+
+/// Wraps a scrollable list body so staggered children animate on first paint.
+Widget staggeredListView({
+  required BuildContext context,
+  required Widget listView,
+}) {
+  if (MediaQuery.disableAnimationsOf(context)) return listView;
+  return AnimationLimiter(child: listView);
 }
 
 /// Animated reading progress bar that eases to [value].
@@ -111,13 +116,13 @@ class _PressScaleState extends State<PressScale> {
   }
 }
 
-/// Fade when switching bottom-nav tabs (keeps each child keyed).
+/// Bottom-nav body switcher using Material fade-through ([animations] package).
 class FadeIndexedStack extends StatelessWidget {
   const FadeIndexedStack({
     super.key,
     required this.index,
     required this.children,
-    this.duration = const Duration(milliseconds: 220),
+    this.duration = const Duration(milliseconds: 300),
   });
 
   final int index;
@@ -127,20 +132,21 @@ class FadeIndexedStack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reduce = MediaQuery.disableAnimationsOf(context);
-    return AnimatedSwitcher(
-      duration: reduce ? Duration.zero : duration,
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) {
-        return FadeTransition(opacity: animation, child: child);
-      },
-      layoutBuilder: (current, previous) {
-        return Stack(
-          alignment: Alignment.topCenter,
-          children: <Widget>[
-            ...previous,
-            ?current,
-          ],
+    if (reduce) {
+      return KeyedSubtree(
+        key: ValueKey<int>(index),
+        child: children[index],
+      );
+    }
+    return PageTransitionSwitcher(
+      duration: duration,
+      transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
+        return FadeThroughTransition(
+          animation: primaryAnimation,
+          secondaryAnimation: secondaryAnimation,
+          // Transparent so glass scaffold wash stays visible.
+          fillColor: Colors.transparent,
+          child: child,
         );
       },
       child: KeyedSubtree(
@@ -149,4 +155,29 @@ class FadeIndexedStack extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Shared-axis horizontal [PageRoute] for hub → detail pushes (MD3).
+class SharedAxisPageRoute<T> extends PageRouteBuilder<T> {
+  SharedAxisPageRoute({
+    required WidgetBuilder builder,
+    SharedAxisTransitionType transitionType =
+        SharedAxisTransitionType.horizontal,
+    super.settings,
+  }) : super(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              builder(context),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (MediaQuery.disableAnimationsOf(context)) return child;
+            return SharedAxisTransition(
+              animation: animation,
+              secondaryAnimation: secondaryAnimation,
+              transitionType: transitionType,
+              fillColor: Colors.transparent,
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 300),
+        );
 }

@@ -97,25 +97,31 @@ class LibraryScreen extends ConsumerWidget {
           error: (e, _) => Center(child: Text('$e')),
           data: (books) {
             if (books.isEmpty) return EmptyLibrary(strings: strings);
-            return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 112),
-              itemCount: books.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemBuilder: (context, i) {
-                final book = books[i];
-                return StaggeredFadeSlide(
-                  index: i,
-                  child: _BookGlassCard(
-                    book: book,
-                    strings: strings,
-                    coverW: _coverW,
-                    coverH: _coverH,
-                    onOpen: () => openReader(context, book),
-                    onDelete: () =>
-                        _confirmDelete(context, ref, strings, book),
-                  ),
-                );
-              },
+            return staggeredListView(
+              context: context,
+              listView: ListView.separated(
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 112),
+                itemCount: books.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 10),
+                itemBuilder: (context, i) {
+                  final book = books[i];
+                  return StaggeredFadeSlide(
+                    index: i,
+                    child: PressScale(
+                      pressedScale: 0.98,
+                      child: _BookGlassCard(
+                        book: book,
+                        strings: strings,
+                        coverW: _coverW,
+                        coverH: _coverH,
+                        onOpen: () => openReader(context, book),
+                        onDelete: () =>
+                            _confirmDelete(context, ref, strings, book),
+                      ),
+                    ),
+                  );
+                },
+              ),
             );
           },
         ),

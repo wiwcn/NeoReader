@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 
 /// Material Design 3 themes with frosted-glass helpers and CJK-capable typography.
@@ -47,11 +48,11 @@ class AppTheme {
       primaryIconTheme: const IconThemeData(size: 24),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: _FadeSlidePageTransitionsBuilder(),
-          TargetPlatform.iOS: _FadeSlidePageTransitionsBuilder(),
-          TargetPlatform.linux: _FadeSlidePageTransitionsBuilder(),
-          TargetPlatform.macOS: _FadeSlidePageTransitionsBuilder(),
-          TargetPlatform.windows: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.android: _SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.iOS: _SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.linux: _SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.macOS: _SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.windows: _SharedAxisPageTransitionsBuilder(),
         },
       ),
       appBarTheme: const AppBarTheme(
@@ -109,11 +110,11 @@ class AppTheme {
       primaryIconTheme: const IconThemeData(size: 24),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: _FadeSlidePageTransitionsBuilder(),
-          TargetPlatform.iOS: _FadeSlidePageTransitionsBuilder(),
-          TargetPlatform.linux: _FadeSlidePageTransitionsBuilder(),
-          TargetPlatform.macOS: _FadeSlidePageTransitionsBuilder(),
-          TargetPlatform.windows: _FadeSlidePageTransitionsBuilder(),
+          TargetPlatform.android: _SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.iOS: _SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.linux: _SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.macOS: _SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.windows: _SharedAxisPageTransitionsBuilder(),
         },
       ),
       appBarTheme: const AppBarTheme(
@@ -156,9 +157,11 @@ class AppTheme {
   }
 }
 
-/// Soft fade + slight horizontal slide for settings hub → subpages (and others).
-class _FadeSlidePageTransitionsBuilder extends PageTransitionsBuilder {
-  const _FadeSlidePageTransitionsBuilder();
+/// MD3 shared-axis horizontal page transitions ([animations] package).
+///
+/// Transparent fill keeps the glass scaffold wash visible during the transition.
+class _SharedAxisPageTransitionsBuilder extends PageTransitionsBuilder {
+  const _SharedAxisPageTransitionsBuilder();
 
   @override
   Widget buildTransitions<T>(
@@ -171,20 +174,12 @@ class _FadeSlidePageTransitionsBuilder extends PageTransitionsBuilder {
     if (MediaQuery.disableAnimationsOf(context)) {
       return child;
     }
-    final curved = CurvedAnimation(
-      parent: animation,
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeInCubic,
-    );
-    return FadeTransition(
-      opacity: curved,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0.04, 0),
-          end: Offset.zero,
-        ).animate(curved),
-        child: child,
-      ),
+    return SharedAxisTransition(
+      animation: animation,
+      secondaryAnimation: secondaryAnimation,
+      transitionType: SharedAxisTransitionType.horizontal,
+      fillColor: Colors.transparent,
+      child: child,
     );
   }
 }

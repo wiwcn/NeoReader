@@ -53,6 +53,8 @@ dependencies:
   html: ^0.15.7
   sqflite_common_ffi: ^2.4.5
   flutter_markdown: ^0.7.7+1
+  animations: ^2.0.11
+  flutter_staggered_animations: ^1.1.1
 
 dev_dependencies:
   flutter_test:
