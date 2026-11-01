@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../providers/music_providers.dart';
+import 'cover_image.dart';
 import 'now_playing_page.dart';
 
 /// Global mini player — sits in [HomeShell] bottom chrome above [NavigationBar].
@@ -40,7 +39,7 @@ class MiniPlayer extends ConsumerWidget {
           borderRadius: 16,
           blur: 18,
           // Slightly denser frost so the bar stays readable over tab content.
-          opacity: isDark ? 0.18 : 0.22,
+          opacity: isDark ? 0.16 : 0.22,
           child: SizedBox(
             height: height,
             child: Row(
@@ -101,6 +100,7 @@ class MiniPlayer extends ConsumerWidget {
                   },
                   icon: Icon(
                     playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                    color: cs.onSurface,
                   ),
                 ),
                 IconButton(
@@ -111,7 +111,7 @@ class MiniPlayer extends ConsumerWidget {
                     final h = await ref.read(musicHandlerProvider.future);
                     await h.skipToNext();
                   },
-                  icon: const Icon(Icons.skip_next_rounded),
+                  icon: Icon(Icons.skip_next_rounded, color: cs.onSurface),
                 ),
                 const SizedBox(width: 4),
               ],
@@ -131,18 +131,19 @@ class _Cover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    Widget child;
-    if (path != null && File(path!).existsSync()) {
-      child = Image.file(File(path!), fit: BoxFit.cover);
-    } else {
-      child = ColoredBox(
-        color: cs.primaryContainer,
-        child: Icon(Icons.music_note_rounded, color: cs.onPrimaryContainer),
-      );
-    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
-      child: SizedBox(width: size, height: size, child: child),
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: CoverImage(
+          path: path,
+          placeholder: ColoredBox(
+            color: cs.primaryContainer,
+            child: Icon(Icons.music_note_rounded, color: cs.onPrimaryContainer),
+          ),
+        ),
+      ),
     );
   }
 }

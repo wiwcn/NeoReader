@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 import '../../presentation/widgets/glass_scaffold_bg.dart';
 import '../models/album.dart';
 import '../providers/music_providers.dart';
+import 'cover_image.dart';
 import 'track_actions.dart';
 import 'track_tile.dart';
 
@@ -49,13 +48,17 @@ class AlbumDetailPage extends ConsumerWidget {
                       child: SizedBox(
                         width: 120,
                         height: 120,
-                        child: album.coverPath != null &&
-                                File(album.coverPath!).existsSync()
-                            ? Image.file(File(album.coverPath!), fit: BoxFit.cover)
-                            : ColoredBox(
-                                color: cs.primaryContainer,
-                                child: const Icon(Icons.album_rounded, size: 48),
-                              ),
+                        child: CoverImage(
+                          path: album.coverPath,
+                          placeholder: ColoredBox(
+                            color: cs.primaryContainer,
+                            child: Icon(
+                              Icons.album_rounded,
+                              size: 48,
+                              color: cs.onPrimaryContainer,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -68,8 +71,18 @@ class AlbumDetailPage extends ConsumerWidget {
                                   .textTheme
                                   .titleLarge
                                   ?.copyWith(fontWeight: FontWeight.w700)),
-                          Text(album.artist),
-                          Text('${album.trackCount} ${ms.tracksCount}'),
+                          Text(
+                            album.artist,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                          ),
+                          Text(
+                            '${album.trackCount} ${ms.tracksCount}',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                          ),
                         ],
                       ),
                     ),

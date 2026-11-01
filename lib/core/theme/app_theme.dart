@@ -8,6 +8,10 @@ import 'package:flutter/material.dart';
 /// NotoSansSC is applied **only** via [textTheme] / [primaryTextTheme] / nav
 /// [labelTextStyle]. Do **not** set [ThemeData.fontFamily] — that makes
 /// [Icon] widgets inherit NotoSansSC and render Material Icons as tofu (□).
+///
+/// Dark surfaces are cool near-black neutrals (Harmonoid / MD3 frost), not the
+/// muddy green-gray [ColorScheme.fromSeed] tends to paint when [seed] is green.
+/// Primary stays seed-driven and is used as accent only.
 class AppTheme {
   static const Color seed = Color(0xFF2E7D32);
 
@@ -24,6 +28,25 @@ class AppTheme {
     'sans-serif',
   ];
 
+  // ── Semantic neutrals (cool) — seed-independent canvas ──────────────────
+  static const Color lightCanvas = Color(0xFFFAFBFC);
+  static const Color lightCanvasMid = Color(0xFFF7F8FA);
+  static const Color lightCanvasDeep = Color(0xFFF5F6F8);
+
+  /// Near-black cool scaffold (not pure #000).
+  static const Color darkCanvas = Color(0xFF0E1012);
+  static const Color darkSurfaceDim = Color(0xFF0A0C0E);
+  static const Color darkSurfaceBright = Color(0xFF1A1D21);
+  static const Color darkContainerLowest = Color(0xFF090B0D);
+  static const Color darkContainerLow = Color(0xFF14171A);
+  static const Color darkContainer = Color(0xFF191C20);
+  static const Color darkContainerHigh = Color(0xFF1F2328);
+  static const Color darkContainerHighest = Color(0xFF252A30);
+  static const Color darkOnSurface = Color(0xFFE6E8EB);
+  static const Color darkOnSurfaceVariant = Color(0xFFB0B6BE);
+  static const Color darkOutline = Color(0xFF8A9099);
+  static const Color darkOutlineVariant = Color(0xFF3A3F46);
+
   static TextTheme _textTheme(TextTheme base) {
     return base.apply(
       fontFamily: fontFamily,
@@ -31,19 +54,8 @@ class AppTheme {
     );
   }
 
-  static ThemeData light([Color seedColor = seed]) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: seedColor,
-      brightness: Brightness.light,
-    );
-    // No fontFamily on ThemeData — Icons must keep MaterialIcons.
-    final base = ThemeData(useMaterial3: true, colorScheme: scheme);
-    return base.copyWith(
-      textTheme: _textTheme(base.textTheme),
-      primaryTextTheme: _textTheme(base.primaryTextTheme),
-      iconTheme: const IconThemeData(size: 24),
-      primaryIconTheme: const IconThemeData(size: 24),
-      pageTransitionsTheme: const PageTransitionsTheme(
+  static PageTransitionsTheme get _pageTransitions =>
+      const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: _SharedAxisPageTransitionsBuilder(),
           TargetPlatform.iOS: _SharedAxisPageTransitionsBuilder(),
@@ -51,30 +63,110 @@ class AppTheme {
           TargetPlatform.macOS: _SharedAxisPageTransitionsBuilder(),
           TargetPlatform.windows: _SharedAxisPageTransitionsBuilder(),
         },
-      ),
-      appBarTheme: const AppBarTheme(
+      );
+
+  /// Keep seed primary/secondary/tertiary; replace muddy dark surfaces.
+  static ColorScheme _refineDarkScheme(ColorScheme seeded) {
+    return seeded.copyWith(
+      surface: darkCanvas,
+      surfaceDim: darkSurfaceDim,
+      surfaceBright: darkSurfaceBright,
+      surfaceContainerLowest: darkContainerLowest,
+      surfaceContainerLow: darkContainerLow,
+      surfaceContainer: darkContainer,
+      surfaceContainerHigh: darkContainerHigh,
+      surfaceContainerHighest: darkContainerHighest,
+      onSurface: darkOnSurface,
+      onSurfaceVariant: darkOnSurfaceVariant,
+      outline: darkOutline,
+      outlineVariant: darkOutlineVariant,
+      // Soften seed-tinted containers so frost cards stay neutral.
+      primaryContainer:
+          Color.lerp(darkContainerHigh, seeded.primary, 0.32)!,
+      onPrimaryContainer:
+          Color.lerp(darkOnSurface, seeded.primary, 0.12)!,
+      secondaryContainer:
+          Color.lerp(darkContainer, seeded.secondary, 0.22)!,
+      onSecondaryContainer: darkOnSurface,
+      tertiaryContainer:
+          Color.lerp(darkContainer, seeded.tertiary, 0.20)!,
+      onTertiaryContainer: darkOnSurface,
+      // Inverse / chrome helpers used by snackbars etc.
+      inverseSurface: darkContainerHighest,
+      onInverseSurface: darkOnSurface,
+      shadow: Colors.black,
+      scrim: Colors.black,
+    );
+  }
+
+  static ColorScheme _refineLightScheme(ColorScheme seeded) {
+    return seeded.copyWith(
+      surface: lightCanvas,
+      surfaceContainerLowest: Colors.white,
+      surfaceContainerLow: const Color(0xFFF3F4F6),
+      surfaceContainer: const Color(0xFFEEEFF2),
+      surfaceContainerHigh: const Color(0xFFE8EAED),
+      surfaceContainerHighest: const Color(0xFFE2E4E8),
+      // Soften green-mud containers from a green seed.
+      primaryContainer:
+          Color.lerp(const Color(0xFFE8F5E9), seeded.primaryContainer, 0.55)!,
+      secondaryContainer:
+          Color.lerp(const Color(0xFFF0F1F3), seeded.secondaryContainer, 0.45)!,
+    );
+  }
+
+  static ThemeData light([Color seedColor = seed]) {
+    final seeded = ColorScheme.fromSeed(
+      seedColor: seedColor,
+      brightness: Brightness.light,
+    );
+    final scheme = _refineLightScheme(seeded);
+    // No fontFamily on ThemeData — Icons must keep MaterialIcons.
+    final base = ThemeData(useMaterial3: true, colorScheme: scheme);
+    return base.copyWith(
+      textTheme: _textTheme(base.textTheme),
+      primaryTextTheme: _textTheme(base.primaryTextTheme),
+      iconTheme: IconThemeData(size: 24, color: scheme.onSurface),
+      primaryIconTheme: IconThemeData(size: 24, color: scheme.onPrimary),
+      pageTransitionsTheme: _pageTransitions,
+      appBarTheme: AppBarTheme(
         centerTitle: false,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
+        foregroundColor: scheme.onSurface,
+        surfaceTintColor: Colors.transparent,
       ),
-      scaffoldBackgroundColor: const Color(0xFFFAFBFC),
+      scaffoldBackgroundColor: lightCanvas,
+      canvasColor: lightCanvas,
       cardTheme: CardThemeData(
         elevation: 0,
         color: Colors.white.withValues(alpha: 0.14),
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white.withValues(alpha: 0.72),
         elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         indicatorColor: seedColor.withValues(alpha: 0.18),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontFamily: fontFamily,
             fontFamilyFallback: fontFamilyFallback,
             fontSize: 12,
+            color: scheme.onSurface,
             fontWeight: states.contains(WidgetState.selected)
                 ? FontWeight.w600
                 : FontWeight.w500,
+          ),
+        ),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            size: 24,
+            color: states.contains(WidgetState.selected)
+                ? seedColor
+                : scheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -82,70 +174,167 @@ class AppTheme {
         backgroundColor: seedColor.withValues(alpha: 0.92),
         foregroundColor: Colors.white,
         elevation: 2,
+        focusElevation: 2,
+        highlightElevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
-      snackBarTheme: const SnackBarThemeData(
+      snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        elevation: 4,
+        elevation: 2,
+        backgroundColor: scheme.inverseSurface,
+        contentTextStyle: TextStyle(
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+          color: scheme.onInverseSurface,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      dividerTheme: DividerThemeData(
+        color: scheme.outlineVariant.withValues(alpha: 0.55),
+        space: 1,
+        thickness: 0.5,
+      ),
+      tabBarTheme: TabBarThemeData(
+        dividerColor: Colors.transparent,
+        indicatorColor: seedColor,
+        labelColor: scheme.onSurface,
+        unselectedLabelColor: scheme.onSurfaceVariant,
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: scheme.onSurfaceVariant,
+        textColor: scheme.onSurface,
+        selectedColor: seedColor,
+        selectedTileColor: seedColor.withValues(alpha: 0.10),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: scheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: scheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        modalElevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
       ),
     );
   }
 
   static ThemeData dark([Color seedColor = seed]) {
-    final scheme = ColorScheme.fromSeed(
+    final seeded = ColorScheme.fromSeed(
       seedColor: seedColor,
       brightness: Brightness.dark,
     );
+    final scheme = _refineDarkScheme(seeded);
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
     return base.copyWith(
-      textTheme: _textTheme(base.textTheme),
+      textTheme: _textTheme(base.textTheme.apply(
+        bodyColor: darkOnSurface,
+        displayColor: darkOnSurface,
+      )),
       primaryTextTheme: _textTheme(base.primaryTextTheme),
-      iconTheme: const IconThemeData(size: 24),
-      primaryIconTheme: const IconThemeData(size: 24),
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: _SharedAxisPageTransitionsBuilder(),
-          TargetPlatform.iOS: _SharedAxisPageTransitionsBuilder(),
-          TargetPlatform.linux: _SharedAxisPageTransitionsBuilder(),
-          TargetPlatform.macOS: _SharedAxisPageTransitionsBuilder(),
-          TargetPlatform.windows: _SharedAxisPageTransitionsBuilder(),
-        },
-      ),
+      iconTheme: const IconThemeData(size: 24, color: darkOnSurface),
+      primaryIconTheme: IconThemeData(size: 24, color: scheme.onPrimary),
+      pageTransitionsTheme: _pageTransitions,
       appBarTheme: const AppBarTheme(
         centerTitle: false,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
+        foregroundColor: darkOnSurface,
+        surfaceTintColor: Colors.transparent,
       ),
-      scaffoldBackgroundColor: const Color(0xFF0F1113),
+      scaffoldBackgroundColor: darkCanvas,
+      canvasColor: darkCanvas,
       cardTheme: CardThemeData(
         elevation: 0,
-        color: Colors.white.withValues(alpha: 0.06),
+        color: Colors.white.withValues(alpha: 0.07),
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: Colors.black.withValues(alpha: 0.72),
+        // Frost chrome — cool surface, not opaque black slab.
+        backgroundColor: darkContainerLow.withValues(alpha: 0.82),
         elevation: 0,
-        indicatorColor: seedColor.withValues(alpha: 0.28),
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: seedColor.withValues(alpha: 0.26),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontFamily: fontFamily,
             fontFamilyFallback: fontFamilyFallback,
             fontSize: 12,
+            color: states.contains(WidgetState.selected)
+                ? darkOnSurface
+                : darkOnSurfaceVariant,
             fontWeight: states.contains(WidgetState.selected)
                 ? FontWeight.w600
                 : FontWeight.w500,
           ),
         ),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            size: 24,
+            color: states.contains(WidgetState.selected)
+                ? Color.lerp(darkOnSurface, seedColor, 0.35)!
+                : darkOnSurfaceVariant,
+          ),
+        ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: seedColor.withValues(alpha: 0.9),
+        backgroundColor: Color.lerp(seedColor, darkContainerHigh, 0.12)!
+            .withValues(alpha: 0.95),
         foregroundColor: Colors.white,
-        elevation: 2,
+        elevation: 1,
+        focusElevation: 1,
+        highlightElevation: 1,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
-      snackBarTheme: const SnackBarThemeData(
+      snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        elevation: 4,
+        elevation: 2,
+        backgroundColor: darkContainerHighest,
+        contentTextStyle: const TextStyle(
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+          color: darkOnSurface,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      dividerTheme: DividerThemeData(
+        color: darkOutlineVariant.withValues(alpha: 0.7),
+        space: 1,
+        thickness: 0.5,
+      ),
+      tabBarTheme: TabBarThemeData(
+        dividerColor: Colors.transparent,
+        indicatorColor: seedColor,
+        labelColor: darkOnSurface,
+        unselectedLabelColor: darkOnSurfaceVariant,
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: darkOnSurfaceVariant,
+        textColor: darkOnSurface,
+        selectedColor: Color.lerp(darkOnSurface, seedColor, 0.45)!,
+        selectedTileColor: seedColor.withValues(alpha: 0.14),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: darkContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: darkContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        modalElevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
       ),
     );
   }
@@ -215,11 +404,11 @@ class GlassSurface extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Content cards: low frost so BackdropFilter reads against the wash.
     // Chrome/AppBar should pass a lower [opacity] (~0.06–0.10).
-    final fillAlpha = opacity ?? (isDark ? 0.10 : 0.14);
+    final fillAlpha = opacity ?? (isDark ? 0.09 : 0.14);
     final fill = Colors.white.withValues(alpha: fillAlpha.clamp(0.0, 1.0));
     // Light white rim (not dark hairline) — reads as glass edge on tinted wash.
     final stroke = isDark
-        ? Colors.white.withValues(alpha: 0.18)
+        ? Colors.white.withValues(alpha: 0.14)
         : Colors.white.withValues(alpha: 0.30);
 
     final radius = BorderRadius.circular(borderRadius);
@@ -303,7 +492,7 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
         border: false,
         elevate: false,
         // Chrome: lower than content cards so it does not double-stack frost.
-        opacity: isDark ? 0.06 : 0.08,
+        opacity: isDark ? 0.05 : 0.08,
         child: const SizedBox.expand(),
       ),
     );

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_theme.dart';
+
 /// Soft MD3 wash so low-opacity frosted glass has contrast to blur.
 ///
-/// Light mode uses neutral cool whites (`FAFBFC` / `F7F8FA`) with a very light
-/// primary/tertiary tint so BackdropFilter frost (~0.12–0.18) still reads
-/// without a gray-green cast. Subtle orbs add depth without neon speculars.
+/// Light mode uses neutral cool whites with a very light primary/tertiary tint.
+/// Dark mode stays near-black cool neutrals — seed primary/tertiary only whisper
+/// so a green seed does not turn the canvas into mud.
 class GlassScaffoldBackground extends StatelessWidget {
   const GlassScaffoldBackground({super.key, required this.child});
 
@@ -17,6 +19,9 @@ class GlassScaffoldBackground extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
+        // Solid base first — prevents a white flash if the gradient rebuilds
+        // during ThemeMode switches (tab content fades over this canvas).
+        ColoredBox(color: isDark ? AppTheme.darkCanvas : AppTheme.lightCanvas),
         DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -24,25 +29,25 @@ class GlassScaffoldBackground extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: isDark
                   ? [
-                      cs.surface,
-                      Color.lerp(cs.surface, cs.primary, 0.18)!,
-                      Color.lerp(cs.surface, cs.tertiary, 0.12)!,
+                      AppTheme.darkCanvas,
+                      Color.lerp(AppTheme.darkContainerLow, cs.primary, 0.055)!,
+                      Color.lerp(AppTheme.darkCanvas, cs.tertiary, 0.035)!,
                     ]
                   : [
-                      const Color(0xFFFAFBFC),
-                      Color.lerp(const Color(0xFFF7F8FA), cs.primary, 0.035)!,
-                      Color.lerp(const Color(0xFFF5F6F8), cs.tertiary, 0.03)!,
+                      AppTheme.lightCanvas,
+                      Color.lerp(AppTheme.lightCanvasMid, cs.primary, 0.035)!,
+                      Color.lerp(AppTheme.lightCanvasDeep, cs.tertiary, 0.03)!,
                     ],
             ),
           ),
         ),
-        // Gentle wash orbs — soft enough to avoid 拟物 liquid glass.
+        // Gentle wash orbs — restrained alpha (especially dark).
         Positioned(
           top: -80,
           right: -40,
           child: _WashOrb(
             diameter: 260,
-            color: cs.primary.withValues(alpha: isDark ? 0.14 : 0.045),
+            color: cs.primary.withValues(alpha: isDark ? 0.07 : 0.045),
           ),
         ),
         Positioned(
@@ -50,7 +55,7 @@ class GlassScaffoldBackground extends StatelessWidget {
           left: -50,
           child: _WashOrb(
             diameter: 220,
-            color: cs.tertiary.withValues(alpha: isDark ? 0.11 : 0.04),
+            color: cs.tertiary.withValues(alpha: isDark ? 0.05 : 0.04),
           ),
         ),
         child,

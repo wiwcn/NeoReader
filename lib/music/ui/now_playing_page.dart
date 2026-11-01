@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ import '../models/play_mode.dart';
 import '../models/track.dart';
 import '../providers/music_providers.dart';
 import 'queue_sheet.dart';
+import 'cover_image.dart';
 import 'waveform_seekbar.dart';
 
 /// Harmonoid-like fullscreen Now Playing: large cover carousel + waveform seek.
@@ -205,15 +205,31 @@ class _NowPlayingPageState extends ConsumerState<NowPlayingPage> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(_fmt(position),
-                                      style: Theme.of(context).textTheme.labelSmall),
+                                  Text(
+                                    _fmt(position),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
                                   Text(
                                     _fmt(
                                       duration.inMilliseconds > 0
                                           ? duration
                                           : track.duration,
                                     ),
-                                    style: Theme.of(context).textTheme.labelSmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -336,7 +352,11 @@ class _HeroCover extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: cs.shadow.withValues(alpha: 0.18),
+              color: cs.shadow.withValues(
+                alpha: Theme.of(context).brightness == Brightness.dark
+                    ? 0.45
+                    : 0.18,
+              ),
               blurRadius: 24,
               offset: const Offset(0, 12),
             ),
@@ -344,16 +364,17 @@ class _HeroCover extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
-          child: path != null && File(path!).existsSync()
-              ? Image.file(File(path!), fit: BoxFit.cover)
-              : ColoredBox(
-                  color: cs.primaryContainer,
-                  child: Icon(
-                    Icons.album_rounded,
-                    size: 96,
-                    color: cs.onPrimaryContainer.withValues(alpha: 0.7),
-                  ),
-                ),
+          child: CoverImage(
+            path: path,
+            placeholder: ColoredBox(
+              color: cs.primaryContainer,
+              child: Icon(
+                Icons.album_rounded,
+                size: 96,
+                color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
         ),
       ),
     );

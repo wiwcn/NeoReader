@@ -12,6 +12,7 @@ import '../models/album.dart';
 import '../models/track.dart';
 import '../providers/music_providers.dart';
 import 'album_detail_page.dart';
+import 'cover_image.dart';
 import 'artist_detail_page.dart';
 import 'playlist_detail_page.dart';
 import 'track_actions.dart';
@@ -148,7 +149,9 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
                       hintText: ms.searchMusic,
                       isDense: true,
                       filled: true,
-                      fillColor: cs.surface.withValues(alpha: 0.45),
+                      fillColor: Theme.of(context).brightness == Brightness.dark
+                          ? cs.surfaceContainerHighest.withValues(alpha: 0.55)
+                          : cs.surface.withValues(alpha: 0.55),
                       prefixIcon: const Icon(Icons.search_rounded, size: 22),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -203,12 +206,16 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
                 right: 16,
                 bottom: 88,
                 child: Material(
-                  elevation: 2,
+                  elevation: 0,
                   borderRadius: BorderRadius.circular(12),
-                  color: cs.surfaceContainerHigh,
+                  color: cs.surfaceContainerHigh.withValues(alpha: 0.92),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: Text(_scanLabel, maxLines: 2),
+                    child: Text(
+                      _scanLabel,
+                      maxLines: 2,
+                      style: TextStyle(color: cs.onSurface),
+                    ),
                   ),
                 ),
               ),
@@ -323,12 +330,13 @@ class _AlbumCard extends StatelessWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                child: album.coverPath != null && File(album.coverPath!).existsSync()
-                    ? Image.file(File(album.coverPath!), fit: BoxFit.cover)
-                    : ColoredBox(
-                        color: cs.primaryContainer,
-                        child: Icon(Icons.album_rounded, size: 48, color: cs.onPrimaryContainer),
-                      ),
+                child: CoverImage(
+                  path: album.coverPath,
+                  placeholder: ColoredBox(
+                    color: cs.primaryContainer,
+                    child: Icon(Icons.album_rounded, size: 48, color: cs.onPrimaryContainer),
+                  ),
+                ),
               ),
             ),
             Padding(

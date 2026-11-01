@@ -58,16 +58,25 @@ class _WaveformSeekBarState extends State<WaveformSeekBar>
   @override
   void didUpdateWidget(covariant WaveformSeekBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.playing != widget.playing) _syncBreath();
+    if (oldWidget.playing != widget.playing) {
+      _syncBreath(reduceMotion: MediaQuery.disableAnimationsOf(context));
+    }
   }
 
-  void _syncBreath() {
-    if (!widget.playing && widget.enableBreathing) {
+  void _syncBreath({bool reduceMotion = false}) {
+    // Breathing is decorative — skip when reduce-motion is on.
+    if (!widget.playing && widget.enableBreathing && !reduceMotion) {
       _breath.repeat(reverse: true);
     } else {
       _breath.stop();
       _breath.value = 1;
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncBreath(reduceMotion: MediaQuery.disableAnimationsOf(context));
   }
 
   @override
@@ -104,8 +113,12 @@ class _WaveformSeekBarState extends State<WaveformSeekBar>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final reduce = MediaQuery.disableAnimationsOf(context);
     final played = widget.playedColor ?? cs.primary;
-    final unplayed = widget.unplayedColor ?? cs.onSurface.withValues(alpha: 0.22);
+    // Dark needs stronger unplayed bars so the wave remains readable on near-black.
+    final unplayed = widget.unplayedColor ??
+        cs.onSurface.withValues(alpha: isDark ? 0.34 : 0.22);
     final peaks = widget.peaks == null
         ? null
         : WaveformCache.downsample(widget.peaks!, WaveformCache.maxDrawBars);
@@ -113,7 +126,7 @@ class _WaveformSeekBarState extends State<WaveformSeekBar>
     return AnimatedBuilder(
       animation: _breath,
       builder: (context, _) {
-        final breath = widget.playing
+        final breath = (widget.playing || reduce)
             ? 1.0
             : (0.72 + 0.28 * _breath.value);
         return LayoutBuilder(

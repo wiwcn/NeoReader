@@ -2,6 +2,25 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
+/// Product motion tokens (Refero craft / MD3 product UI).
+///
+/// | Category   | Duration   | Use                          |
+/// | Instant    | 90–150ms   | press / hover                |
+/// | State      | 160–240ms  | tab fade, progress, stagger  |
+/// | Page       | 240–360ms  | route / shared-axis         |
+abstract final class AppMotion {
+  static const Duration instant = Duration(milliseconds: 120);
+  static const Duration state = Duration(milliseconds: 200);
+  static const Duration page = Duration(milliseconds: 280);
+  static const Duration pageReverse = Duration(milliseconds: 240);
+  static const Duration staggerItem = Duration(milliseconds: 200);
+  static const Duration staggerDelay = Duration(milliseconds: 28);
+  static const Duration progress = Duration(milliseconds: 220);
+
+  static const Curve enter = Curves.easeOutCubic;
+  static const Curve press = Curves.easeOut;
+}
+
 /// Thin wrapper around [flutter_staggered_animations] for one import site.
 ///
 /// Call sites wrap the [ListView] with [AnimationLimiter] (or use
@@ -11,9 +30,9 @@ class StaggeredFadeSlide extends StatelessWidget {
     super.key,
     required this.index,
     required this.child,
-    this.baseDelay = const Duration(milliseconds: 40),
-    this.duration = const Duration(milliseconds: 320),
-    this.verticalOffset = 12.0,
+    this.baseDelay = AppMotion.staggerDelay,
+    this.duration = AppMotion.staggerItem,
+    this.verticalOffset = 10.0,
   });
 
   final int index;
@@ -31,7 +50,11 @@ class StaggeredFadeSlide extends StatelessWidget {
       delay: baseDelay,
       child: SlideAnimation(
         verticalOffset: verticalOffset,
-        child: FadeInAnimation(child: child),
+        curve: AppMotion.enter,
+        child: FadeInAnimation(
+          curve: AppMotion.enter,
+          child: child,
+        ),
       ),
     );
   }
@@ -68,8 +91,8 @@ class AnimatedProgressBar extends StatelessWidget {
     }
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: target),
-      duration: const Duration(milliseconds: 480),
-      curve: Curves.easeOutCubic,
+      duration: AppMotion.progress,
+      curve: AppMotion.enter,
       builder: (context, v, _) {
         return ClipRRect(
           borderRadius: BorderRadius.circular(99),
@@ -104,8 +127,8 @@ class _PressScaleState extends State<PressScale> {
       onPointerCancel: (_) => setState(() => _pressed = false),
       child: AnimatedScale(
         scale: _pressed ? widget.pressedScale : 1,
-        duration: reduce ? Duration.zero : const Duration(milliseconds: 100),
-        curve: Curves.easeOut,
+        duration: reduce ? Duration.zero : AppMotion.instant,
+        curve: AppMotion.press,
         child: widget.child,
       ),
     );
@@ -118,7 +141,7 @@ class FadeIndexedStack extends StatelessWidget {
     super.key,
     required this.index,
     required this.children,
-    this.duration = const Duration(milliseconds: 220),
+    this.duration = AppMotion.state,
   });
 
   final int index;
@@ -165,7 +188,7 @@ class _FadeKeepAlive extends StatelessWidget {
       child: AnimatedOpacity(
         opacity: visible ? 1 : 0,
         duration: duration,
-        curve: Curves.easeOutCubic,
+        curve: AppMotion.enter,
         child: TickerMode(
           enabled: visible,
           child: child,
@@ -183,19 +206,19 @@ class SharedAxisPageRoute<T> extends PageRouteBuilder<T> {
         SharedAxisTransitionType.horizontal,
     super.settings,
   }) : super(
-         pageBuilder: (context, animation, secondaryAnimation) =>
-             builder(context),
-         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-           if (MediaQuery.disableAnimationsOf(context)) return child;
-           return SharedAxisTransition(
-             animation: animation,
-             secondaryAnimation: secondaryAnimation,
-             transitionType: transitionType,
-             fillColor: Colors.transparent,
-             child: child,
-           );
-         },
-         transitionDuration: const Duration(milliseconds: 300),
-         reverseTransitionDuration: const Duration(milliseconds: 300),
-       );
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              builder(context),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            if (MediaQuery.disableAnimationsOf(context)) return child;
+            return SharedAxisTransition(
+              animation: animation,
+              secondaryAnimation: secondaryAnimation,
+              transitionType: transitionType,
+              fillColor: Colors.transparent,
+              child: child,
+            );
+          },
+          transitionDuration: AppMotion.page,
+          reverseTransitionDuration: AppMotion.pageReverse,
+        );
 }

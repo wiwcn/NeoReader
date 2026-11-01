@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../models/track.dart';
+import 'cover_image.dart';
 
 class TrackTile extends StatelessWidget {
   const TrackTile({
@@ -31,12 +30,16 @@ class TrackTile extends StatelessWidget {
         child: SizedBox(
           width: 48,
           height: 48,
-          child: track.coverPath != null && File(track.coverPath!).existsSync()
-              ? Image.file(File(track.coverPath!), fit: BoxFit.cover)
-              : ColoredBox(
-                  color: cs.secondaryContainer,
-                  child: Icon(Icons.music_note_rounded, color: cs.onSecondaryContainer),
-                ),
+          child: CoverImage(
+            path: track.coverPath,
+            placeholder: ColoredBox(
+              color: cs.secondaryContainer,
+              child: Icon(
+                Icons.music_note_rounded,
+                color: cs.onSecondaryContainer,
+              ),
+            ),
+          ),
         ),
       ),
       title: Text(track.title, maxLines: 1, overflow: TextOverflow.ellipsis),

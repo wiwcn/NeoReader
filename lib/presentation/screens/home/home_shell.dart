@@ -65,6 +65,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             NavigationBar(
               selectedIndex: _index,
               onDestinationSelected: (i) => setState(() => _index = i),
+              // Theme tokens own frost; keep chrome from tint-morphing on theme switch.
               destinations: [
                 NavigationDestination(
                   icon: const Icon(Icons.menu_book_outlined),

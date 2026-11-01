@@ -6,6 +6,7 @@ import 'core/theme/app_theme.dart';
 import 'domain/models/app_settings.dart';
 import 'presentation/providers/providers.dart';
 import 'presentation/screens/home/home_shell.dart';
+import 'presentation/widgets/motion.dart';
 
 class NeoReaderApp extends ConsumerWidget {
   const NeoReaderApp({super.key});
@@ -24,6 +25,9 @@ class NeoReaderApp extends ConsumerWidget {
       theme: AppTheme.light(settings.seedColor),
       darkTheme: AppTheme.dark(settings.seedColor),
       themeMode: settings.flutterThemeMode,
+      // Short ease-out theme morph — avoids a long muddy interpolate / white flash.
+      themeAnimationDuration: AppMotion.state,
+      themeAnimationCurve: AppMotion.enter,
       locale: Locale(settings.isZh ? 'zh' : 'en'),
       supportedLocales: const [Locale('zh'), Locale('en')],
       localizationsDelegates: const [
@@ -33,7 +37,13 @@ class NeoReaderApp extends ConsumerWidget {
       ],
       home: const HomeShell(),
       builder: (context, child) {
-        return child ?? const SizedBox.shrink();
+        // Paint the themed canvas behind routes so transparent scaffolds /
+        // tab fades never flash the platform default (often white).
+        final bg = Theme.of(context).scaffoldBackgroundColor;
+        return ColoredBox(
+          color: bg,
+          child: child ?? const SizedBox.shrink(),
+        );
       },
       onGenerateTitle: (_) => strings.appTitle,
     );
