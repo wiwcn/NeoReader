@@ -1,0 +1,50 @@
+# NeoMedia iOS unsigned release — GitHub Actions (macos)
+# 手动触发：Actions → iOS Release → Run workflow
+name: iOS Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build iOS (no codesign)
+        run: |
+          flutter build ios --release --no-codesign --no-tree-shake-icons
+
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+          APP="build/ios/iphoneos/Runner.app"
+          test -d "$APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          IPA="NeoMedia-ios-unsigned.ipa"
+          zip -qry "$IPA" Payload
+          ls -lh "$IPA"
+          echo "IPA_PATH=$IPA" >> "$GITHUB_ENV"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeoMedia-ios-unsigned
+          path: NeoMedia-ios-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
