@@ -202,12 +202,10 @@ void main() {
           child: Scaffold(
             backgroundColor: Colors.transparent,
             appBar: GlassAppBar(title: const Text('书库')),
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {},
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('导入'),
+            body: EmptyLibrary(
+              strings: AppStrings(true),
+              onImport: () {},
             ),
-            body: EmptyLibrary(strings: AppStrings(true)),
           ),
         ),
       ),

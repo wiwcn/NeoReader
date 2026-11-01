@@ -87,6 +87,8 @@ flutter:
 
   assets:
     - assets/samples/
+    - assets/samples/music/
+    - assets/samples/music/covers/
 
   fonts:
     - family: NotoSansSC

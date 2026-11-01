@@ -12,7 +12,7 @@ class AppStrings {
   String get searchHint => isZh ? '搜索书名或作者' : 'Search title or author';
   String get importBook => isZh ? '导入图书' : 'Import book';
   String get emptyLibrary =>
-      isZh ? '书库为空，点击右下角导入 EPUB / PDF / TXT' : 'Library is empty. Import EPUB / PDF / TXT';
+      isZh ? '书库为空，点击导入添加 EPUB / PDF / TXT' : 'Library is empty — tap Import to add EPUB / PDF / TXT';
   String get delete => isZh ? '删除' : 'Delete';
   String get deleteConfirm =>
       isZh ? '确定从书库删除这本书？（本地文件一并删除）' : 'Delete this book from the library (and local file)?';

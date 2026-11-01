@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/services/demo_seed_service.dart';
+import '../../../data/services/music_seed_service.dart';
 import '../../../music/providers/music_providers.dart';
 import '../../../music/ui/mini_player.dart';
 import '../../../music/ui/music_home_screen.dart';
@@ -40,6 +41,10 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       final n = await DemoSeedService().seedIfNeeded();
       if (n > 0 && mounted) {
         await ref.read(libraryProvider.notifier).refresh();
+      }
+      final musicN = await MusicSeedService().seedIfNeeded();
+      if (musicN > 0 && mounted) {
+        await ref.read(musicLibraryProvider.notifier).refresh();
       }
       // Warm music audio session (DAC-friendly attributes) without blocking UI.
       ref.read(musicHandlerProvider);

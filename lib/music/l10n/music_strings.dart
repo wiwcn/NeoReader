@@ -14,7 +14,7 @@ class MusicStrings {
   String get scanning => isZh ? '正在扫描…' : 'Scanning…';
   String get scanDone => isZh ? '扫描完成' : 'Scan complete';
   String get emptyLibrary =>
-      isZh ? '音乐库为空，点击扫描本地音频文件夹' : 'Music library empty — scan a local folder';
+      isZh ? '音乐库为空，扫描本地音频文件夹开始听歌' : 'Music library empty — scan a local folder to begin';
   String get searchMusic => isZh ? '搜索歌曲、专辑、艺人' : 'Search tracks, albums, artists';
   String get play => isZh ? '播放' : 'Play';
   String get pause => isZh ? '暂停' : 'Pause';

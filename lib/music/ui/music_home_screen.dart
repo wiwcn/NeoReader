@@ -125,17 +125,6 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
     return GlassScaffoldBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _scanning ? null : _scanFolder,
-          icon: _scanning
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.folder_open_rounded),
-          label: Text(_scanning ? ms.scanning : ms.scanFolder),
-        ),
         appBar: GlassAppBar(
           title: Text(ms.music),
           bottom: PreferredSize(
@@ -175,6 +164,17 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
             ),
           ),
           actions: [
+            IconButton(
+              tooltip: ms.scanFolder,
+              onPressed: _scanning ? null : _scanFolder,
+              icon: _scanning
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.folder_open_rounded),
+            ),
             PopupMenuButton<MusicSort>(
               tooltip: ms.sortTitle,
               icon: const Icon(Icons.sort_rounded),
@@ -194,9 +194,9 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
             TabBarView(
               controller: _tabs,
               children: [
-                _TracksTab(onPlay: _playTracks),
-                _AlbumsTab(onPlay: _playTracks),
-                _ArtistsTab(onPlay: _playTracks),
+                _TracksTab(onPlay: _playTracks, onScan: _scanFolder),
+                _AlbumsTab(onPlay: _playTracks, onScan: _scanFolder),
+                _ArtistsTab(onPlay: _playTracks, onScan: _scanFolder),
                 _PlaylistsTab(onPlay: _playTracks),
               ],
             ),
@@ -227,8 +227,9 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
 }
 
 class _TracksTab extends ConsumerWidget {
-  const _TracksTab({required this.onPlay});
+  const _TracksTab({required this.onPlay, required this.onScan});
   final Future<void> Function(List<Track> tracks, {int start}) onPlay;
+  final Future<void> Function() onScan;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -239,7 +240,7 @@ class _TracksTab extends ConsumerWidget {
       error: (e, _) => Center(child: Text('$e')),
       data: (tracks) {
         if (tracks.isEmpty) {
-          return Center(child: Text(ms.emptyLibrary));
+          return _MusicEmptyState(message: ms.emptyLibrary, actionLabel: ms.scanFolder, onAction: onScan);
         }
         return ListView.builder(
           padding: const EdgeInsets.only(bottom: 96),
@@ -265,8 +266,9 @@ class _TracksTab extends ConsumerWidget {
 }
 
 class _AlbumsTab extends ConsumerWidget {
-  const _AlbumsTab({required this.onPlay});
+  const _AlbumsTab({required this.onPlay, required this.onScan});
   final Future<void> Function(List<Track> tracks, {int start}) onPlay;
+  final Future<void> Function() onScan;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -276,14 +278,21 @@ class _AlbumsTab extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (albums) {
-        if (albums.isEmpty) return Center(child: Text(ms.emptyLibrary));
+        if (albums.isEmpty) {
+          return _MusicEmptyState(
+            message: ms.emptyLibrary,
+            actionLabel: ms.scanFolder,
+            onAction: onScan,
+          );
+        }
         return GridView.builder(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 96),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 0.78,
+            // Square cover + ~2-line title row (~0.72–0.78).
+            childAspectRatio: 0.70,
           ),
           itemCount: albums.length,
           itemBuilder: (context, i) {
@@ -327,35 +336,37 @@ class _AlbumCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: ClipRRect(
+            AspectRatio(
+              aspectRatio: 1,
+              child: CoverImage(
+                path: album.coverPath,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                child: CoverImage(
-                  path: album.coverPath,
-                  placeholder: ColoredBox(
-                    color: cs.primaryContainer,
-                    child: Icon(Icons.album_rounded, size: 48, color: cs.onPrimaryContainer),
-                  ),
+                placeholder: ColoredBox(
+                  color: cs.primaryContainer,
+                  child: Icon(Icons.album_rounded, size: 48, color: cs.onPrimaryContainer),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 4, 8),
+              padding: const EdgeInsets.fromLTRB(10, 4, 2, 4),
               child: Row(
                 children: [
                   Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(album.name, maxLines: 1, overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                         Text(album.artist, maxLines: 1, overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.bodySmall),
                       ],
                     ),
                   ),
                   IconButton(
+                    visualDensity: VisualDensity.compact,
                     constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                    padding: EdgeInsets.zero,
                     onPressed: onPlay,
                     icon: const Icon(Icons.play_circle_fill_rounded),
                   ),
@@ -369,9 +380,57 @@ class _AlbumCard extends StatelessWidget {
   }
 }
 
+class _MusicEmptyState extends StatelessWidget {
+  const _MusicEmptyState({
+    required this.message,
+    required this.actionLabel,
+    required this.onAction,
+  });
+
+  final String message;
+  final String actionLabel;
+  final Future<void> Function() onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: GlassSurface(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.library_music_rounded, size: 56, color: cs.primary),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 20),
+              FilledButton.tonalIcon(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(48, 48),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+                onPressed: () => onAction(),
+                icon: const Icon(Icons.folder_open_rounded),
+                label: Text(actionLabel),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ArtistsTab extends ConsumerWidget {
-  const _ArtistsTab({required this.onPlay});
+  const _ArtistsTab({required this.onPlay, required this.onScan});
   final Future<void> Function(List<Track> tracks, {int start}) onPlay;
+  final Future<void> Function() onScan;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -381,7 +440,13 @@ class _ArtistsTab extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (artists) {
-        if (artists.isEmpty) return Center(child: Text(ms.emptyLibrary));
+        if (artists.isEmpty) {
+          return _MusicEmptyState(
+            message: ms.emptyLibrary,
+            actionLabel: ms.scanFolder,
+            onAction: onScan,
+          );
+        }
         return ListView.builder(
           padding: const EdgeInsets.only(bottom: 96),
           itemCount: artists.length,

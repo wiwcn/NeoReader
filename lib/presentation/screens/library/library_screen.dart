@@ -37,10 +37,14 @@ class LibraryScreen extends ConsumerWidget {
     return GlassScaffoldBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         appBar: GlassAppBar(
           title: Text(strings.isZh ? '小说' : 'Novels'),
           actions: [
+            IconButton(
+              tooltip: strings.importBook,
+              icon: const Icon(Icons.add_rounded),
+              onPressed: () => _import(context, ref, strings),
+            ),
             IconButton(
               tooltip: layout == LibraryLayout.grid
                   ? strings.layoutList
@@ -121,18 +125,16 @@ class LibraryScreen extends ConsumerWidget {
             ),
           ),
         ),
-        floatingActionButton: PressScale(
-          child: FloatingActionButton.extended(
-            onPressed: () => _import(context, ref, strings),
-            icon: const Icon(Icons.add_rounded),
-            label: Text(strings.importBook),
-          ),
-        ),
         body: booksAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('$e')),
           data: (books) {
-            if (books.isEmpty) return EmptyLibrary(strings: strings);
+            if (books.isEmpty) {
+              return EmptyLibrary(
+                strings: strings,
+                onImport: () => _import(context, ref, strings),
+              );
+            }
             if (layout == LibraryLayout.grid) {
               return _buildGrid(context, ref, strings, books);
             }
@@ -152,7 +154,7 @@ class LibraryScreen extends ConsumerWidget {
     return staggeredListView(
       context: context,
       listView: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 112),
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 96),
         itemCount: books.length,
         separatorBuilder: (context, index) => const SizedBox(height: 10),
         itemBuilder: (context, i) {
@@ -187,7 +189,7 @@ class LibraryScreen extends ConsumerWidget {
     return staggeredListView(
       context: context,
       listView: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 112),
+        padding: const EdgeInsets.fromLTRB(14, 10, 14, 96),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: 12,

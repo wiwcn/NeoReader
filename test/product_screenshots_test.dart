@@ -623,12 +623,10 @@ void main() {
           child: Scaffold(
             backgroundColor: Colors.transparent,
             appBar: GlassAppBar(title: Text(AppStrings(true).isZh ? '小说' : 'Novels')),
-            floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {},
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('导入'),
+            body: EmptyLibrary(
+              strings: AppStrings(true),
+              onImport: () {},
             ),
-            body: EmptyLibrary(strings: AppStrings(true)),
           ),
         ),
       );

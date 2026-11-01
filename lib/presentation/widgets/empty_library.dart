@@ -4,9 +4,14 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/theme/app_theme.dart';
 
 class EmptyLibrary extends StatelessWidget {
-  const EmptyLibrary({super.key, required this.strings});
+  const EmptyLibrary({
+    super.key,
+    required this.strings,
+    this.onImport,
+  });
 
   final AppStrings strings;
+  final VoidCallback? onImport;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +40,21 @@ class EmptyLibrary extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              if (onImport != null) ...[
+                const SizedBox(height: 20),
+                FilledButton.tonalIcon(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(48, 48),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
+                  onPressed: onImport,
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(strings.importBook),
+                ),
+              ],
             ],
           ),
         ),
