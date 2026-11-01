@@ -13,6 +13,9 @@ enum LibraryLayout { list, grid }
 /// CJK horizontal (横排) vs vertical (竖排) writing for text-based readers.
 enum WritingMode { horizontal, vertical }
 
+/// Display-layer wording: Taiwan/HK ↔ Mainland common terms.
+enum TermConversionMode { off, toMainland, toTaiwan }
+
 class AppSettings extends Equatable {
   const AppSettings({
     this.localeCode = 'zh',
@@ -31,6 +34,7 @@ class AppSettings extends Equatable {
     this.libraryLayout = LibraryLayout.list,
     this.libraryPinEnabled = false,
     this.showReadingDuration = true,
+    this.termConversion = TermConversionMode.off,
   });
 
   final String localeCode;
@@ -59,6 +63,9 @@ class AppSettings extends Equatable {
   /// Roadmap placeholder — library lock / PIN.
   final bool libraryPinEnabled;
   final bool showReadingDuration;
+
+  /// Display-only wording conversion (TW ↔ Mainland).
+  final TermConversionMode termConversion;
 
   bool get isZh => localeCode.toLowerCase().startsWith('zh');
 
@@ -93,6 +100,7 @@ class AppSettings extends Equatable {
     LibraryLayout? libraryLayout,
     bool? libraryPinEnabled,
     bool? showReadingDuration,
+    TermConversionMode? termConversion,
   }) {
     return AppSettings(
       localeCode: localeCode ?? this.localeCode,
@@ -113,6 +121,7 @@ class AppSettings extends Equatable {
       libraryLayout: libraryLayout ?? this.libraryLayout,
       libraryPinEnabled: libraryPinEnabled ?? this.libraryPinEnabled,
       showReadingDuration: showReadingDuration ?? this.showReadingDuration,
+      termConversion: termConversion ?? this.termConversion,
     );
   }
 
@@ -134,5 +143,6 @@ class AppSettings extends Equatable {
     libraryLayout,
     libraryPinEnabled,
     showReadingDuration,
+    termConversion,
   ];
 }

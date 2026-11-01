@@ -182,6 +182,36 @@ class _SettingsReadingPageState extends ConsumerState<SettingsReadingPage> {
                       .saveSettings((c) => c.copyWith(writingMode: s.first)),
                 ),
                 const SizedBox(height: 16),
+                Text(strings.termConversion),
+                const SizedBox(height: 4),
+                Text(
+                  strings.termConversionSub,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final mode in TermConversionMode.values)
+                      ChoiceChip(
+                        label: Text(switch (mode) {
+                          TermConversionMode.off => strings.termConversionOff,
+                          TermConversionMode.toMainland =>
+                            strings.termConversionMainland,
+                          TermConversionMode.toTaiwan =>
+                            strings.termConversionTaiwan,
+                        }),
+                        selected: settings.termConversion == mode,
+                        onSelected: (_) => ref
+                            .read(settingsProvider.notifier)
+                            .saveSettings(
+                              (c) => c.copyWith(termConversion: mode),
+                            ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 Text(strings.readingFont),
                 const SizedBox(height: 4),
                 Text(

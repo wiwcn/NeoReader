@@ -62,6 +62,15 @@ class AppStrings {
   String get exportFormatTxt => isZh ? '导出为 TXT' : 'Export as TXT';
   String get exportLater => exportAnnotations;
   String get toc => isZh ? '目录' : 'Contents';
+  String get tocJump => isZh ? '跳转章节' : 'Go to chapter';
+  String get tocEmpty => isZh ? '暂无章节' : 'No chapters';
+  String get termConversion => isZh ? '用语转换' : 'Term conversion';
+  String get termConversionOff => isZh ? '关闭' : 'Off';
+  String get termConversionMainland => isZh ? '转为大陆常用' : 'Mainland wording';
+  String get termConversionTaiwan => isZh ? '转为台湾常用' : 'Taiwan wording';
+  String get termConversionSub => isZh
+      ? '仅影响显示，不改动本地书文件（如义大利⇄意大利）'
+      : 'Display only — does not change files on disk';
   String get scrollMode => isZh ? '滚动' : 'Scroll';
   String get pageMode => isZh ? '翻页' : 'Paged';
   String get todayReading => isZh ? '今日阅读' : 'Today';
@@ -79,8 +88,8 @@ class AppStrings {
       : 'Theme, seed color, glass blur';
   String get settingsReading => isZh ? '阅读' : 'Reading';
   String get settingsReadingSub => isZh
-      ? '字号、行距、主题、翻页、竖排、自定义字体'
-      : 'Size, line height, theme, page turn, vertical, fonts';
+      ? '字号、行距、主题、翻页、竖排、用语转换、自定义字体'
+      : 'Size, line height, theme, page turn, vertical, terms, fonts';
   String get settingsLibrary => isZh ? '书库与导入' : 'Library & import';
   String get settingsLibrarySub => isZh
       ? '排序默认、导入格式说明、清空缓存'

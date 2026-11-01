@@ -22,6 +22,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
   static const _kLayout = 'library_layout';
   static const _kPin = 'library_pin';
   static const _kShowDuration = 'show_reading_duration';
+  static const _kTermConv = 'term_conversion';
 
   @override
   Future<AppSettings> load() async {
@@ -61,6 +62,10 @@ class SettingsRepositoryImpl implements SettingsRepository {
       ),
       libraryPinEnabled: p.getBool(_kPin) ?? false,
       showReadingDuration: p.getBool(_kShowDuration) ?? true,
+      termConversion: TermConversionMode.values.firstWhere(
+        (e) => e.name == p.getString(_kTermConv),
+        orElse: () => TermConversionMode.off,
+      ),
     );
   }
 
@@ -88,5 +93,6 @@ class SettingsRepositoryImpl implements SettingsRepository {
     await p.setString(_kLayout, settings.libraryLayout.name);
     await p.setBool(_kPin, settings.libraryPinEnabled);
     await p.setBool(_kShowDuration, settings.showReadingDuration);
+    await p.setString(_kTermConv, settings.termConversion.name);
   }
 }

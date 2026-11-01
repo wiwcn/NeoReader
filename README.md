@@ -64,7 +64,7 @@ Light and dark sets, captured from real UI widgets (~1080×2340). Library shots 
 ## What you can do
 
 ### Novels
-Import local EPUB, PDF, TXT, MOBI/AZW3, FB2, Markdown, HTML, DOCX, and more. Search, sort, and pick up where you left off. Tune font size, line height, and day / night / sepia themes. Bookmarks, notes, and highlights stay on device. The reader chrome uses frosted-glass controls that stay out of the way.
+Import local EPUB, PDF, TXT, MOBI/AZW3, FB2, Markdown, HTML, DOCX, and more. Search, sort, and pick up where you left off. Tune font size, line height, and day / night / sepia themes. Jump chapters from the table of contents, and optionally rewrite Taiwan/Mainland wording on display only. Bookmarks, notes, and highlights stay on device. The reader chrome uses frosted-glass controls that stay out of the way.
 
 ### Comics
 A dedicated comics tab for local CBZ and similar archives — separate from novels, so your shelves stay clear.

@@ -5,12 +5,14 @@ import 'package:uuid/uuid.dart';
 import '../../../core/theme/reading_theme.dart';
 import '../../../data/parsers/epub_parser.dart';
 import '../../../data/services/reading_session_tracker.dart';
+import '../../../data/services/reading_term_converter.dart';
 import '../../../domain/models/annotation.dart';
 import '../../../domain/models/app_settings.dart';
 import '../../../domain/models/book.dart';
 import '../../providers/providers.dart';
 import 'reader_controls_helper.dart';
 import 'reader_typography.dart';
+import 'toc_sheet.dart';
 import 'vertical_text_view.dart';
 
 class EpubReaderScreen extends ConsumerStatefulWidget {
@@ -85,6 +87,10 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
     super.dispose();
   }
 
+  String _display(String raw, AppSettings settings) {
+    return ReadingTermConverter.convert(raw, settings.termConversion);
+  }
+
   List<String> _paragraphs(String text) {
     return text
         .replaceAll('\r\n', '\n')
@@ -95,6 +101,80 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
         .toList();
   }
 
+  double _scrollFractionForChapter(int index) {
+    final chapters = _data?.chapters ?? const [];
+    if (chapters.isEmpty) return 0;
+    var before = 0;
+    var total = 0;
+    for (var i = 0; i < chapters.length; i++) {
+      final len = chapters[i].title.length + chapters[i].content.length + 8;
+      if (i < index) before += len;
+      total += len;
+    }
+    if (total <= 0) return 0;
+    return (before / total).clamp(0.0, 1.0);
+  }
+
+  Future<void> _openToc(AppSettings settings, ReadingColors colors) async {
+    final data = _data;
+    if (data == null) return;
+    final strings = ref.read(stringsProvider);
+    final toc = data.effectiveToc;
+    final items = <TocItem>[
+      for (final e in toc)
+        if (e.spineIndex >= 0)
+          TocItem(title: e.title, index: e.spineIndex, level: e.level),
+    ];
+    // Fallback if TOC entries failed to align.
+    if (items.isEmpty) {
+      for (var i = 0; i < data.chapters.length; i++) {
+        items.add(TocItem(title: data.chapters[i].title, index: i));
+      }
+    }
+    final picked = await showTocSheet(
+      context: context,
+      strings: strings,
+      colors: colors,
+      items: items,
+      currentIndex: _chapterIndex,
+    );
+    if (picked == null || !mounted) return;
+    await _jumpToChapter(picked, settings);
+  }
+
+  Future<void> _jumpToChapter(int index, AppSettings settings) async {
+    final chapters = _data?.chapters ?? const [];
+    if (chapters.isEmpty) return;
+    final i = index.clamp(0, chapters.length - 1);
+    setState(() => _chapterIndex = i);
+
+    if (settings.writingMode == WritingMode.vertical ||
+        settings.pageTurnMode == PageTurnMode.scroll) {
+      final frac = _scrollFractionForChapter(i);
+      _progress = chapters.length <= 1 ? frac : (i / chapters.length);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scroll.hasClients) {
+          final max = _scroll.position.maxScrollExtent;
+          _scroll.jumpTo(max * frac);
+        }
+      });
+      setState(() {});
+      return;
+    }
+
+    if (_pageController.hasClients) {
+      await _pageController.animateToPage(
+        i,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+      );
+    } else {
+      _pageController.jumpToPage(i);
+    }
+    _progress = (i + 1) / chapters.length;
+    setState(() {});
+  }
+
   Widget _chapterBody(
     EpubChapter c,
     AppSettings settings,
@@ -102,11 +182,12 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
   ) {
     final style = ReaderTypography.body(settings, colors);
     final titleStyle = ReaderTypography.title(settings, colors);
-    final paras = _paragraphs(c.content);
+    final title = _display(c.title, settings);
+    final paras = _paragraphs(_display(c.content, settings));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(c.title, style: titleStyle),
+        Text(title, style: titleStyle),
         SizedBox(height: settings.paragraphSpacing),
         for (final para in paras)
           Padding(
@@ -168,10 +249,10 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
     final buf = StringBuffer();
     for (final c in chapters) {
       if (c.title.isNotEmpty) {
-        buf.writeln(c.title);
+        buf.writeln(_display(c.title, settings));
         buf.writeln();
       }
-      buf.writeln(c.content);
+      buf.writeln(_display(c.content, settings));
       buf.writeln();
     }
     return VerticalTextView(
@@ -220,6 +301,12 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
               actions: [
+                if (_data != null)
+                  IconButton(
+                    tooltip: strings.toc,
+                    icon: const Icon(Icons.list_alt_rounded),
+                    onPressed: () => _openToc(settings, colors),
+                  ),
                 IconButton(
                   tooltip: paged ? strings.scrollMode : strings.pageMode,
                   icon: Icon(

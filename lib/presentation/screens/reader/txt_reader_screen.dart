@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/theme/reading_theme.dart';
+import '../../../data/parsers/text_chapter_splitter.dart';
 import '../../../data/parsers/txt_parser.dart';
 import '../../../data/services/reading_session_tracker.dart';
+import '../../../data/services/reading_term_converter.dart';
 import '../../../domain/models/annotation.dart';
 import '../../../domain/models/app_settings.dart';
 import '../../../domain/models/book.dart';
@@ -12,6 +14,7 @@ import '../../providers/providers.dart';
 import 'paginated_plain_text.dart';
 import 'reader_controls_helper.dart';
 import 'reader_typography.dart';
+import 'toc_sheet.dart';
 import 'vertical_text_view.dart';
 
 class TxtReaderScreen extends ConsumerStatefulWidget {
@@ -23,12 +26,14 @@ class TxtReaderScreen extends ConsumerStatefulWidget {
 }
 
 class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
-  String? _text;
+  String? _rawText;
+  List<TextChapter> _chapters = const [];
   Object? _error;
   late final ScrollController _scroll;
   late final PageController _pageController;
   ReadingSessionTracker? _tracker;
   double _progress = 0;
+  int _chapterIndex = 0;
   bool _chromeVisible = true;
 
   @override
@@ -46,7 +51,14 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
     try {
       final data = await TxtParser().parseFile(widget.book.filePath);
       if (!mounted) return;
-      setState(() => _text = data.content);
+      final chapters = TextChapterSplitter.split(
+        data.content,
+        fallbackTitle: data.title,
+      );
+      setState(() {
+        _rawText = data.content;
+        _chapters = chapters;
+      });
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scroll.hasClients && _progress > 0) {
           _scroll.jumpTo(
@@ -71,7 +83,7 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
         .updateProgress(
           widget.book.id,
           _progress,
-          'offset:${_scroll.hasClients ? _scroll.offset.round() : 0}',
+          'chapter:$_chapterIndex',
         );
     await ref.read(libraryProvider.notifier).refresh();
   }
@@ -85,6 +97,10 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
     super.dispose();
   }
 
+  String _display(String raw, AppSettings settings) {
+    return ReadingTermConverter.convert(raw, settings.termConversion);
+  }
+
   List<String> _paragraphs(String text) {
     return text
         .replaceAll('\r\n', '\n')
@@ -95,14 +111,112 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
         .toList();
   }
 
+  double _scrollFractionForChapter(int index) {
+    if (_chapters.isEmpty) return 0;
+    var before = 0;
+    var total = 0;
+    for (var i = 0; i < _chapters.length; i++) {
+      final len = _chapters[i].title.length + _chapters[i].content.length + 8;
+      if (i < index) before += len;
+      total += len;
+    }
+    if (total <= 0) return 0;
+    return (before / total).clamp(0.0, 1.0);
+  }
+
+  Future<void> _openToc(AppSettings settings, ReadingColors colors) async {
+    final strings = ref.read(stringsProvider);
+    final items = [
+      for (var i = 0; i < _chapters.length; i++)
+        TocItem(title: _chapters[i].title, index: i),
+    ];
+    final picked = await showTocSheet(
+      context: context,
+      strings: strings,
+      colors: colors,
+      items: items,
+      currentIndex: _chapterIndex,
+    );
+    if (picked == null || !mounted) return;
+    await _jumpToChapter(picked, settings);
+  }
+
+  Future<void> _jumpToChapter(int index, AppSettings settings) async {
+    if (_chapters.isEmpty) return;
+    final i = index.clamp(0, _chapters.length - 1);
+    setState(() => _chapterIndex = i);
+
+    final multi = _chapters.length > 1;
+    if (settings.writingMode == WritingMode.vertical ||
+        settings.pageTurnMode == PageTurnMode.scroll ||
+        !multi) {
+      final frac = _scrollFractionForChapter(i);
+      _progress = frac;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scroll.hasClients) {
+          _scroll.jumpTo(_scroll.position.maxScrollExtent * frac);
+        }
+      });
+      setState(() {});
+      return;
+    }
+
+    if (_pageController.hasClients) {
+      await _pageController.animateToPage(
+        i,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+      );
+    } else {
+      _pageController.jumpToPage(i);
+    }
+    _progress = (i + 1) / _chapters.length;
+    setState(() {});
+  }
+
+  Widget _chapterBody(
+    TextChapter c,
+    AppSettings settings,
+    ReadingColors colors,
+  ) {
+    final style = ReaderTypography.body(settings, colors);
+    final titleStyle = ReaderTypography.title(settings, colors);
+    final paras = _paragraphs(_display(c.content, settings));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(_display(c.title, settings), style: titleStyle),
+        SizedBox(height: settings.paragraphSpacing),
+        for (final para in paras)
+          Padding(
+            padding: EdgeInsets.only(bottom: settings.paragraphSpacing),
+            child: SelectableText(
+              para,
+              style: style,
+              textAlign: TextAlign.justify,
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildBody(AppSettings settings, ReadingColors colors) {
     final style = ReaderTypography.body(settings, colors);
     final padding = ReaderTypography.bodyPadding(settings);
-    final text = _text!;
+    final text = _display(_rawText!, settings);
+    final multi = _chapters.length > 1;
 
     if (settings.writingMode == WritingMode.vertical) {
+      // Rebuild vertical text from chapters so titles stay visible.
+      final buf = StringBuffer();
+      for (final c in _chapters) {
+        buf.writeln(_display(c.title, settings));
+        buf.writeln();
+        buf.writeln(_display(c.content, settings));
+        buf.writeln();
+      }
       return VerticalTextView(
-        text: text,
+        text: buf.toString(),
         style: style,
         controller: _scroll,
         padding: padding,
@@ -111,6 +225,26 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
     }
 
     if (settings.pageTurnMode == PageTurnMode.paged) {
+      if (multi) {
+        return PageView.builder(
+          controller: _pageController,
+          itemCount: _chapters.length,
+          onPageChanged: (i) {
+            _chapterIndex = i;
+            _progress = (i + 1) / _chapters.length;
+            setState(() {});
+          },
+          itemBuilder: (context, i) {
+            return SingleChildScrollView(
+              padding: padding,
+              child: ReaderTypography.constrainWidth(
+                context: context,
+                child: _chapterBody(_chapters[i], settings, colors),
+              ),
+            );
+          },
+        );
+      }
       return PaginatedPlainText(
         text: text,
         style: style,
@@ -120,6 +254,23 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
           _progress = p;
           if (mounted) setState(() {});
         },
+      );
+    }
+
+    if (multi) {
+      return ReaderTypography.constrainWidth(
+        context: context,
+        child: ListView.builder(
+          controller: _scroll,
+          padding: padding,
+          itemCount: _chapters.length,
+          itemBuilder: (context, i) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: settings.paragraphSpacing + 16),
+              child: _chapterBody(_chapters[i], settings, colors),
+            );
+          },
+        ),
       );
     }
 
@@ -146,6 +297,7 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = ref.watch(stringsProvider);
     final settings = ref.watch(settingsProvider).value ?? const AppSettings();
     final colors = ReadingColors.of(settings.readingTheme);
 
@@ -161,6 +313,12 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
               actions: [
+                if (_rawText != null)
+                  IconButton(
+                    tooltip: strings.toc,
+                    icon: const Icon(Icons.list_alt_rounded),
+                    onPressed: () => _openToc(settings, colors),
+                  ),
                 IconButton(
                   icon: const Icon(Icons.tune_rounded),
                   onPressed: () => showReadingControls(
@@ -177,8 +335,13 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
                               type: AnnotationType.bookmark,
                               createdAt: DateTime.now(),
                               progress: _progress,
-                              location:
-                                  'offset:${_scroll.hasClients ? _scroll.offset.round() : 0}',
+                              location: 'chapter:$_chapterIndex',
+                              chapter: _chapters.isNotEmpty
+                                  ? _chapters[_chapterIndex.clamp(
+                                      0,
+                                      _chapters.length - 1,
+                                    )].title
+                                  : null,
                             ),
                           );
                       ref.invalidate(allAnnotationsProvider);
@@ -216,6 +379,7 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
                                 createdAt: DateTime.now(),
                                 note: c.text.trim(),
                                 progress: _progress,
+                                location: 'chapter:$_chapterIndex',
                               ),
                             );
                         ref.invalidate(allAnnotationsProvider);
@@ -228,7 +392,7 @@ class _TxtReaderScreenState extends ConsumerState<TxtReaderScreen> {
           : null,
       body: _error != null
           ? Center(child: Text('$_error'))
-          : _text == null
+          : _rawText == null
           ? const Center(child: CircularProgressIndicator())
           : GestureDetector(
               onTap: () => setState(() => _chromeVisible = !_chromeVisible),
