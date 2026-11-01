@@ -39,7 +39,7 @@ class LibraryScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         appBar: GlassAppBar(
-          title: Text(strings.library),
+          title: Text(strings.isZh ? '小说' : 'Novels'),
           actions: [
             IconButton(
               tooltip: layout == LibraryLayout.grid

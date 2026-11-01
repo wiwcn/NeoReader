@@ -64,7 +64,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: Colors.white.withValues(alpha: 0.10),
+        backgroundColor: Colors.white.withValues(alpha: 0.72),
         elevation: 0,
         indicatorColor: seedColor.withValues(alpha: 0.18),
         labelTextStyle: WidgetStateProperty.resolveWith(
@@ -123,7 +123,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: Colors.black.withValues(alpha: 0.35),
+        backgroundColor: Colors.black.withValues(alpha: 0.72),
         elevation: 0,
         indicatorColor: seedColor.withValues(alpha: 0.28),
         labelTextStyle: WidgetStateProperty.resolveWith(

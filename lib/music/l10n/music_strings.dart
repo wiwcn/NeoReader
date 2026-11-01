@@ -17,6 +17,7 @@ class MusicStrings {
       isZh ? '音乐库为空，点击扫描本地音频文件夹' : 'Music library empty — scan a local folder';
   String get searchMusic => isZh ? '搜索歌曲、专辑、艺人' : 'Search tracks, albums, artists';
   String get play => isZh ? '播放' : 'Play';
+  String get pause => isZh ? '暂停' : 'Pause';
   String get playNext => isZh ? '下一首播放' : 'Play next';
   String get addToQueue => isZh ? '加入队列' : 'Add to queue';
   String get addToPlaylist => isZh ? '加入歌单' : 'Add to playlist';
@@ -46,7 +47,10 @@ class MusicStrings {
   String get permissionNeeded =>
       isZh ? '需要存储权限以扫描本地音乐' : 'Storage permission needed to scan music';
   String get removeFromPlaylist => isZh ? '从歌单移除' : 'Remove from playlist';
-  String get more => isZh ? '更多' : 'More';
-  String get novel => isZh ? '阅读' : 'Books';
+  /// Bottom-nav: novels / books tab.
+  String get novel => isZh ? '小说' : 'Novels';
+  /// Bottom-nav: comics tab.
   String get comic => isZh ? '漫画' : 'Comics';
+  /// Legacy alias — bottom nav now uses AppStrings.settings (设置).
+  String get more => isZh ? '设置' : 'Settings';
 }

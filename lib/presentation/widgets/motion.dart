@@ -112,37 +112,65 @@ class _PressScaleState extends State<PressScale> {
   }
 }
 
-/// Bottom-nav body switcher using Material fade-through ([animations] package).
+/// Bottom-nav body switcher: true [IndexedStack] + fade so tabs stay alive.
 class FadeIndexedStack extends StatelessWidget {
   const FadeIndexedStack({
     super.key,
     required this.index,
     required this.children,
-    this.duration = const Duration(milliseconds: 300),
+    this.duration = const Duration(milliseconds: 220),
   });
 
   final int index;
   final List<Widget> children;
   final Duration duration;
 
+  /// Keep every tab mounted (true IndexedStack) so music playback UI / scroll
+  /// position survive tab switches; fade the active child for MD3 motion.
   @override
   Widget build(BuildContext context) {
     final reduce = MediaQuery.disableAnimationsOf(context);
-    if (reduce) {
-      return KeyedSubtree(key: ValueKey<int>(index), child: children[index]);
-    }
-    return PageTransitionSwitcher(
-      duration: duration,
-      transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
-        return FadeThroughTransition(
-          animation: primaryAnimation,
-          secondaryAnimation: secondaryAnimation,
-          // Transparent so glass scaffold wash stays visible.
-          fillColor: Colors.transparent,
+    return IndexedStack(
+      index: index,
+      sizing: StackFit.expand,
+      children: [
+        for (var i = 0; i < children.length; i++)
+          _FadeKeepAlive(
+            key: ValueKey<int>(i),
+            visible: i == index,
+            duration: reduce ? Duration.zero : duration,
+            child: children[i],
+          ),
+      ],
+    );
+  }
+}
+
+class _FadeKeepAlive extends StatelessWidget {
+  const _FadeKeepAlive({
+    super.key,
+    required this.visible,
+    required this.duration,
+    required this.child,
+  });
+
+  final bool visible;
+  final Duration duration;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: !visible,
+      child: AnimatedOpacity(
+        opacity: visible ? 1 : 0,
+        duration: duration,
+        curve: Curves.easeOutCubic,
+        child: TickerMode(
+          enabled: visible,
           child: child,
-        );
-      },
-      child: KeyedSubtree(key: ValueKey<int>(index), child: children[index]),
+        ),
+      ),
     );
   }
 }

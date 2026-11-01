@@ -22,6 +22,13 @@ class HomeShell extends ConsumerStatefulWidget {
 class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
 
+  static const _pages = <Widget>[
+    LibraryScreen(),
+    ComicLibraryScreen(),
+    MusicHomeScreen(),
+    SettingsHubScreen(),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -42,49 +49,44 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final music = ref.watch(musicStringsProvider);
+    final strings = ref.watch(stringsProvider);
     final hasMini = ref.watch(currentTrackProvider) != null;
-
-    final pages = const [
-      LibraryScreen(),
-      ComicLibraryScreen(),
-      MusicHomeScreen(),
-      SettingsHubScreen(),
-    ];
 
     return GlassScaffoldBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Column(
+        // Full-bleed body; mini player lives in bottom chrome so FABs / lists
+        // get the correct bottom inset and never cover tab labels.
+        body: FadeIndexedStack(index: _index, children: _pages),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: FadeIndexedStack(index: _index, children: pages),
-            ),
             if (hasMini) const MiniPlayer(),
-          ],
-        ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: (i) => setState(() => _index = i),
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.menu_book_outlined),
-              selectedIcon: const Icon(Icons.menu_book_rounded),
-              label: music.novel,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.auto_stories_outlined),
-              selectedIcon: const Icon(Icons.auto_stories_rounded),
-              label: music.comic,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.library_music_outlined),
-              selectedIcon: const Icon(Icons.library_music_rounded),
-              label: music.music,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.more_horiz_rounded),
-              selectedIcon: const Icon(Icons.more_horiz_rounded),
-              label: music.more,
+            NavigationBar(
+              selectedIndex: _index,
+              onDestinationSelected: (i) => setState(() => _index = i),
+              destinations: [
+                NavigationDestination(
+                  icon: const Icon(Icons.menu_book_outlined),
+                  selectedIcon: const Icon(Icons.menu_book_rounded),
+                  label: music.novel,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.auto_stories_outlined),
+                  selectedIcon: const Icon(Icons.auto_stories_rounded),
+                  label: music.comic,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.library_music_outlined),
+                  selectedIcon: const Icon(Icons.library_music_rounded),
+                  label: music.music,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.settings_outlined),
+                  selectedIcon: const Icon(Icons.settings_rounded),
+                  label: strings.settings,
+                ),
+              ],
             ),
           ],
         ),

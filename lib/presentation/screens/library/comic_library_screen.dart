@@ -40,8 +40,8 @@ class ComicLibraryScreen extends ConsumerWidget {
               return Center(
                 child: Text(
                   isZh
-                      ? '暂无漫画，请在「阅读」书库导入 CBZ / CBR'
-                      : 'No comics yet — import CBZ / CBR from Books',
+                      ? '暂无漫画，请在「小说」书库导入 CBZ / CBR'
+                      : 'No comics yet — import CBZ / CBR from Novels',
                 ),
               );
             }
