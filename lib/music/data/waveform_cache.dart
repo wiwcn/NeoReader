@@ -14,6 +14,13 @@ class WaveformCache {
   WaveformCache._();
   static final WaveformCache instance = WaveformCache._();
 
+  /// Widget-test / screenshot hook: return synthetic peaks without decoding audio.
+  static Float32List? Function({
+    required String path,
+    required int mtimeMs,
+    required int fileSize,
+  })? debugPeaksOverride;
+
   /// Target peak buckets stored (~1–2 per visual second at typical song length).
   static const int targetBuckets = 800;
 
@@ -30,6 +37,10 @@ class WaveformCache {
     required int mtimeMs,
     required int fileSize,
   }) {
+    final override = debugPeaksOverride;
+    if (override != null) {
+      return Future.value(override(path: path, mtimeMs: mtimeMs, fileSize: fileSize));
+    }
     final key = cacheKey(path, mtimeMs, fileSize);
     return _inflight.putIfAbsent(key, () async {
       try {

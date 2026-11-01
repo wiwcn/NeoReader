@@ -1,96 +1,111 @@
-# NeoReader
+# NeoMedia
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](./LICENSE)
-[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
-[![Platform](https://img.shields.io/badge/Android%2010%2B%20%7C%20iOS%2012%2B-green)](#platform-targets)
-[![Offline](https://img.shields.io/badge/offline--only-no%20cloud-success)](#)
+[![Offline](https://img.shields.io/badge/offline--only-no%20account%20no%20cloud-success)](#)
+[![Platform](https://img.shields.io/badge/Android%20%2F%20iOS-green)](#)
 
-**NeoReader** is a free, open-source **offline ebook reader** for Android and iOS, built with Flutter.  
-Material Design 3 + frosted glass (毛玻璃). Unlimited local library. **No accounts, sync, cloud, or Pro paywall.**
+**Your on-device media hub — novels, comics, music, and settings in one place.**
 
-Feature scope is inspired by [Koodo Reader](https://github.com/koodo-reader/koodo-reader)’s offline capabilities; the Flutter codebase is original (see [ATTRIBUTION.md](./ATTRIBUTION.md)).
+NeoMedia is for people who want books, comics, and music to stay on their phone: open and read, open and listen. **No accounts, no cloud sync, no Pro paywall.** The UI follows Material Design 3 with soft frosted-glass surfaces that look good in light and dark.
 
-**Repo:** <https://github.com/wiwcn/NeoReader>
+> The repo / app transitional name was **NeoReader**; the product story is **NeoMedia**.
 
-| | |
-|---|---|
-| 中文说明 | [README_cn.md](./README_cn.md) |
-| Roadmap | [ROADMAP.md](./ROADMAP.md) |
-| License | [GPL-3.0](./LICENSE) |
+**Repo:** <https://github.com/wiwcn/NeoReader>  
+中文说明 → [README_cn.md](./README_cn.md)
+
+---
+
+## What we promise
+
+- **Offline-first** — library, progress, and playlists live on your device
+- **No account / cloud / Pro** — install and use; nothing gated behind a subscription
+- **One shell, four tabs** — Novels, Comics, Music, Settings
+- **MD3 + frosted glass** — calm chrome for long sessions
+
+---
 
 ## Screenshots
 
-Real UI captures from the NeoReader Flutter widgets:
+Light and dark sets, captured from real UI widgets (~1080×2340).
 
-| Library (empty) | Library | Import FAB |
-| :---: | :---: | :---: |
-| ![empty](docs/screenshots/01_library_empty.png) | ![library](docs/screenshots/02_library_with_books.png) | ![import](docs/screenshots/03_import_fab.png) |
+### Shell
 
-| Stats | Settings | Reader |
-| :---: | :---: | :---: |
-| ![stats](docs/screenshots/04_stats.png) | ![settings](docs/screenshots/05_settings.png) | ![reader](docs/screenshots/06_reader_txt_glass.png) |
+| Novels | Comics | Music | Settings |
+| :---: | :---: | :---: | :---: |
+| ![novels](docs/screenshots/light_shell_novels.png) | ![comics](docs/screenshots/light_shell_comics.png) | ![music](docs/screenshots/light_shell_music.png) | ![settings](docs/screenshots/light_shell_settings.png) |
 
-## Features
+| Novels · dark | Comics · dark | Music · dark | Settings · dark |
+| :---: | :---: | :---: | :---: |
+| ![novels d](docs/screenshots/dark_shell_novels.png) | ![comics d](docs/screenshots/dark_shell_comics.png) | ![music d](docs/screenshots/dark_shell_music.png) | ![settings d](docs/screenshots/dark_shell_settings.png) |
 
-### Working now
+### Music & reader
 
-| Area | Details |
-|------|---------|
-| Library | Import, search, sort, delete — **unlimited** books, all on-device |
-| Formats | **EPUB**, **PDF**, **TXT**, **MOBI/AZW/AZW3** (DRM-free text), **FB2**, **CBZ** (+ ZIP-based CBR), **Markdown**, **HTML/XHTML/MHTML**, **DOCX** (text extract) |
-| Reading | Themes (day / night / sepia), font size & line height, progress, bookmarks / notes |
-| Stats | Today / total reading time, per-book duration (beyond Koodo) |
-| Design | MD3 `ColorScheme.fromSeed`, frosted glass surfaces, light & dark |
-| Privacy | Offline-only by design |
+| Now Playing | Albums | Mini player | Reader |
+| :---: | :---: | :---: | :---: |
+| ![np](docs/screenshots/light_music_now_playing.png) | ![albums](docs/screenshots/light_music_albums.png) | ![mini](docs/screenshots/light_music_miniplayer.png) | ![reader](docs/screenshots/light_reader_glass.png) |
 
-### Roadmap (scaffolded)
+| Now Playing · dark | Albums · dark | Mini · dark | Reader · dark |
+| :---: | :---: | :---: | :---: |
+| ![np d](docs/screenshots/dark_music_now_playing.png) | ![albums d](docs/screenshots/dark_music_albums.png) | ![mini d](docs/screenshots/dark_music_miniplayer.png) | ![reader d](docs/screenshots/dark_reader_glass.png) |
 
-Vertical / two-column layouts, TTS, local dictionary, OCR, note export, PIN lock, full RAR/7z comics (CBR/CBT/CB7), richer charts — see [ROADMAP.md](./ROADMAP.md). Goal: Koodo offline feature parity **一个不少**, plus NeoReader extras.
+### Extra
 
-## Platform targets
+| Empty library | Reading stats |
+| :---: | :---: |
+| ![empty](docs/screenshots/light_library_empty.png) | ![stats](docs/screenshots/light_stats.png) |
 
-- **Android:** minSdk **29** (Android 10+)
-- **iOS:** deployment target **12.0+**
-- **HarmonyOS:** Android APK often sideloads via compatibility layer. NeoReader avoids exotic Google-only APIs where practical. Native HarmonyOS NEXT / OpenHarmony packaging is not claimed yet; DRM and some system APIs may differ.
+| Empty · dark | Stats · dark |
+| :---: | :---: |
+| ![empty d](docs/screenshots/dark_library_empty.png) | ![stats d](docs/screenshots/dark_stats.png) |
 
-## Quick start
+---
 
-```bash
-git clone https://github.com/wiwcn/NeoReader.git
-cd NeoReader
-flutter pub get
-flutter run
-```
+## What you can do
 
-First launch seeds demo books from `assets/samples/` (TXT, MD, HTML, FB2, CBZ, DOCX).
+### Novels
+Import local EPUB, PDF, TXT, MOBI/AZW3, FB2, Markdown, HTML, DOCX, and more. Search, sort, and pick up where you left off. Tune font size, line height, and day / night / sepia themes. Bookmarks, notes, and highlights stay on device. The reader chrome uses frosted-glass controls that stay out of the way.
 
-## Build APK
+### Comics
+A dedicated comics tab for local CBZ and similar archives — separate from novels, so your shelves stay clear.
 
-```bash
-flutter pub get
-flutter build apk --debug
-# → build/app/outputs/flutter-apk/app-debug.apk
+### Music
+Scan tracks on the phone and listen to full albums offline. Now Playing uses a **real waveform** you can scrub — not a decorative wave. A mini player follows you across novels, comics, and settings. Playlists, favorites, and the queue live on the device.
 
-# Release requires your own keystore:
-# flutter build apk --release
-```
+### Settings & stats
+Light / dark, language, and reading defaults in one place. See how long you read today and how many days in a row — all local, never uploaded.
 
-## Project layout
+---
 
-```
-lib/
-  data/parsers/     # EPUB, FB2, MOBI, comic, HTML, MD, DOCX, …
-  presentation/     # Library, readers, stats, settings (MD3 + glass)
-  domain/           # Models & repository interfaces
-assets/samples/     # Demo books for first-run / screenshots
-```
+## Platforms
 
-## Contributing
+Android / iOS.
 
-Issues and PRs welcome. Please keep the offline-only policy (no cloud sync / account / Pro). Match existing MD3 + glass style when touching UI. Run `flutter analyze` before opening a PR.
+---
+
+## Looking ahead
+
+We’d rather deepen what already feels good than pile on buzzwords:
+
+- Richer music: EQ, smoother queues, optional lyrics
+- Stronger comics: more archive formats and nicer page turns
+- Kinder reading: vertical / dual-column layouts, on-device dictionary / TTS (still offline)
+- Calmer library chores: batch import, tidy shelves, local backups
+- Further out: local interactive titles such as GalGame — later, after the three tabs feel great
+
+---
+
+## Inspiration
+
+Shell organization takes cues from [Fushi](https://github.com/hajisensai/Fushi). Music Now Playing’s quiet focus nods to [Harmonoid](https://github.com/harmonoid/harmonoid). NeoMedia reimplements the offline experience in Flutter.
+
+---
 
 ## License
 
-[GNU General Public License v3.0](./LICENSE) — **GPL-3.0**.
+[GNU General Public License v3.0](./LICENSE) (GPL-3.0).
 
-NeoReader is original Flutter code. Koodo Reader is credited as **feature inspiration** only; we do not distribute Koodo’s AGPL sources. See [ATTRIBUTION.md](./ATTRIBUTION.md).
+---
+
+## Acknowledgments
+
+Feature scope was inspired by the offline capability list of open-source [Koodo Reader](https://github.com/koodo-reader/koodo-reader); this repository’s Flutter code is an independent implementation. Fonts, motion packages, and other credits: [ATTRIBUTION.md](./ATTRIBUTION.md).

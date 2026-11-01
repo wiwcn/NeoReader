@@ -1,90 +1,111 @@
-# NeoReader
+# NeoMedia
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](./LICENSE)
-[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
-[![Platform](https://img.shields.io/badge/Android%2010%2B%20%7C%20iOS%2012%2B-green)](#平台目标)
-[![Offline](https://img.shields.io/badge/%E7%BA%AF%E7%A6%BB%E7%BA%BF-%E6%97%A0%E4%BA%91%E7%AB%AF-success)](#)
+[![Offline](https://img.shields.io/badge/%E7%BA%AF%E7%A6%BB%E7%BA%BF-%E6%97%A0%E8%B4%A6%E5%8F%B7%E6%97%A0%E4%BA%91-success)](#)
+[![Platform](https://img.shields.io/badge/Android%20%2F%20iOS-green)](#)
 
-**NeoReader** 是开源、免费的 **Flutter 离线电子书阅读器**（Android / iOS 优先）。  
-界面采用 **Material Design 3 + 毛玻璃**。本地书库 **无数量上限**。  
-**无账号、无同步、无云盘、无 Pro。**
+**你的本地媒体中心 — 小说 · 漫画 · 音乐 · 设置，全在一台手机上。**
 
-功能蓝本对齐开源 [Koodo Reader](https://github.com/koodo-reader/koodo-reader) 的离线能力；本仓库的 Flutter 代码为独立实现（详见 [ATTRIBUTION.md](./ATTRIBUTION.md)）。
+NeoMedia 面向想把书、漫画和音乐都留在自己设备里的人：打开就能读、打开就能听，**不需要账号，没有云同步，也没有 Pro 墙**。界面走 Material Design 3，配上清透的毛玻璃质感，浅色与深色都好看。
 
-> **方向：** 产品正演进为 **NeoMedia**（小说 · 漫画 · 音乐 · GalGame 的离线媒体中心），灵感来自 [Fushi](https://github.com/hajisensai/Fushi) 的多媒体壳（非 Feishin；不以 Anki / 词典沉浸为核心）。下一阶段主线：完整本地音乐播放器。设计说明见 [docs/NEOMEDIA.md](./docs/NEOMEDIA.md)。
+> 仓库与应用过渡名曾用 **NeoReader**；产品叙事以 **NeoMedia** 为准。
 
-**仓库：** <https://github.com/wiwcn/NeoReader>
+**仓库：** <https://github.com/wiwcn/NeoReader>  
+English → [README.md](./README.md)
 
-| | |
-|---|---|
-| English | [README.md](./README.md) |
-| 路线图 | [ROADMAP.md](./ROADMAP.md) |
-| NeoMedia | [docs/NEOMEDIA.md](./docs/NEOMEDIA.md) |
-| 许可 | [GPL-3.0](./LICENSE) |
+---
 
-## 界面截图
+## 核心承诺
 
-截图来自真实 NeoReader Flutter 界面组件：
+- **纯离线** — 内容、进度、歌单都在本机
+- **无账号 / 无云 / 无 Pro** — 下载下来就能用，没有订阅门槛
+- **一壳四页** — 小说、漫画、音乐、设置，底部一键切换
+- **MD3 + 毛玻璃** — 现代、安静、适合长时间待在里面
 
-| 空书库 | 书库列表 | 导入入口 |
-| :---: | :---: | :---: |
-| ![空书库](docs/screenshots/01_library_empty.png) | ![书库](docs/screenshots/02_library_with_books.png) | ![导入](docs/screenshots/03_import_fab.png) |
+---
 
-| 阅读统计 | 设置 | 阅读器 |
-| :---: | :---: | :---: |
-| ![统计](docs/screenshots/04_stats.png) | ![设置](docs/screenshots/05_settings.png) | ![阅读](docs/screenshots/06_reader_txt_glass.png) |
+## 界面一览
 
-## 功能一览
+浅色 / 深色各一套，来自真实界面组件截图（约 1080×2340）。
 
-### 当前可用
+### 壳：四页导航
 
-| 模块 | 说明 |
-|------|------|
-| 书库 | 导入 / 搜索 / 排序 / 删除，本地无限本 |
-| 格式 | **EPUB**、**PDF**、**TXT**、**MOBI/AZW/AZW3**（无 DRM 文本提取）、**FB2**、**CBZ**（及部分 ZIP 伪装的 CBR）、**Markdown**、**HTML/XHTML/MHTML**、**DOCX**（正文提取） |
-| 阅读 | 日间 / 夜间 / 羊皮纸主题，字号与行距，进度，书签与笔记 |
-| 统计 | 今日 / 累计阅读时长、各书时长（相对 Koodo 的增强） |
-| 设计 | MD3 动态配色、毛玻璃表面、深浅色 |
-| 隐私 | 天生纯离线 |
+| 小说书库 | 漫画 | 音乐 | 设置 |
+| :---: | :---: | :---: | :---: |
+| ![小说](docs/screenshots/light_shell_novels.png) | ![漫画](docs/screenshots/light_shell_comics.png) | ![音乐](docs/screenshots/light_shell_music.png) | ![设置](docs/screenshots/light_shell_settings.png) |
 
-### 路线图（已占位）
+| 小说 · 深色 | 漫画 · 深色 | 音乐 · 深色 | 设置 · 深色 |
+| :---: | :---: | :---: | :---: |
+| ![小说深](docs/screenshots/dark_shell_novels.png) | ![漫画深](docs/screenshots/dark_shell_comics.png) | ![音乐深](docs/screenshots/dark_shell_music.png) | ![设置深](docs/screenshots/dark_shell_settings.png) |
 
-竖排 / 双栏、本地 TTS、词典、OCR、笔记导出、PIN、完整 RAR/7z 漫画、更丰富图表等，见 [ROADMAP.md](./ROADMAP.md)。目标：对齐 Koodo 离线能力 **一个不少**，并保留 NeoReader 自有增强。
+### 音乐与阅读
 
-## 平台目标
+| Now Playing | 专辑网格 | 迷你播放条 | 阅读器 |
+| :---: | :---: | :---: | :---: |
+| ![播放](docs/screenshots/light_music_now_playing.png) | ![专辑](docs/screenshots/light_music_albums.png) | ![迷你条](docs/screenshots/light_music_miniplayer.png) | ![阅读](docs/screenshots/light_reader_glass.png) |
 
-- **Android：** minSdk **29**（Android 10+）
-- **iOS：** 部署目标 **12.0+**
-- **HarmonyOS：** Android APK 常可在兼容层侧载。尽量避免非必要的 Google 专有 API。尚未宣称 HarmonyOS NEXT / OpenHarmony 原生打包；DRM 与部分系统能力可能受限。
+| Now Playing · 深色 | 专辑 · 深色 | 迷你条 · 深色 | 阅读器 · 深色 |
+| :---: | :---: | :---: | :---: |
+| ![播放深](docs/screenshots/dark_music_now_playing.png) | ![专辑深](docs/screenshots/dark_music_albums.png) | ![迷你深](docs/screenshots/dark_music_miniplayer.png) | ![阅读深](docs/screenshots/dark_reader_glass.png) |
 
-## 快速开始
+### 更多
 
-```bash
-git clone https://github.com/wiwcn/NeoReader.git
-cd NeoReader
-flutter pub get
-flutter run
-```
+| 空书库 | 阅读统计 |
+| :---: | :---: |
+| ![空](docs/screenshots/light_library_empty.png) | ![统计](docs/screenshots/light_stats.png) |
 
-首次启动会从 `assets/samples/` 导入示例书（TXT、MD、HTML、FB2、CBZ、DOCX）。
+| 空书库 · 深色 | 统计 · 深色 |
+| :---: | :---: |
+| ![空深](docs/screenshots/dark_library_empty.png) | ![统计深](docs/screenshots/dark_stats.png) |
 
-## 打包 APK
+---
 
-```bash
-flutter pub get
-flutter build apk --debug
-# 产物：build/app/outputs/flutter-apk/app-debug.apk
+## 你能做什么
 
-# 正式发布需自行配置签名：
-# flutter build apk --release
-```
+### 小说
+把 EPUB、PDF、TXT、MOBI/AZW3、FB2、Markdown、HTML、DOCX 等本地文件放进书库，随时搜、排、继续读。字号、行距、日间 / 夜间 / 羊皮纸主题随手调；书签、笔记、高亮留在本机。阅读页带毛玻璃控件，读起来不抢戏。
 
-## 参与贡献
+### 漫画
+单独的漫画页，专放 CBZ 等本地漫画。书架与小说分开，翻到想看的那一册即可。
 
-欢迎 Issue 与 PR。请保持纯离线原则（不要引入云同步 / 账号 / Pro）。UI 变更请延续 MD3 + 毛玻璃风格。提交前请运行 `flutter analyze`。
+### 音乐
+扫描本机歌曲，在本地听完整专辑；Now Playing 用真实波形拖进度，而不是装饰性波浪。迷你播放条跟着你切换小说 / 漫画 / 设置，通勤路上也能一眼回到当前曲目。歌单、收藏、队列都在设备里。
 
-## 许可证
+### 设置与统计
+浅色 / 深色、界面语言、阅读默认项一处搞定。阅读统计看得见今天读了多久、连续几天在读——纯本地，不上云。
 
-[GNU General Public License v3.0](./LICENSE)（**GPL-3.0**）。
+---
 
-NeoReader 为原创 Flutter 实现；Koodo Reader 仅作为**功能灵感**致谢，本仓库不包含其 AGPL 源码。详见 [ATTRIBUTION.md](./ATTRIBUTION.md)。
+## 平台
+
+Android / iOS。
+
+---
+
+## 展望
+
+接下来更想把体验做满，而不是堆概念：
+
+- 音乐再精致一点：均衡器、更顺手的队列与歌词呈现
+- 漫画再完整一点：更多压缩格式与更舒服的翻页手势
+- 阅读器再贴心一点：竖排与双栏、本机词典 / TTS（仍保持离线）
+- 壳层再稳一点：导入批量、书库整理与本地备份更省心
+- 更远一点：GalGame 等本地互动内容（不急，先把现有三页用爽）
+
+---
+
+## 灵感
+
+多媒体壳层的组织方式受到 [Fushi](https://github.com/hajisensai/Fushi) 启发；音乐 Now Playing 的安静气质参考了 [Harmonoid](https://github.com/harmonoid/harmonoid)。它们都是优秀的开源作品，NeoMedia 以自己的 Flutter 实现走离线路线。
+
+---
+
+## 许可
+
+[GNU General Public License v3.0](./LICENSE)（GPL-3.0）。
+
+---
+
+## 鸣谢
+
+功能蓝本曾参考开源项目 [Koodo Reader](https://github.com/koodo-reader/koodo-reader) 的离线能力列表；本仓库的 Flutter 代码为独立实现。字体、动效包与其他致谢见 [ATTRIBUTION.md](./ATTRIBUTION.md)。
