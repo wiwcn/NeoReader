@@ -220,3 +220,21 @@ final currentTrackProvider = Provider<Track?>((ref) {
   if (queue.isEmpty || index < 0 || index >= queue.length) return null;
   return queue[index];
 });
+
+class VividModeNotifier extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() => ref.read(musicRepositoryProvider).loadVividMode();
+
+  Future<void> setEnabled(bool enabled) async {
+    await ref.read(musicRepositoryProvider).saveVividMode(enabled);
+    state = AsyncData(enabled);
+  }
+
+  Future<void> toggle() async {
+    final current = state.value ?? false;
+    await setEnabled(!current);
+  }
+}
+
+final vividModeProvider =
+    AsyncNotifierProvider<VividModeNotifier, bool>(VividModeNotifier.new);

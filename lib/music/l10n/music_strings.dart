@@ -53,4 +53,11 @@ class MusicStrings {
   String get comic => isZh ? '漫画' : 'Comics';
   /// Legacy alias — bottom nav now uses AppStrings.settings (设置).
   String get more => isZh ? '设置' : 'Settings';
+  String get vividMode => isZh ? '绚丽模式' : 'Vivid mode';
+  String get vividModeOn => isZh ? '绚丽模式已开启' : 'Vivid mode on';
+  String get vividModeOff => isZh ? '绚丽模式已关闭' : 'Vivid mode off';
+  String get vividEmptyLyrics =>
+      isZh ? '暂无歌词 · 可将同名 .lrc 放在音频同目录' : 'No lyrics — place a matching .lrc beside the audio file';
+  String get vividFlowStyle => isZh ? '流光' : 'Flow';
 }
+

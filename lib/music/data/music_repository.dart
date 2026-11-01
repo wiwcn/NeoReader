@@ -16,6 +16,7 @@ class MusicRepository {
   static const _queueKey = 'music_queue_ids';
   static const _queueIndexKey = 'music_queue_index';
   static const _playModeKey = 'music_play_mode';
+  static const _vividModeKey = 'music_vivid_mode';
 
   Future<List<Track>> allTracks() async {
     final db = await MusicDatabase.instance.database;
@@ -268,5 +269,15 @@ class MusicRepository {
       (m) => m.name == name,
       orElse: () => PlayMode.listLoop,
     );
+  }
+
+  Future<void> saveVividMode(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_vividModeKey, enabled);
+  }
+
+  Future<bool> loadVividMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_vividModeKey) ?? false;
   }
 }
