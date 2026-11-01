@@ -24,7 +24,7 @@
 
 - **Offline-first（离线优先）**：本地扫描与本地播放是默认路径；网络能力一律可选、默认关闭。
 - **媒体中心，不是沉浸套件**：借 Fushi 的「一个壳、多媒体域」信息架构；**不把 Anki 制卡 / 词典查词 / 沉浸学习当作核心产品**（除非日后用户明确要求再开专题）。
-- **音乐是第一大增量**：Fushi 覆盖书 / 漫 / 视 / 听 / Gal 的壳很完整，但对「专业本地音乐库」不如 Feishin / Namida 一类播放器；NeoMedia 用音乐补齐短板。
+- **音乐是第一大增量**：Fushi 覆盖书 / 漫 / 视 / 听 / Gal 的壳很完整，但对「专业本地音乐库」不如独立播放器；NeoMedia 用音乐补齐短板。**Music UI 主参考 = Harmonoid**（极简 Now Playing、大封面轮播、干净浅色 MD3-ish）；Namida / Retro Music / Auxio / Feishin / Aura 等仅作次要风格对照。
 - **美观、易用、功能扎实**：延续 MD3 + 毛玻璃；可参考 Fushi 的 M3 Expressive / Cupertino 双系思路作后期选项，MVP 仍统一现有 Theme。
 - **一个壳、多媒体域**：底部 Tab 切换域；各域共享设置 / 主题 / 隐私策略，数据表与导入路径可分域。
 
@@ -68,13 +68,58 @@ EN: *Shell yes. Anki / dictionary immersion no (unless later asked). Local music
 
 ---
 
-## 4. Secondary music-player references / 次要参考（仅音乐）
+## 4. Music UI & player references / 音乐 UI 与播放器参考
 
-下列项目**只**服务「Music 域」能力对照，**不是**产品主参考。
+> **决策（2026-11）**：Music 域 **UI 主参考 = [Harmonoid](https://github.com/harmonoid/harmonoid)**。  
+> Shell / 多媒体 IA 仍以 **Fushi** 为主（见 §3）；本节只约束 **音乐播放与 Now Playing 视觉/交互**。
 
-### 4.1 Feishin
+### 4.1 Primary UI: Harmonoid
 
-自托管音乐客户端（[jeffvli/feishin](https://github.com/jeffvli/feishin)）。曾被误当作「feshi」主参考，现降为音乐次要参考。
+Harmonoid（跨平台本地音乐播放器）作为 NeoMedia Music **视觉与 Now Playing 交互的第一参考**：
+
+| 借（UI / UX） | 不借 / 慎用 |
+|---------------|-------------|
+| **极简 Now Playing**：大封面、少控件、信息层级干净 | 照搬其品牌色 / 图标 / 桌面窗口壳 |
+| **大封面轮播（carousel）**：左右滑切歌、封面主导视觉 | 强制依赖其媒体库实现或插件架构 |
+| **干净浅色 MD3-ish** 观感：轻量、留白、可读 | 装饰性正弦 / 波浪路径当作「假波形」进度条 |
+| 列表 / 专辑网格的克制排版思路 | 与现有 NeoReader 毛玻璃 / ThemeExtension 冲突的第二套皮肤 |
+
+EN: *Music UI primary = Harmonoid (minimal now-playing, large cover carousel, clean light MD3-ish). Not a fork.*
+
+### 4.2 Decision: real audio-track waveform seekbar（真实音轨波形）
+
+用户明确要求：把 Harmonoid 式装饰波浪 seekbar **换成真实音轨波形**，并加少量「小巧思」。
+
+| 决策 | 说明 |
+|------|------|
+| **Seekbar = 预计算振幅波形** | **不是**装饰用 sine / Bezier「假波浪」path；展示该文件真实（或下采样后的）振幅峰 |
+| **生成时机** | 导入 / 扫描时生成 peaks（可选实现：`just_audio` 解码采样、ffmpeg、或 `audio_waveforms` 一类包）；**按文件缓存**（path + mtime/size 作 key），避免每次打开 Now Playing 重算 |
+| **交互** | scrubbing 走波形区域 hit-testing（横向位置 → 时间）；松手 seek；拖动中可预览时间 |
+| **视觉语言** | 保持 **MD3 frost / NeoReader glass wash**；波形可半透明叠在磨砂底上；**opaque sheets 规则仍适用**（底 sheet / 对话框不透底） |
+| **性能** | peaks 低分辨率即可（如每秒 N 个桶）；UI 侧再抽稀绘制；大库后台队列生成，不阻塞首播 |
+
+EN: *Seekbar = real precomputed amplitude waveform, cached per file; scrub via waveform hit-testing; keep MD3 frost aesthetic.*
+
+#### 已约定小巧思（flourishes）
+
+| 优先级 | 小巧思 | 说明 |
+|--------|--------|------|
+| 必做倾向 | **Scrub 局部放大** | 手指按下拖动时，指下附近波形段 magnify / zoom，便于精确定位 |
+| 可选轻量 | **Playhead 软光晕** | 播放头带 soft glow，可随 beat / 当前 amp **轻度脉冲**（务必轻量，可关） |
+| 可选轻量 | **Pause 呼吸** | 暂停时波形做 gentle breathing idle（透明度或微幅缩放），表示「未死、可继续」 |
+| 有余力 | **封面取色着色** | 用专辑封面 dominant color 轻染波形（仍服从主题对比度） |
+| 有余力 | **双击封面收藏** | double-tap cover → favorite / 喜欢 |
+| 有余力 | **滑动封面切歌** | 沿用 Harmonoid carousel：swipe cover → next / prev |
+
+实现阶段再拆任务；本文档先锁定产品意图，**暂不写 Flutter 代码**。
+
+### 4.3 Secondary style / capability refs only（次要风格与能力对照）
+
+下列项目**降为次要**：可对照库能力、列表密度或个别控件，**不再**主导 Now Playing 视觉。
+
+#### Feishin
+
+自托管音乐客户端（[jeffvli/feishin](https://github.com/jeffvli/feishin)）。曾被误当作「feshi」主参考；现仅音乐次要参考。
 
 | 借 | 不借 / 慎用 |
 |----|-------------|
@@ -83,30 +128,37 @@ EN: *Shell yes. Anki / dictionary immersion no (unless later asked). Local music
 | 歌词展示交互思路 | Last.fm / ListenBrainz 等云端 scrobble（默认不做） |
 | OpenSubsonic 兼容作为**可选增强**的 API 形状 | 多服务器 / 远程控制 / DLNA（后期可选） |
 
-### 4.2 Namida（Flutter）
+#### Namida（Flutter）
 
 | 借 | 不借 / 慎用 |
 |----|-------------|
 | 本地索引器、文件夹库、防重复、丰富排序 | YouTube 流媒体 / 下载中心 |
 | 可靠队列持久化、历史与「最常播放」 | Listening Party、跨设备强制同步 |
-| 播放列表 + 规则智能列表思路 | 重度视频站内播放器 |
+| 播放列表 + 规则智能列表思路 | 重度视频站内播放器；Now Playing 视觉不压过 Harmonoid |
 
-### 4.3 Aura（Flutter，local-first）
+#### Retro Music / Auxio（Android 风格对照）
+
+| 借 | 不借 / 慎用 |
+|----|-------------|
+| 清晰的本地库浏览密度、通知栏 / 媒体会话习惯 | Material 旧版或第三方主题引擎整套搬入 |
+| 部分列表 / 专辑页信息架构灵感 | 替代 Harmonoid 作为 Now Playing 主参考 |
+
+#### Aura（Flutter，local-first）
 
 | 借 | 不借 / 慎用 |
 |----|-------------|
 | Local-first：无广告、无云、无追踪 | 过早上齐 karaoke / 10 段 EQ |
-| Miniplayer → 全屏 Now Playing 动效 | 在线歌词作为唯一歌词路径（本地 LRC 优先） |
-| Songs / Albums / Artists 浏览 + 搜索 | 破坏现有 MD3 统一感的另一套品牌皮肤 |
+| Miniplayer → 全屏 Now Playing 动效思路 | 在线歌词作为唯一歌词路径（本地 LRC 优先） |
+| Songs / Albums / Artists 浏览 + 搜索 | 破坏现有 MD3 + frost 统一感的另一套品牌皮肤 |
 
-### 4.4 Linthra 等「本地 + 可选服务器」客户端
+#### Linthra 等「本地 + 可选服务器」客户端
 
 | 借 | 不借 / 慎用 |
 |----|-------------|
 | 本地为主、Jellyfin / Navidrome / Subsonic 为可选层 | 一上来就做全服务器矩阵 |
 | 后台播放、锁屏控件、可选离线缓存心智 | 把服务器做成必填 onboarding |
 
-**音乐总结**：Feishin 管「库浏览 + 队列」专业感；Aura / Namida 管「本地索引与 Flutter 播放体验」；Subsonic 系 API 仅 **Later / Optional**。
+**音乐总结**：**UI = Harmonoid**（+ 真实波形 seek 与约定小巧思）；Feishin 管「库浏览 + 队列」专业感；Aura / Namida / Retro / Auxio 管本地索引与风格边角；Subsonic 系 API 仅 **Later / Optional**。产品仍 **offline-first**，**不以 Anki / 沉浸查词为核心**。
 
 ---
 
@@ -169,7 +221,9 @@ NeoMedia（离线媒体中心，MVP 更收）：
 - [ ] 队列：播放、下一首、加入队列、清空、基本重排；持久化当前队列
 - [ ] 播放模式：顺序 / 循环列表 / 单曲循环 / 随机
 - [ ] 用户播放列表：新建 / 重命名 / 删除 / 增删曲目；导入导出 `.m3u` / `.m3u8`（至少导出）
-- [ ] Miniplayer + 全屏 Now Playing（封面、进度、上一首/下一首、播放暂停）
+- [ ] Miniplayer + 全屏 Now Playing（Harmonoid 向：大封面轮播、极简控件、干净浅色 MD3-ish）
+- [ ] **真实波形 seekbar**（预计算振幅 peaks，按文件缓存；scrub hit-testing；非装饰波浪）
+- [ ] 约定小巧思：scrub 局部放大；可选 playhead amp 脉冲 / pause 呼吸；有余力则封面取色、双击收藏、滑动切歌
 - [ ] 与现有 MD3 + 毛玻璃视觉统一；中英设置项
 - [ ] 无账号、默认真离线（扫描与播放不访问网络）
 
@@ -178,7 +232,7 @@ NeoMedia（离线媒体中心，MVP 更收）：
 - [ ] 睡眠定时、播放速度、（可选）交叉淡化 / 跳过静音
 - [ ] 历史、最常播放、最近添加等自动列表
 - [ ] 规则型智能歌单（本地规则：流派、年份、播放次数等）
-- [ ] 波形或增强 seek bar；更精致的 Now Playing 动效
+- [ ] 波形生成管线打磨（后台队列、失败回退普通 slider）；Now Playing 动效与取色细化
 - [ ] 均衡器（系统 / equalizer 插件，视平台能力）
 - [ ] 文件夹视图、多根目录、扫描排除规则打磨
 - [ ] 基础标签编辑与封面替换（谨慎写回文件，需确认对话框）
@@ -212,7 +266,8 @@ EN: *MVP = local scan + just_audio/audio_service + queue + playlists. Lyrics lat
 | 状态管理 | 与现有阅读模块对齐（不新开一套「宗教」） | 音乐域可模块化 `lib/music/`；Riverpod 非强制 |
 | 播放列表文件 | `.m3u` / `.m3u8` 读写 | 互操作 |
 | 可选网络 | OpenSubsonic HTTP API（Later） | Feature flag；默认不走主路径 |
-| UI | Material 3 + 现有毛玻璃组件 | 与阅读器同一 ThemeExtension；Cupertino / Expressive 后期可选 |
+| UI | Material 3 + 现有毛玻璃组件；Music Now Playing **对齐 Harmonoid** | 与阅读器同一 ThemeExtension；Cupertino / Expressive 后期可选 |
+| 波形 peaks | 扫描/导入时预计算并缓存；绘制可用自研 CustomPainter 或 `audio_waveforms` 等 | **真实振幅**，非装饰 path；实现阶段锁定具体包与 license |
 
 **不做（MVP）**：自研解码器、强制性云歌词、账号 SSO、Anki 管线、词典沉浸弹层。
 
@@ -223,8 +278,8 @@ EN: *MVP = local scan + just_audio/audio_service + queue + playlists. Lyrics lat
 | 阶段 | 内容 | 状态意向 |
 |------|------|----------|
 | **P0** | NeoReader 既有能力维持；本设计文档以 **Fushi 为主参考** 校正落地 | 文档 ✅ |
-| **P1 — Music MVP** | 本地扫描、库浏览、just_audio + audio_service、队列、用户歌单、Miniplayer | **Next** |
-| **P2 — Music Enhance** | 智能/自动列表、本地歌词 UI、EQ/速度/睡眠、库管理打磨 | 其后 |
+| **P1 — Music MVP** | 本地扫描、库浏览、just_audio + audio_service、队列、用户歌单、Harmonoid 向 Now Playing、**真实波形 seek**（含基础 scrub 放大） | **Next** |
+| **P2 — Music Enhance** | 智能/自动列表、本地歌词 UI、EQ/速度/睡眠、库管理打磨；波形取色 / playhead 脉冲 / pause 呼吸等小巧思细化 | 其后 |
 | **P3 — Comic polish** | 完整 RAR/7z 漫画、漫画专用阅读手势与目录 | 与 P2 可并行部分项 |
 | **P4 — Optional servers** | Subsonic / OpenSubsonic（及可选 Jellyfin 只读）可选连接 + 缓存 | Later |
 | **P5 — GalGame** | 库入口 / 元数据；引擎选型、脚本/资源包、存档；**明确延期**（不做 Fushi 式 hook） | Deferred |
@@ -274,4 +329,4 @@ EN: *Docs-first rename. Repo/package rename is a separate, explicit step. Inspir
 
 ---
 
-*Document status: design draft corrected — primary ref Fushi · 2026-11 · NeoMedia*
+*Document status: design draft — shell ref Fushi · music UI ref Harmonoid + real waveform seek · 2026-11 · NeoMedia*
