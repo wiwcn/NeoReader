@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/app_strings.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../domain/models/book.dart';
 import '../../providers/providers.dart';
 import '../../widgets/book_cover.dart';
@@ -95,6 +94,7 @@ class _BookEditSheetState extends ConsumerState<BookEditSheet> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    const radius = BorderRadius.vertical(top: Radius.circular(28));
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
@@ -102,102 +102,111 @@ class _BookEditSheetState extends ConsumerState<BookEditSheet> {
         alignment: Alignment.bottomCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
-          child: GlassSurface(
-            borderRadius: 20,
-            blur: 18,
-            opacity: theme.brightness == Brightness.dark ? 0.12 : 0.16,
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.35),
-                        borderRadius: BorderRadius.circular(2),
+          child: Material(
+            color: cs.surfaceContainerHigh,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: radius,
+              side: BorderSide(
+                color: cs.outlineVariant.withValues(alpha: 0.5),
+                width: 0.75,
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        decoration: BoxDecoration(
+                          color: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      BookCover(
-                        book: widget.book,
-                        width: 44,
-                        height: 58,
-                        borderRadius: 8,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          strings.editBook,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
+                    Row(
+                      children: [
+                        BookCover(
+                          book: widget.book,
+                          width: 44,
+                          height: 58,
+                          borderRadius: 8,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            strings.editBook,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _titleCtrl,
-                    decoration: _denseDecoration(strings, strings.bookTitle),
-                    textInputAction: TextInputAction.next,
-                    autofocus: true,
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _authorCtrl,
-                    decoration: _denseDecoration(strings, strings.bookAuthor),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _tagsCtrl,
-                    decoration: _denseDecoration(
-                      strings,
-                      strings.bookTags,
-                      hint: strings.bookTagsHint,
+                      ],
                     ),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _descCtrl,
-                    decoration: _denseDecoration(
-                      strings,
-                      strings.bookDescription,
-                      hint: strings.bookDescriptionHint,
-                    ).copyWith(alignLabelWithHint: true),
-                    minLines: 2,
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: _saving
-                              ? null
-                              : () => Navigator.of(context).pop(false),
-                          child: Text(strings.cancel),
-                        ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _titleCtrl,
+                      decoration: _denseDecoration(strings, strings.bookTitle),
+                      textInputAction: TextInputAction.next,
+                      autofocus: true,
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _authorCtrl,
+                      decoration: _denseDecoration(strings, strings.bookAuthor),
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _tagsCtrl,
+                      decoration: _denseDecoration(
+                        strings,
+                        strings.bookTags,
+                        hint: strings.bookTagsHint,
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: _saving ? null : _save,
-                          child: Text(strings.save),
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _descCtrl,
+                      decoration: _denseDecoration(
+                        strings,
+                        strings.bookDescription,
+                        hint: strings.bookDescriptionHint,
+                      ).copyWith(alignLabelWithHint: true),
+                      minLines: 2,
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: _saving
+                                ? null
+                                : () => Navigator.of(context).pop(false),
+                            child: Text(strings.cancel),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: _saving ? null : _save,
+                            child: Text(strings.save),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
