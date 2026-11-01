@@ -1,3 +1,17 @@
+# NeoReader / NeoMedia Roadmap
+
+## NeoMedia（转型方向）
+
+产品正由 **NeoReader** 演进为 **NeoMedia**：离线优先的聚合媒体中心（小说 · 漫画 · 音乐 · GalGame）。  
+**下一阶段主线：音乐播放器（本地扫描 MVP）**；GalGame 延期。  
+完整愿景、参考项目（Feishin / Namida / Aura 等）、IA、清单与技术草案见：
+
+→ **[docs/NEOMEDIA.md](./docs/NEOMEDIA.md)**
+
+以下 NeoReader「Koodo 离线能力一个不少」条目**全部保留**，不因转型删除。
+
+---
+
 # NeoReader Roadmap — Koodo offline feature parity (一个不少)
 
 v1 ships a solid offline core. Remaining items stay scaffolded in
