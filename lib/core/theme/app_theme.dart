@@ -57,7 +57,7 @@ class AppTheme {
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      scaffoldBackgroundColor: const Color(0xFFF3F6F3),
+      scaffoldBackgroundColor: const Color(0xFFFAFBFC),
       cardTheme: CardThemeData(
         elevation: 0,
         color: Colors.white.withValues(alpha: 0.14),
@@ -116,7 +116,7 @@ class AppTheme {
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      scaffoldBackgroundColor: const Color(0xFF0E1210),
+      scaffoldBackgroundColor: const Color(0xFF0F1113),
       cardTheme: CardThemeData(
         elevation: 0,
         color: Colors.white.withValues(alpha: 0.06),

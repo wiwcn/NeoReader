@@ -15,7 +15,9 @@ import '../../widgets/empty_library.dart';
 import '../../widgets/glass_scaffold_bg.dart';
 import '../../widgets/motion.dart';
 import '../reader/reader_router.dart';
+import 'book_actions_sheet.dart';
 import 'book_details_page.dart';
+import 'book_edit_sheet.dart';
 
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
@@ -165,8 +167,7 @@ class LibraryScreen extends ConsumerWidget {
                 coverW: _coverW,
                 coverH: _coverH,
                 onOpen: () => openReader(context, book),
-                onDetails: () => _openDetails(context, book),
-                onDelete: () => _confirmDelete(context, ref, strings, book),
+                onActions: () => _showActions(context, ref, strings, book),
               ),
             ),
           );
@@ -204,8 +205,7 @@ class LibraryScreen extends ConsumerWidget {
                 book: book,
                 strings: strings,
                 onOpen: () => openReader(context, book),
-                onDetails: () => _openDetails(context, book),
-                onDelete: () => _confirmDelete(context, ref, strings, book),
+                onActions: () => _showActions(context, ref, strings, book),
               ),
             ),
           );
@@ -220,6 +220,45 @@ class LibraryScreen extends ConsumerWidget {
         builder: (_) => BookDetailsPage(bookId: book.id),
       ),
     );
+  }
+
+  Future<void> _openEdit(BuildContext context, Book book) async {
+    await showBookEditSheet(context, book: book);
+  }
+
+  Future<void> _handleBookAction(
+    BuildContext context,
+    WidgetRef ref,
+    AppStrings strings,
+    Book book,
+    BookAction? action,
+  ) async {
+    if (action == null) return;
+    switch (action) {
+      case BookAction.open:
+        openReader(context, book);
+      case BookAction.details:
+        await _openDetails(context, book);
+      case BookAction.edit:
+        await _openEdit(context, book);
+      case BookAction.delete:
+        await _confirmDelete(context, ref, strings, book);
+    }
+  }
+
+  Future<void> _showActions(
+    BuildContext context,
+    WidgetRef ref,
+    AppStrings strings,
+    Book book,
+  ) async {
+    final action = await showBookActionsSheet(
+      context,
+      book: book,
+      strings: strings,
+    );
+    if (!context.mounted) return;
+    await _handleBookAction(context, ref, strings, book, action);
   }
 
   Future<void> _import(
@@ -299,38 +338,6 @@ class LibraryScreen extends ConsumerWidget {
   }
 }
 
-Future<void> _showBookMenu(
-  BuildContext context, {
-  required AppStrings strings,
-  required VoidCallback onDetails,
-  required VoidCallback onDelete,
-  required RelativeRect position,
-}) async {
-  final selected = await showMenu<String>(
-    context: context,
-    position: position,
-    items: [
-      PopupMenuItem(value: 'details', child: Text(strings.bookDetails)),
-      PopupMenuItem(value: 'edit', child: Text(strings.editBook)),
-      PopupMenuItem(value: 'delete', child: Text(strings.delete)),
-    ],
-  );
-  if (selected == 'details' || selected == 'edit') onDetails();
-  if (selected == 'delete') onDelete();
-}
-
-RelativeRect _menuPositionFrom(BuildContext context) {
-  final box = context.findRenderObject() as RenderBox?;
-  final overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
-  if (box == null || overlay == null) {
-    return const RelativeRect.fromLTRB(100, 100, 100, 100);
-  }
-  final topLeft = box.localToGlobal(Offset.zero, ancestor: overlay);
-  return RelativeRect.fromRect(
-    Rect.fromLTWH(topLeft.dx, topLeft.dy, box.size.width, box.size.height),
-    Offset.zero & overlay.size,
-  );
-}
 
 /// One translucent glass card per book — list mode.
 class _BookGlassCard extends StatelessWidget {
@@ -340,8 +347,7 @@ class _BookGlassCard extends StatelessWidget {
     required this.coverW,
     required this.coverH,
     required this.onOpen,
-    required this.onDetails,
-    required this.onDelete,
+    required this.onActions,
   });
 
   final Book book;
@@ -349,8 +355,7 @@ class _BookGlassCard extends StatelessWidget {
   final double coverW;
   final double coverH;
   final VoidCallback onOpen;
-  final VoidCallback onDetails;
-  final VoidCallback onDelete;
+  final VoidCallback onActions;
 
   @override
   Widget build(BuildContext context) {
@@ -367,13 +372,7 @@ class _BookGlassCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onOpen,
-          onLongPress: () => _showBookMenu(
-            context,
-            strings: strings,
-            onDetails: onDetails,
-            onDelete: onDelete,
-            position: _menuPositionFrom(context),
-          ),
+          onLongPress: onActions,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -415,7 +414,6 @@ class _BookGlassCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    // Progress bar with trailing % label (no separate column).
                     Row(
                       children: [
                         Expanded(
@@ -438,25 +436,12 @@ class _BookGlassCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              PopupMenuButton<String>(
+              IconButton(
                 tooltip: strings.moreActions,
                 icon: const Icon(Icons.more_vert_rounded, size: 22),
                 padding: EdgeInsets.zero,
-                onSelected: (v) {
-                  if (v == 'details' || v == 'edit') onDetails();
-                  if (v == 'delete') onDelete();
-                },
-                itemBuilder: (_) => [
-                  PopupMenuItem(
-                    value: 'details',
-                    child: Text(strings.bookDetails),
-                  ),
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: Text(strings.editBook),
-                  ),
-                  PopupMenuItem(value: 'delete', child: Text(strings.delete)),
-                ],
+                visualDensity: VisualDensity.compact,
+                onPressed: onActions,
               ),
             ],
           ),
@@ -471,15 +456,13 @@ class _BookGridCard extends StatelessWidget {
     required this.book,
     required this.strings,
     required this.onOpen,
-    required this.onDetails,
-    required this.onDelete,
+    required this.onActions,
   });
 
   final Book book;
   final AppStrings strings;
   final VoidCallback onOpen;
-  final VoidCallback onDetails;
-  final VoidCallback onDelete;
+  final VoidCallback onActions;
 
   @override
   Widget build(BuildContext context) {
@@ -495,13 +478,7 @@ class _BookGridCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onOpen,
-          onLongPress: () => _showBookMenu(
-            context,
-            strings: strings,
-            onDetails: onDetails,
-            onDelete: onDelete,
-            position: _menuPositionFrom(context),
-          ),
+          onLongPress: onActions,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -524,32 +501,20 @@ class _BookGridCard extends StatelessWidget {
                           child: Material(
                             color: cs.surface.withValues(alpha: 0.72),
                             borderRadius: BorderRadius.circular(20),
-                            child: PopupMenuButton<String>(
+                            child: IconButton(
                               tooltip: strings.moreActions,
                               padding: EdgeInsets.zero,
+                              visualDensity: VisualDensity.compact,
+                              constraints: const BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
                               icon: Icon(
                                 Icons.more_vert_rounded,
                                 size: 20,
                                 color: cs.onSurface,
                               ),
-                              onSelected: (v) {
-                                if (v == 'details' || v == 'edit') onDetails();
-                                if (v == 'delete') onDelete();
-                              },
-                              itemBuilder: (_) => [
-                                PopupMenuItem(
-                                  value: 'details',
-                                  child: Text(strings.bookDetails),
-                                ),
-                                PopupMenuItem(
-                                  value: 'edit',
-                                  child: Text(strings.editBook),
-                                ),
-                                PopupMenuItem(
-                                  value: 'delete',
-                                  child: Text(strings.delete),
-                                ),
-                              ],
+                              onPressed: onActions,
                             ),
                           ),
                         ),

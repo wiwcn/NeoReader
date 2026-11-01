@@ -14,6 +14,10 @@ import 'package:neo_reader/domain/models/reading_stats.dart';
 import 'package:neo_reader/presentation/providers/providers.dart';
 import 'package:neo_reader/presentation/screens/annotations/annotations_screen.dart';
 import 'package:neo_reader/presentation/screens/library/library_screen.dart';
+import 'package:neo_reader/presentation/screens/library/book_details_page.dart';
+import 'package:neo_reader/presentation/screens/library/book_edit_sheet.dart';
+import 'package:neo_reader/presentation/screens/library/book_actions_sheet.dart';
+import 'package:neo_reader/domain/repositories/book_repository.dart';
 import 'package:neo_reader/presentation/screens/settings/settings_hub_screen.dart';
 import 'package:neo_reader/presentation/screens/stats/stats_screen.dart';
 import 'package:neo_reader/presentation/widgets/empty_library.dart';
@@ -273,6 +277,108 @@ void main() {
     );
   });
 
+  testWidgets('09_book_edit_sheet', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    final book = demoBooks.first;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsProvider.overrideWith(
+            () => _FixedSettings(
+              const AppSettings(
+                themeMode: AppThemeModePref.light,
+                localeCode: 'zh',
+              ),
+            ),
+          ),
+          libraryProvider.overrideWith(() => _FixedLibrary(demoBooks)),
+          bookRepositoryProvider.overrideWithValue(_FakeBookRepo(demoBooks)),
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(disableAnimations: true),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          home: GlassScaffoldBackground(
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: BookEditSheet(book: book),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('编辑信息'), findsOneWidget);
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/09_book_edit_sheet.png'),
+    );
+  });
+
+  testWidgets('10_book_actions_sheet', (tester) async {
+    await pumpPhone(tester, const LibraryScreen());
+    final book = demoBooks.first;
+    final navigator = tester.element(find.byType(LibraryScreen));
+    showBookActionsSheet(
+      navigator,
+      book: book,
+      strings: AppStrings(true),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('编辑信息'), findsOneWidget);
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/10_book_actions_sheet.png'),
+    );
+  });
+
+  testWidgets('11_book_details_slim', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsProvider.overrideWith(
+            () => _FixedSettings(
+              const AppSettings(
+                themeMode: AppThemeModePref.light,
+                localeCode: 'zh',
+              ),
+            ),
+          ),
+          libraryProvider.overrideWith(() => _FixedLibrary(demoBooks)),
+          bookRepositoryProvider.overrideWithValue(_FakeBookRepo(demoBooks)),
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          builder: (context, child) {
+            final mq = MediaQuery.of(context);
+            return MediaQuery(
+              data: mq.copyWith(disableAnimations: true),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          home: const BookDetailsPage(bookId: '1'),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(find.text('书籍详情'), findsOneWidget);
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('goldens/11_book_details_slim.png'),
+    );
+  });
+
   testWidgets('06_reader_txt_glass', (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     final colors = ReadingColors.of(ReadingThemeMode.sepia);
@@ -334,4 +440,33 @@ class _FixedLibrary extends LibraryNotifier {
   final List<Book> _books;
   @override
   Future<List<Book>> build() async => _books;
+}
+
+class _FakeBookRepo implements BookRepository {
+  _FakeBookRepo(this._books);
+  final List<Book> _books;
+
+  @override
+  Future<List<Book>> getAll() async => _books;
+
+  @override
+  Future<Book?> getById(String id) async {
+    for (final b in _books) {
+      if (b.id == id) return b;
+    }
+    return null;
+  }
+
+  @override
+  Future<void> upsert(Book book) async {}
+
+  @override
+  Future<void> delete(String id) async {}
+
+  @override
+  Future<void> updateProgress(
+    String id,
+    double progress,
+    String? location,
+  ) async {}
 }

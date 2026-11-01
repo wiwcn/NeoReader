@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,8 +13,9 @@ import '../../widgets/book_cover.dart';
 import '../../widgets/glass_scaffold_bg.dart';
 import '../../widgets/motion.dart';
 import '../reader/reader_router.dart';
+import 'book_edit_sheet.dart';
 
-/// Glass details / edit page for a library book.
+/// Slim glass summary page for a library book. Editing opens a compact sheet.
 class BookDetailsPage extends ConsumerStatefulWidget {
   const BookDetailsPage({super.key, required this.bookId});
 
@@ -26,28 +26,13 @@ class BookDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _BookDetailsPageState extends ConsumerState<BookDetailsPage> {
-  final _titleCtrl = TextEditingController();
-  final _authorCtrl = TextEditingController();
-  final _tagsCtrl = TextEditingController();
-  final _descCtrl = TextEditingController();
   Book? _book;
   bool _loading = true;
-  bool _dirty = false;
-  bool _saving = false;
 
   @override
   void initState() {
     super.initState();
     _load();
-  }
-
-  @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _authorCtrl.dispose();
-    _tagsCtrl.dispose();
-    _descCtrl.dispose();
-    super.dispose();
   }
 
   Future<void> _load() async {
@@ -56,44 +41,14 @@ class _BookDetailsPageState extends ConsumerState<BookDetailsPage> {
     setState(() {
       _book = book;
       _loading = false;
-      if (book != null) {
-        _titleCtrl.text = book.title;
-        _authorCtrl.text = book.author;
-        _tagsCtrl.text = book.tags.join(', ');
-        _descCtrl.text = book.description;
-      }
     });
   }
 
-  void _markDirty() {
-    if (!_dirty) setState(() => _dirty = true);
-  }
-
-  Future<void> _save() async {
+  Future<void> _edit() async {
     final book = _book;
-    if (book == null || _saving) return;
-    final strings = ref.read(stringsProvider);
-    setState(() => _saving = true);
-    final tags = Book.decodeTags(_tagsCtrl.text.replaceAll('，', ','));
-    final updated = book.copyWith(
-      title: _titleCtrl.text.trim().isEmpty
-          ? book.title
-          : _titleCtrl.text.trim(),
-      author: _authorCtrl.text.trim(),
-      description: _descCtrl.text.trim(),
-      tags: tags,
-    );
-    await ref.read(bookRepositoryProvider).upsert(updated);
-    await ref.read(libraryProvider.notifier).refresh();
-    if (!mounted) return;
-    setState(() {
-      _book = updated;
-      _dirty = false;
-      _saving = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(strings.saved)),
-    );
+    if (book == null) return;
+    final saved = await showBookEditSheet(context, book: book);
+    if (saved && mounted) await _load();
   }
 
   Future<void> _changeCover() async {
@@ -114,7 +69,6 @@ class _BookDetailsPageState extends ConsumerState<BookDetailsPage> {
         (ext == '.png' || ext == '.webp' || ext == '.gif') ? ext : '.jpg';
     final dest = p.join(coversDir.path, '${book.id}$safeExt');
     await File(srcPath).copy(dest);
-    // Remove previous cover if path differs.
     if (book.coverPath != null && book.coverPath != dest) {
       try {
         final old = File(book.coverPath!);
@@ -200,11 +154,11 @@ class _BookDetailsPageState extends ConsumerState<BookDetailsPage> {
         appBar: GlassAppBar(
           title: Text(strings.bookDetails),
           actions: [
-            if (_dirty)
-              TextButton(
-                onPressed: _saving ? null : _save,
-                child: Text(strings.save),
-              ),
+            IconButton(
+              tooltip: strings.editBook,
+              onPressed: _book == null ? null : _edit,
+              icon: const Icon(Icons.edit_outlined),
+            ),
           ],
         ),
         body: _loading
@@ -212,142 +166,176 @@ class _BookDetailsPageState extends ConsumerState<BookDetailsPage> {
             : _book == null
                 ? Center(child: Text(strings.importFailed))
                 : ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 32),
                     children: [
                       GlassSurface(
-                        borderRadius: 20,
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
+                        borderRadius: 18,
+                        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             BookCover(
                               book: _book!,
-                              width: 120,
-                              height: 160,
-                              borderRadius: 14,
+                              width: 80,
+                              height: 106,
+                              borderRadius: 10,
                             ),
-                            const SizedBox(height: 14),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              alignment: WrapAlignment.center,
-                              children: [
-                                FilledButton.tonalIcon(
-                                  onPressed: _changeCover,
-                                  icon: const Icon(Icons.image_outlined),
-                                  label: Text(strings.changeCover),
-                                ),
-                                if (_book!.coverPath != null)
-                                  OutlinedButton.icon(
-                                    onPressed: _removeCover,
-                                    icon: const Icon(Icons.hide_image_outlined),
-                                    label: Text(strings.removeCover),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _book!.title,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.25,
+                                    ),
                                   ),
-                              ],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _book!.author.isEmpty
+                                        ? strings.unknownAuthor
+                                        : _book!.author,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '${strings.formatLabel}: ${_book!.format.name.toUpperCase()}',
+                                    style: theme.textTheme.labelMedium
+                                        ?.copyWith(color: cs.primary),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: AnimatedProgressBar(
+                                          value: _book!.progress,
+                                          minHeight: 5,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${(_book!.progress * 100).round()}%',
+                                        style: theme.textTheme.labelMedium
+                                            ?.copyWith(
+                                          color: cs.onSurfaceVariant,
+                                          fontFeatures: const [
+                                            FontFeature.tabularFigures(),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 6,
+                                    children: [
+                                      TextButton.icon(
+                                        style: TextButton.styleFrom(
+                                          visualDensity: VisualDensity.compact,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                        ),
+                                        onPressed: _changeCover,
+                                        icon: const Icon(
+                                          Icons.image_outlined,
+                                          size: 18,
+                                        ),
+                                        label: Text(strings.changeCover),
+                                      ),
+                                      if (_book!.coverPath != null)
+                                        TextButton.icon(
+                                          style: TextButton.styleFrom(
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                            ),
+                                          ),
+                                          onPressed: _removeCover,
+                                          icon: const Icon(
+                                            Icons.hide_image_outlined,
+                                            size: 18,
+                                          ),
+                                          label: Text(strings.removeCover),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      GlassSurface(
+                        borderRadius: 16,
+                        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _MetaRow(
+                              label: strings.bookTags,
+                              value: _book!.tags.isEmpty
+                                  ? '—'
+                                  : _book!.tags.join(', '),
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              '${strings.formatLabel}: ${_book!.format.name.toUpperCase()}',
+                              strings.bookDescription,
                               style: theme.textTheme.labelMedium?.copyWith(
-                                color: cs.primary,
+                                color: cs.onSurfaceVariant,
                               ),
                             ),
-                            const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: AnimatedProgressBar(
-                                    value: _book!.progress,
-                                    minHeight: 6,
-                                  ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _book!.description.isEmpty
+                                  ? '—'
+                                  : _book!.description,
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: FilledButton.tonalIcon(
+                                style: FilledButton.styleFrom(
+                                  visualDensity: VisualDensity.compact,
                                 ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  '${(_book!.progress * 100).round()}%',
-                                  style: theme.textTheme.labelMedium?.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                    fontFeatures: const [
-                                      FontFeature.tabularFigures(),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                onPressed: _edit,
+                                icon: const Icon(Icons.edit_outlined, size: 18),
+                                label: Text(strings.editBook),
+                              ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 14),
-                      GlassSurface(
-                        borderRadius: 18,
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                        child: Column(
-                          children: [
-                            TextField(
-                              controller: _titleCtrl,
-                              decoration: InputDecoration(
-                                labelText: strings.bookTitle,
-                              ),
-                              textInputAction: TextInputAction.next,
-                              onChanged: (_) => _markDirty(),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _authorCtrl,
-                              decoration: InputDecoration(
-                                labelText: strings.bookAuthor,
-                              ),
-                              textInputAction: TextInputAction.next,
-                              onChanged: (_) => _markDirty(),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _tagsCtrl,
-                              decoration: InputDecoration(
-                                labelText: strings.bookTags,
-                                hintText: strings.bookTagsHint,
-                              ),
-                              textInputAction: TextInputAction.next,
-                              onChanged: (_) => _markDirty(),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _descCtrl,
-                              decoration: InputDecoration(
-                                labelText: strings.bookDescription,
-                                hintText: strings.bookDescriptionHint,
-                                alignLabelWithHint: true,
-                              ),
-                              minLines: 3,
-                              maxLines: 6,
-                              onChanged: (_) => _markDirty(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
                       FilledButton.icon(
                         onPressed: () => openReader(context, _book!),
                         icon: const Icon(Icons.menu_book_rounded),
                         label: Text(strings.openBook),
                       ),
-                      const SizedBox(height: 10),
-                      if (_dirty)
-                        OutlinedButton.icon(
-                          onPressed: _saving ? null : _save,
-                          icon: const Icon(Icons.save_outlined),
-                          label: Text(strings.save),
-                        ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 16),
                       Text(
                         strings.dangerAction,
                         style: theme.textTheme.labelLarge?.copyWith(
                           color: cs.error,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: cs.error,
-                          side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
+                          visualDensity: VisualDensity.compact,
+                          side: BorderSide(
+                            color: cs.error.withValues(alpha: 0.5),
+                          ),
                         ),
                         onPressed: _confirmDelete,
                         icon: const Icon(Icons.delete_outline_rounded),
@@ -356,6 +344,32 @@ class _BookDetailsPageState extends ConsumerState<BookDetailsPage> {
                     ],
                   ),
       ),
+    );
+  }
+}
+
+class _MetaRow extends StatelessWidget {
+  const _MetaRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(value, style: theme.textTheme.bodyMedium),
+      ],
     );
   }
 }

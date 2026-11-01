@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 /// Soft MD3 wash so low-opacity frosted glass has contrast to blur.
 ///
-/// Light mode stays near the gray-green family (`0xFFF3F6F3`) but with a
-/// clearer primary/tertiary tint so BackdropFilter frost (~0.12–0.18) reads.
-/// Subtle orbs add depth without neon liquid-glass speculars.
+/// Light mode uses neutral cool whites (`FAFBFC` / `F7F8FA`) with a very light
+/// primary/tertiary tint so BackdropFilter frost (~0.12–0.18) still reads
+/// without a gray-green cast. Subtle orbs add depth without neon speculars.
 class GlassScaffoldBackground extends StatelessWidget {
   const GlassScaffoldBackground({super.key, required this.child});
 
@@ -25,13 +25,13 @@ class GlassScaffoldBackground extends StatelessWidget {
               colors: isDark
                   ? [
                       cs.surface,
-                      Color.lerp(cs.surface, cs.primary, 0.22)!,
-                      Color.lerp(cs.surface, cs.tertiary, 0.16)!,
+                      Color.lerp(cs.surface, cs.primary, 0.18)!,
+                      Color.lerp(cs.surface, cs.tertiary, 0.12)!,
                     ]
                   : [
-                      const Color(0xFFF5F8F5),
-                      Color.lerp(const Color(0xFFF3F6F3), cs.primary, 0.10)!,
-                      Color.lerp(const Color(0xFFF0F4F2), cs.tertiary, 0.08)!,
+                      const Color(0xFFFAFBFC),
+                      Color.lerp(const Color(0xFFF7F8FA), cs.primary, 0.035)!,
+                      Color.lerp(const Color(0xFFF5F6F8), cs.tertiary, 0.03)!,
                     ],
             ),
           ),
@@ -42,7 +42,7 @@ class GlassScaffoldBackground extends StatelessWidget {
           right: -40,
           child: _WashOrb(
             diameter: 260,
-            color: cs.primary.withValues(alpha: isDark ? 0.18 : 0.10),
+            color: cs.primary.withValues(alpha: isDark ? 0.14 : 0.045),
           ),
         ),
         Positioned(
@@ -50,7 +50,7 @@ class GlassScaffoldBackground extends StatelessWidget {
           left: -50,
           child: _WashOrb(
             diameter: 220,
-            color: cs.tertiary.withValues(alpha: isDark ? 0.14 : 0.08),
+            color: cs.tertiary.withValues(alpha: isDark ? 0.11 : 0.04),
           ),
         ),
         child,

@@ -14,8 +14,9 @@ import '../../domain/models/annotation.dart';
 import '../../domain/models/app_settings.dart';
 import '../../domain/models/book.dart';
 import '../../domain/models/reading_stats.dart';
+import '../../domain/repositories/book_repository.dart';
 
-final bookRepositoryProvider = Provider((ref) => BookRepositoryImpl());
+final bookRepositoryProvider = Provider<BookRepository>((ref) => BookRepositoryImpl());
 final annotationRepositoryProvider = Provider(
   (ref) => AnnotationRepositoryImpl(),
 );
