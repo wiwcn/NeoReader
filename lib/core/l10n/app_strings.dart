@@ -53,6 +53,12 @@ class AppStrings {
   String get unsupportedFormat =>
       isZh ? '该格式已列入路线图，v1 核心支持 EPUB/PDF/TXT' : 'Format on roadmap; v1 core supports EPUB/PDF/TXT';
   String get noAnnotations => isZh ? '暂无标注' : 'No annotations yet';
+  String get noAnnotationsHint => isZh
+      ? '阅读时添加书签、高亮或笔记，会集中显示在这里。'
+      : 'Bookmarks, highlights and notes you add while reading show up here.';
+  String get annotationBookmark => isZh ? '书签' : 'Bookmark';
+  String get annotationHighlight => isZh ? '高亮' : 'Highlight';
+  String get annotationNote => isZh ? '笔记' : 'Note';
   String get export => isZh ? '导出' : 'Export';
   String get exportAnnotations => isZh ? '导出标注' : 'Export annotations';
   String get exportSuccess => isZh ? '标注已导出' : 'Annotations exported';

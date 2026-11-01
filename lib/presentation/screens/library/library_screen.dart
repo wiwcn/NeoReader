@@ -130,7 +130,12 @@ class LibraryScreen extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('$e')),
           data: (books) {
-            if (books.isEmpty) return EmptyLibrary(strings: strings);
+            if (books.isEmpty) {
+              return EmptyLibrary(
+                strings: strings,
+                onImport: () => _import(context, ref, strings),
+              );
+            }
             if (layout == LibraryLayout.grid) {
               return _buildGrid(context, ref, strings, books);
             }

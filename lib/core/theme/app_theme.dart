@@ -24,10 +24,30 @@ class AppTheme {
     'sans-serif',
   ];
 
+  /// Clearer hierarchy than raw MD3 defaults: headings get extra weight,
+  /// body copy gets a touch of tracking for mixed CJK/Latin legibility.
   static TextTheme _textTheme(TextTheme base) {
-    return base.apply(
+    final applied = base.apply(
       fontFamily: fontFamily,
       fontFamilyFallback: fontFamilyFallback,
+    );
+    return applied.copyWith(
+      headlineSmall: applied.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+      titleLarge: applied.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+      titleMedium: applied.titleMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.1,
+      ),
+      titleSmall: applied.titleSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.1,
+      ),
+      labelLarge: applied.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+      labelSmall: applied.labelSmall?.copyWith(letterSpacing: 0.4),
+      bodyMedium: applied.bodyMedium?.copyWith(letterSpacing: 0.15),
+      bodySmall: applied.bodySmall?.copyWith(letterSpacing: 0.1),
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../providers/providers.dart';
 import '../../widgets/glass_scaffold_bg.dart';
+import '../../widgets/motion.dart';
 
 class StatsScreen extends ConsumerWidget {
   const StatsScreen({super.key});
@@ -99,10 +100,13 @@ class StatsScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              isZh
-                                  ? '${s.currentStreakDays} ${strings.streakDays}'
-                                  : '${s.currentStreakDays} ${strings.streakDays}',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              '${s.currentStreakDays} ${strings.streakDays}',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
                             ),
                           ],
                         ),
@@ -166,10 +170,22 @@ class StatsScreen extends ConsumerWidget {
                             ),
                             subtitle: book == null
                                 ? null
-                                : LinearProgressIndicator(
-                                    value: book.progress.clamp(0, 1),
+                                : Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: AnimatedProgressBar(
+                                      value: book.progress,
+                                      minHeight: 4,
+                                    ),
                                   ),
-                            trailing: Text(_fmt(e.value, isZh: isZh)),
+                            trailing: Text(
+                              _fmt(e.value, isZh: isZh),
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
+                            ),
                           );
                         }),
                     ],
@@ -189,15 +205,38 @@ class StatsScreen extends ConsumerWidget {
     String value,
     IconData icon,
   ) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return GlassSurface(
+      borderRadius: 18,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: 8),
-          Text(value, style: Theme.of(context).textTheme.headlineSmall),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 20, color: cs.primary),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
         ],
       ),
     );
