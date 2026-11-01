@@ -6,7 +6,7 @@
 
 **Your on-device media hub — novels, comics, music, and settings in one place.**
 
-NeoMedia is for people who want books, comics, and music to stay on their phone: open and read, open and listen. **No accounts, no cloud sync, no Pro paywall.** The UI follows Material Design 3 with soft frosted-glass surfaces that look good in light and dark.
+NeoMedia is for people who want books, comics, and music to stay on their phone: open and read, open and listen. **No accounts, no cloud sync, no Pro paywall.** The UI follows Material Design 3 with solid content cards and light frosted chrome that stay readable in light and dark.
 
 > The repo / app transitional name was **NeoReader**; the product story is **NeoMedia**.
 
@@ -20,8 +20,8 @@ NeoMedia is for people who want books, comics, and music to stay on their phone:
 - **Offline-first** — library, progress, and playlists live on your device
 - **No account / cloud / Pro** — install and use; nothing gated behind a subscription
 - **One shell, four tabs** — Novels, Comics, Music, Settings
-- **MD3 + frosted glass** — calm chrome for long sessions
-- **Ready on first open** — a few **public-domain classics** and **CC0 sample tracks** are seeded so you can try reading and listening immediately
+- **MD3 + calm chrome** — solid cards, light frost on bars, readable for long sessions
+- **Ready on first open** — a few **public-domain classics with covers** and **CC0 sample tracks** are seeded so you can try reading and listening immediately
 
 ---
 
@@ -76,7 +76,7 @@ Scan tracks on the phone and listen to full albums offline. Now Playing uses a *
 Light / dark, language, and reading defaults in one place. See how long you read today and how many days in a row — all local, never uploaded.
 
 ### Sample content
-First launch seeds a small shelf of **public-domain** books (Project Gutenberg classics such as *Alice*, *Aesop*, *The Yellow Wallpaper*, *A Christmas Carol*, and Chinese 《詩經》) plus a tiny original sample comic, and **CC0** instrumental tracks for music. Swap them for your own library whenever you like — sources and licenses are listed in [ATTRIBUTION.md](./ATTRIBUTION.md).
+First launch seeds a small shelf of **public-domain** books (Project Gutenberg classics such as *Alice*, *Aesop*, *The Yellow Wallpaper*, *A Christmas Carol*, and Chinese 《詩經》) **with covers**, plus a tiny original sample comic, and **CC0** instrumental tracks for music. Swap them for your own library whenever you like — sources and licenses are listed in [ATTRIBUTION.md](./ATTRIBUTION.md).
 
 ---
 

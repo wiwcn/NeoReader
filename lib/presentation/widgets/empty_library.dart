@@ -18,7 +18,7 @@ class EmptyLibrary extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: GlassSurface(
+        child: SolidCard(
           padding: const EdgeInsets.all(28),
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -143,12 +143,12 @@ class AppTheme {
       canvasColor: lightCanvas,
       cardTheme: CardThemeData(
         elevation: 0,
-        color: Colors.white.withValues(alpha: 0.14),
+        color: scheme.surfaceContainerLowest,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: Colors.white.withValues(alpha: 0.72),
+        backgroundColor: Colors.white.withValues(alpha: 0.92),
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -254,13 +254,13 @@ class AppTheme {
       canvasColor: darkCanvas,
       cardTheme: CardThemeData(
         elevation: 0,
-        color: Colors.white.withValues(alpha: 0.07),
+        color: darkContainer,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        // Frost chrome — cool surface, not opaque black slab.
-        backgroundColor: darkContainerLow.withValues(alpha: 0.82),
+        // Dense chrome over OLED black — readable tab labels, not a plastic sheet.
+        backgroundColor: darkContainerLow.withValues(alpha: 0.94),
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -370,26 +370,79 @@ class _SharedAxisPageTransitionsBuilder extends PageTransitionsBuilder {
   }
 }
 
-/// Flat MD3 frosted glass (毛玻璃) — blur + low-alpha frost + thin rim.
+/// Opaque MD3 content surface — prefer for library cards, settings blocks, stats.
 ///
-/// Pattern mirrors common Flutter glass kits (ClipRRect → BackdropFilter →
-/// frost fill ~0.1 → thin white border). No BoxShadow / plastic elevation.
+/// Glass stays on chrome ([GlassAppBar] / light frost bars). Content uses solid
+/// [ColorScheme.surfaceContainer*] so type stays sharp on light and OLED black.
+class SolidCard extends StatelessWidget {
+  const SolidCard({
+    super.key,
+    required this.child,
+    this.borderRadius = 18,
+    this.padding,
+    this.border = true,
+    this.color,
+  });
+
+  final Widget child;
+  final double borderRadius;
+  final EdgeInsetsGeometry? padding;
+  final bool border;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = cs.brightness == Brightness.dark;
+    final fill = color ??
+        (isDark ? cs.surfaceContainerHigh : cs.surfaceContainerLowest);
+    final stroke = isDark
+        ? cs.outlineVariant.withValues(alpha: 0.55)
+        : cs.outlineVariant.withValues(alpha: 0.70);
+    final radius = BorderRadius.circular(borderRadius);
+    final content =
+        padding == null ? child : Padding(padding: padding!, child: child);
+
+    return Material(
+      color: fill,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: border
+            ? BorderSide(color: stroke, width: 0.75)
+            : BorderSide.none,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: content,
+    );
+  }
+}
+
+/// Light frosted glass for chrome only (app bar / mini bar).
+///
+/// Prefer [SolidCard] for content cards — stacking translucent frost on a wash
+/// reads as "plastic glass" and hurts text contrast.
 class GlassSurface extends StatelessWidget {
   /// Set false in screenshot/golden tests — BackdropFilter+toImage can hang under flutter_test.
   static bool useFrostedBlur = true;
 
   /// Global blur strength multiplier (1.0 = default). Driven by settings.
-  static double blurStrength = 1.0;
+  /// Product default is below 1.0 so first launch is not a full-screen smear.
+  static double blurStrength = 0.55;
 
   const GlassSurface({
     super.key,
     required this.child,
     this.borderRadius = 20,
-    this.blur = 20,
+    this.blur = 14,
     this.padding,
     this.opacity,
     this.border = true,
     this.elevate = false,
+    /// When true, skip BackdropFilter and paint a near-opaque fill (content cards).
+    this.opaque = false,
   });
 
   final Widget child;
@@ -402,17 +455,27 @@ class GlassSurface extends StatelessWidget {
   /// Kept for API compatibility. Soft drop shadows are removed (flat frost).
   final bool elevate;
 
+  /// Near-solid surface — use for cards that must stay readable.
+  final bool opaque;
+
   @override
   Widget build(BuildContext context) {
+    if (opaque) {
+      return SolidCard(
+        borderRadius: borderRadius,
+        padding: padding,
+        border: border,
+        child: child,
+      );
+    }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Content cards: low frost so BackdropFilter reads against the wash.
-    // Chrome/AppBar should pass a lower [opacity] (~0.06–0.10).
-    final fillAlpha = opacity ?? (isDark ? 0.06 : 0.14);
+    // Chrome frost: denser than old ultra-thin fills so bars stay legible.
+    final fillAlpha = opacity ?? (isDark ? 0.14 : 0.22);
     final fill = Colors.white.withValues(alpha: fillAlpha.clamp(0.0, 1.0));
-    // Light white rim (not dark hairline) — reads as glass edge on tinted wash.
     final stroke = isDark
-        ? Colors.white.withValues(alpha: 0.14)
-        : Colors.white.withValues(alpha: 0.30);
+        ? Colors.white.withValues(alpha: 0.12)
+        : Colors.white.withValues(alpha: 0.28);
 
     final radius = BorderRadius.circular(borderRadius);
     final effectiveBlur = blur * blurStrength;
@@ -458,7 +521,6 @@ class GlassSurface extends StatelessWidget {
       );
     }
 
-    // [elevate] is intentionally a no-op — flat MD3 frost, no soft shadows.
     return frost;
   }
 }
@@ -491,12 +553,11 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
       bottom: bottom,
       flexibleSpace: GlassSurface(
         borderRadius: 0,
-        blur: 20,
+        blur: 12,
         border: false,
         elevate: false,
-        // Chrome: lower than content cards so it does not double-stack frost.
-        // Lower frost on dark so pure-black OLED scaffolds stay black.
-        opacity: isDark ? 0.03 : 0.08,
+        // Mild frost chrome — denser fill, weaker blur vs old full-bleed glass.
+        opacity: isDark ? 0.10 : 0.16,
         child: const SizedBox.expand(),
       ),
     );

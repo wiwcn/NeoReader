@@ -20,7 +20,7 @@ class SettingsAboutPage extends ConsumerWidget {
     final body = ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-        GlassSurface(
+        SolidCard(
           padding: const EdgeInsets.all(16),
           child: Material(
             type: MaterialType.transparency,

@@ -30,7 +30,7 @@ class ReadingControlsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassSurface(
+    return SolidCard(
       borderRadius: 24,
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
       child: SingleChildScrollView(

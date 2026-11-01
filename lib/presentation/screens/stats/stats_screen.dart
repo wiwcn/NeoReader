@@ -79,7 +79,7 @@ class StatsScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                GlassSurface(
+                SolidCard(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
@@ -111,7 +111,7 @@ class StatsScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                GlassSurface(
+                SolidCard(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +132,7 @@ class StatsScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                GlassSurface(
+                SolidCard(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +189,7 @@ class StatsScreen extends ConsumerWidget {
     String value,
     IconData icon,
   ) {
-    return GlassSurface(
+    return SolidCard(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

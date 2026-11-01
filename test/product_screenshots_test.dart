@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// ignore: depend_on_referenced_packages
 import 'package:riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neo_reader/core/l10n/app_strings.dart';
@@ -31,6 +32,7 @@ import 'package:neo_reader/presentation/screens/library/library_screen.dart';
 import 'package:neo_reader/presentation/screens/settings/settings_hub_screen.dart';
 import 'package:neo_reader/presentation/screens/stats/stats_screen.dart';
 import 'package:neo_reader/presentation/screens/reader/reading_controls.dart';
+import 'package:neo_reader/presentation/widgets/book_cover.dart';
 import 'package:neo_reader/presentation/widgets/empty_library.dart';
 import 'package:neo_reader/presentation/widgets/glass_scaffold_bg.dart';
 import 'package:neo_reader/presentation/widgets/motion.dart';
@@ -44,6 +46,8 @@ final _outDir = Directory(
 );
 const _coverDirPath =
     '/workspace/koodo-flutter-offline-app/test/fixtures/music_covers';
+const _bookCoverDirPath =
+    '/workspace/koodo-flutter-offline-app/test/fixtures/book_covers';
 
 Float32List _syntheticPeaks({int n = 800, int seed = 7}) {
   final rnd = math.Random(seed);
@@ -66,6 +70,7 @@ List<Book> _demoBooks() => [
         author: 'Lewis Carroll',
         format: BookFormat.epub,
         filePath: '/tmp/alice_in_wonderland.epub',
+        coverPath: '$_bookCoverDirPath/alice.png',
         progress: 0.42,
         addedAt: DateTime(2026, 10, 19),
         lastReadAt: DateTime(2026, 10, 28),
@@ -76,6 +81,7 @@ List<Book> _demoBooks() => [
         author: 'Aesop',
         format: BookFormat.epub,
         filePath: '/tmp/aesops_fables.epub',
+        coverPath: '$_bookCoverDirPath/aesop.png',
         progress: 0.68,
         addedAt: DateTime(2026, 10, 18),
         lastReadAt: DateTime(2026, 10, 30),
@@ -86,6 +92,7 @@ List<Book> _demoBooks() => [
         author: 'Charlotte Perkins Gilman',
         format: BookFormat.epub,
         filePath: '/tmp/yellow_wallpaper.epub',
+        coverPath: '$_bookCoverDirPath/yellow_wallpaper.png',
         progress: 0.18,
         addedAt: DateTime(2026, 10, 17),
         lastReadAt: DateTime(2026, 10, 22),
@@ -96,6 +103,7 @@ List<Book> _demoBooks() => [
         author: 'Charles Dickens',
         format: BookFormat.epub,
         filePath: '/tmp/christmas_carol.epub',
+        coverPath: '$_bookCoverDirPath/christmas_carol.png',
         progress: 0.55,
         addedAt: DateTime(2026, 10, 16),
         lastReadAt: DateTime(2026, 10, 27),
@@ -106,6 +114,7 @@ List<Book> _demoBooks() => [
         author: '佚名',
         format: BookFormat.epub,
         filePath: '/tmp/shijing.epub',
+        coverPath: '$_bookCoverDirPath/shijing.png',
         progress: 0.27,
         addedAt: DateTime(2026, 10, 20),
         lastReadAt: DateTime(2026, 10, 31),
@@ -116,6 +125,7 @@ List<Book> _demoBooks() => [
         author: 'NeoMedia',
         format: BookFormat.cbz,
         filePath: '/tmp/sample_comic.cbz',
+        coverPath: '$_bookCoverDirPath/sample_comic.png',
         progress: 0.33,
         addedAt: DateTime(2026, 10, 15),
         lastReadAt: DateTime(2026, 10, 29),
@@ -339,6 +349,22 @@ Future<void> _pumpShot(
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 200));
   await tester.pump(const Duration(milliseconds: 400));
+  // MemoryImage / asset codecs resolve on the real event loop.
+  await tester.runAsync(() async {
+    final elements = find.byType(Image).evaluate().toList();
+    for (final el in elements) {
+      final widget = el.widget;
+      if (widget is Image) {
+        try {
+          await precacheImage(widget.image, el);
+        } catch (_) {}
+      }
+    }
+    // Allow codec isolate work to finish.
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+  });
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
 }
 
 /// Product shell mirroring HomeShell without DemoSeedService side effects.
@@ -520,6 +546,9 @@ void main() {
         home: const _ShotShell(initialIndex: 0),
       );
       expect(find.textContaining('Alice'), findsWidgets);
+      expect(books.first.coverPath, isNotNull);
+      expect(File(books.first.coverPath!).existsSync(), isTrue);
+      expect(find.byType(BookCover), findsWidgets);
       await _savePng(tester, '${prefix}_shell_novels.png');
     });
 

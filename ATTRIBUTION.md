@@ -58,6 +58,24 @@ Project Gutenberg redistributes these texts under the [Project Gutenberg License
 The underlying literary works listed above are in the public domain in the United States.
 Do **not** confuse with PG titles that carry a separate translator copyright (those are not bundled here).
 
+
+## Sample book covers (own work / comic page)
+
+Portrait typographic covers (~2:3) generated for NeoMedia demos and bundled under
+`assets/samples/books/covers/`. The comic cover is the first page of the bundled
+CC0 sample CBZ (resized).
+
+| File | Book | Source | License |
+| --- | --- | --- | --- |
+| `alice.jpg` | Alice's Adventures in Wonderland | NeoMedia typographic cover (title + author) | CC0 1.0 (own work) |
+| `aesop.jpg` | The Fables of Aesop | NeoMedia typographic cover (title + author) | CC0 1.0 (own work) |
+| `yellow_wallpaper.jpg` | The Yellow Wallpaper | NeoMedia typographic cover (title + author) | CC0 1.0 (own work) |
+| `christmas_carol.jpg` | A Christmas Carol | NeoMedia typographic cover (title + author) | CC0 1.0 (own work) |
+| `shijing.jpg` | 詩經 (Shi Jing) | NeoMedia typographic cover (title + author) | CC0 1.0 (own work) |
+| `sample_comic.jpg` | NeoMedia Sample Comic | First page of `sample_comic.cbz` | CC0 1.0 (own work) |
+
+These covers are **not** Project Gutenberg cover scans; the underlying texts remain public domain as listed above.
+
 ## Sample album covers (CC0)
 
 Square abstract textures from Wikimedia Commons (Mitchfeatherston), Creative Commons CC0 1.0 Universal.

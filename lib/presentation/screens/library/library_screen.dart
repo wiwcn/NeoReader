@@ -341,7 +341,7 @@ class LibraryScreen extends ConsumerWidget {
 }
 
 
-/// One translucent glass card per book — list mode.
+/// Solid surface card per book — list mode.
 class _BookGlassCard extends StatelessWidget {
   const _BookGlassCard({
     required this.book,
@@ -366,7 +366,7 @@ class _BookGlassCard extends StatelessWidget {
     final author = book.author.isEmpty ? strings.unknownAuthor : book.author;
     final pct = '${(book.progress * 100).round()}%';
 
-    return GlassSurface(
+    return SolidCard(
       borderRadius: 18,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Material(
@@ -472,7 +472,7 @@ class _BookGridCard extends StatelessWidget {
     final cs = theme.colorScheme;
     final pct = '${(book.progress * 100).round()}%';
 
-    return GlassSurface(
+    return SolidCard(
       borderRadius: 18,
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
       child: Material(

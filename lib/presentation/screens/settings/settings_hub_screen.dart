@@ -157,16 +157,18 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
           final selected = !isPortrait && item.type == _selected;
           return StaggeredFadeSlide(
             index: i,
-            // Single GlassSurface per row — flat ink content inside.
-            child: GlassSurface(
+            // Solid row card — selection tint via Material fill.
+            child: SolidCard(
               borderRadius: 18,
-              opacity: selected
-                  ? (cs.brightness == Brightness.dark ? 0.14 : 0.20)
+              color: selected
+                  ? Color.lerp(
+                      cs.surfaceContainerHigh,
+                      cs.secondaryContainer,
+                      0.45,
+                    )!
                   : null,
               child: Material(
-                color: selected
-                    ? cs.secondaryContainer.withValues(alpha: 0.35)
-                    : Colors.transparent,
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(18),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(

@@ -168,7 +168,7 @@ class _BookDetailsPageState extends ConsumerState<BookDetailsPage> {
                 : ListView(
                     padding: const EdgeInsets.fromLTRB(14, 10, 14, 32),
                     children: [
-                      GlassSurface(
+                      SolidCard(
                         borderRadius: 18,
                         padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                         child: Row(
@@ -274,7 +274,7 @@ class _BookDetailsPageState extends ConsumerState<BookDetailsPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      GlassSurface(
+                      SolidCard(
                         borderRadius: 16,
                         padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                         child: Column(

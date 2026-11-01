@@ -328,7 +328,7 @@ class _AlbumCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GlassSurface(
+    return SolidCard(
       borderRadius: 18,
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -397,7 +397,7 @@ class _MusicEmptyState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: GlassSurface(
+        child: SolidCard(
           padding: const EdgeInsets.all(28),
           child: Column(
             mainAxisSize: MainAxisSize.min,

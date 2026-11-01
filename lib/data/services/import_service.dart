@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -41,7 +42,10 @@ class ImportService {
   final _mobi = MobiParser();
   final _comic = ComicParser();
 
-  Future<ImportResult> importFile(String sourcePath) async {
+  Future<ImportResult> importFile(
+    String sourcePath, {
+    Uint8List? fallbackCoverBytes,
+  }) async {
     final ext = p.extension(sourcePath).replaceAll('.', '').toLowerCase();
     final support = FormatRegistry.supportFor(ext);
     if (support != FormatSupport.implemented) {
@@ -114,6 +118,13 @@ class ImportService {
           }
         case BookFormat.unknown:
           break;
+      }
+
+      // EPUB no-images samples etc. often lack embedded covers — allow a
+      // bundled fallback (DemoSeedService) so the shelf shows a real image.
+      if (coverPath == null && fallbackCoverBytes != null && fallbackCoverBytes.isNotEmpty) {
+        coverPath = p.join(coversDir.path, '$id.jpg');
+        await File(coverPath).writeAsBytes(fallbackCoverBytes);
       }
 
       final book = Book(

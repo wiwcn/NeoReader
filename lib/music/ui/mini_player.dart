@@ -35,11 +35,11 @@ class MiniPlayer extends ConsumerWidget {
       // No bottom SafeArea — NavigationBar below already owns the home indicator.
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
-        child: GlassSurface(
+        child: SolidCard(
           borderRadius: 16,
-          blur: 18,
-          // Slightly denser frost so the bar stays readable over tab content.
-          opacity: isDark ? 0.16 : 0.22,
+          color: isDark
+              ? cs.surfaceContainerHigh
+              : cs.surfaceContainerLowest,
           child: SizedBox(
             height: height,
             child: Row(

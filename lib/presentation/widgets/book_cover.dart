@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
@@ -18,18 +19,28 @@ class BookCover extends StatelessWidget {
   final double height;
   final double borderRadius;
 
+  /// FileImage codecs often never complete under flutter_test — cache bytes.
+  static final Map<String, Uint8List> _bytesCache = {};
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     Widget child;
-    if (book.coverPath != null && File(book.coverPath!).existsSync()) {
-      child = Image.file(
-        File(book.coverPath!),
-        fit: BoxFit.cover,
-        width: width,
-        height: height,
-        errorBuilder: (context, error, stackTrace) => _placeholder(cs),
-      );
+    final path = book.coverPath;
+    if (path != null && path.isNotEmpty && File(path).existsSync()) {
+      try {
+        final bytes = _bytesCache.putIfAbsent(path, () => File(path).readAsBytesSync());
+        child = Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          width: width,
+          height: height,
+          gaplessPlayback: true,
+          errorBuilder: (context, error, stackTrace) => _placeholder(cs),
+        );
+      } catch (_) {
+        child = _placeholder(cs);
+      }
     } else {
       child = _placeholder(cs);
     }

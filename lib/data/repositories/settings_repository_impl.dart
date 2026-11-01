@@ -39,7 +39,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
         orElse: () => ReadingThemeMode.day,
       ),
       seedColorValue: p.getInt(_kSeed) ?? 0xFF2E7D32,
-      glassBlur: p.getDouble(_kGlass) ?? 1.0,
+      glassBlur: p.getDouble(_kGlass) ?? 0.55,
       pageTurnMode: PageTurnMode.values.firstWhere(
         (e) => e.name == p.getString(_kPageTurn),
         orElse: () => PageTurnMode.scroll,

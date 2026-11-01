@@ -76,7 +76,7 @@ class AnnotationsScreen extends ConsumerWidget {
                   AnnotationType.highlight => Icons.highlight_rounded,
                   AnnotationType.note => Icons.sticky_note_2_rounded,
                 };
-                return GlassSurface(
+                return SolidCard(
                   padding: const EdgeInsets.all(12),
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
