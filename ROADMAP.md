@@ -3,8 +3,9 @@
 ## NeoMedia（转型方向）
 
 产品正由 **NeoReader** 演进为 **NeoMedia**：离线优先的聚合媒体中心（小说 · 漫画 · 音乐 · GalGame）。  
-**下一阶段主线：音乐播放器（本地扫描 MVP）**；GalGame 延期。  
-完整愿景、参考项目（Feishin / Namida / Aura 等）、IA、清单与技术草案见：
+**主参考：[Fushi](https://github.com/hajisensai/Fushi)**（[fushi.moe](https://fushi.moe/)）的多媒体壳；**不是** Feishin，也**不以** Anki / 词典沉浸为核心。  
+**下一阶段主线：完整本地音乐播放器（Fushi 相对薄弱处的第一大补强）**；GalGame / Video 延期。  
+Feishin / Namida / Aura / Linthra 仅作音乐域次要参考。完整愿景、IA、清单与技术草案见：
 
 → **[docs/NEOMEDIA.md](./docs/NEOMEDIA.md)**
 

@@ -11,7 +11,7 @@
 
 功能蓝本对齐开源 [Koodo Reader](https://github.com/koodo-reader/koodo-reader) 的离线能力；本仓库的 Flutter 代码为独立实现（详见 [ATTRIBUTION.md](./ATTRIBUTION.md)）。
 
-> **方向：** 产品正演进为 **NeoMedia**（小说 · 漫画 · 音乐 · GalGame 的离线媒体中心）；音乐为下一阶段。设计说明见 [docs/NEOMEDIA.md](./docs/NEOMEDIA.md)。
+> **方向：** 产品正演进为 **NeoMedia**（小说 · 漫画 · 音乐 · GalGame 的离线媒体中心），灵感来自 [Fushi](https://github.com/hajisensai/Fushi) 的多媒体壳（非 Feishin；不以 Anki / 词典沉浸为核心）。下一阶段主线：完整本地音乐播放器。设计说明见 [docs/NEOMEDIA.md](./docs/NEOMEDIA.md)。
 
 **仓库：** <https://github.com/wiwcn/NeoReader>
 
