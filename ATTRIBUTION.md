@@ -40,6 +40,24 @@ codebase as distributed here. Third-party packages keep their own licenses
 - [`flutter_staggered_animations`](https://pub.dev/packages/flutter_staggered_animations) (MIT) —
   staggered list/grid entrance animations.
 
+## Sample books (Public Domain / own work)
+
+Bundled under `assets/samples/books/` for first-launch demos. Prefer Project Gutenberg
+**no-images** EPUBs where available to keep the sample pack small.
+
+| File | Title | Author | Source | License |
+| --- | --- | --- | --- | --- |
+| `alice_in_wonderland.epub` | Alice's Adventures in Wonderland | Lewis Carroll | [PG #11](https://www.gutenberg.org/ebooks/11) (`epub.noimages`) | Public Domain (USA) |
+| `aesops_fables.epub` | The Fables of Aesop | Aesop (retold / selected edition on PG) | [PG #28](https://www.gutenberg.org/ebooks/28) (`epub.noimages`) | Public Domain (USA) |
+| `yellow_wallpaper.epub` | The Yellow Wallpaper | Charlotte Perkins Gilman | [PG #1952](https://www.gutenberg.org/ebooks/1952) (`epub.noimages`) | Public Domain (USA) |
+| `christmas_carol.epub` | A Christmas Carol | Charles Dickens | [PG #46](https://www.gutenberg.org/ebooks/46) (`epub.noimages`) | Public Domain (USA) |
+| `shijing.epub` | 詩經 (Shi Jing) | Anonymous (classical Chinese) | [PG #23873](https://www.gutenberg.org/ebooks/23873) | Public Domain (USA) |
+| `sample_comic.cbz` | NeoMedia Sample Comic | NeoMedia (original abstract panels) | Bundled in this repo | CC0 1.0 (own work) |
+
+Project Gutenberg redistributes these texts under the [Project Gutenberg License](https://www.gutenberg.org/policy/license.html).
+The underlying literary works listed above are in the public domain in the United States.
+Do **not** confuse with PG titles that carry a separate translator copyright (those are not bundled here).
+
 ## Sample album covers (CC0)
 
 Square abstract textures from Wikimedia Commons (Mitchfeatherston), Creative Commons CC0 1.0 Universal.

@@ -62,61 +62,63 @@ Float32List _syntheticPeaks({int n = 800, int seed = 7}) {
 List<Book> _demoBooks() => [
       Book(
         id: '1',
-        title: '月光小径',
-        author: '艾达·河',
+        title: "Alice's Adventures in Wonderland",
+        author: 'Lewis Carroll',
         format: BookFormat.epub,
-        filePath: '/tmp/moon.epub',
+        filePath: '/tmp/alice_in_wonderland.epub',
         progress: 0.42,
-        addedAt: DateTime(2026, 9, 12),
+        addedAt: DateTime(2026, 10, 19),
         lastReadAt: DateTime(2026, 10, 28),
       ),
       Book(
         id: '2',
-        title: '二十四节气笔记',
-        author: '林晓荷',
-        format: BookFormat.txt,
-        filePath: '/tmp/jieqi.txt',
+        title: "Aesop's Fables",
+        author: 'Aesop',
+        format: BookFormat.epub,
+        filePath: '/tmp/aesops_fables.epub',
         progress: 0.68,
-        addedAt: DateTime(2026, 9, 20),
+        addedAt: DateTime(2026, 10, 18),
         lastReadAt: DateTime(2026, 10, 30),
       ),
       Book(
         id: '3',
-        title: '星河入梦',
-        author: '陈思远',
-        format: BookFormat.fb2,
-        filePath: '/tmp/xinghe.fb2',
+        title: 'The Yellow Wallpaper',
+        author: 'Charlotte Perkins Gilman',
+        format: BookFormat.epub,
+        filePath: '/tmp/yellow_wallpaper.epub',
         progress: 0.18,
-        addedAt: DateTime(2026, 10, 1),
+        addedAt: DateTime(2026, 10, 17),
         lastReadAt: DateTime(2026, 10, 22),
       ),
       Book(
         id: '4',
-        title: '海边的风',
-        author: 'Mira Lane',
-        format: BookFormat.md,
-        filePath: '/tmp/wind.md',
+        title: 'A Christmas Carol',
+        author: 'Charles Dickens',
+        format: BookFormat.epub,
+        filePath: '/tmp/christmas_carol.epub',
         progress: 0.55,
-        addedAt: DateTime(2026, 10, 5),
+        addedAt: DateTime(2026, 10, 16),
+        lastReadAt: DateTime(2026, 10, 27),
       ),
       Book(
         id: '5',
-        title: '夜色漫游',
-        author: 'Nova Pulse',
-        format: BookFormat.cbz,
-        filePath: '/tmp/night.cbz',
-        progress: 0.33,
-        addedAt: DateTime(2026, 10, 8),
-        lastReadAt: DateTime(2026, 10, 29),
+        title: '詩經',
+        author: '佚名',
+        format: BookFormat.epub,
+        filePath: '/tmp/shijing.epub',
+        progress: 0.27,
+        addedAt: DateTime(2026, 10, 20),
+        lastReadAt: DateTime(2026, 10, 31),
       ),
       Book(
         id: '6',
-        title: '城市灯火',
-        author: '艾达·河',
+        title: 'NeoMedia Sample Comic',
+        author: 'NeoMedia',
         format: BookFormat.cbz,
-        filePath: '/tmp/city.cbz',
-        progress: 0.12,
-        addedAt: DateTime(2026, 10, 12),
+        filePath: '/tmp/sample_comic.cbz',
+        progress: 0.33,
+        addedAt: DateTime(2026, 10, 15),
+        lastReadAt: DateTime(2026, 10, 29),
       ),
     ];
 
@@ -433,7 +435,7 @@ Widget _readerGlassPage({required bool dark}) {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        '月光小径',
+                        '詩經',
                         style: TextStyle(
                           color: colors.foreground,
                           fontSize: 16,
@@ -450,14 +452,13 @@ Widget _readerGlassPage({required bool dark}) {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(22, 12, 22, 160),
                   child: Text(
-                    '第一章　月下\n\n'
-                    '河对岸的灯火一盏接一盏地亮起来。风从芦苇间穿过，'
-                    '带着一点潮湿的泥土味。她把书合上，指尖停在书脊，'
-                    '仿佛还能听见纸页翻动时细碎的声响。\n\n'
-                    '「今晚不赶路。」她轻声说。\n\n'
-                    '远处的钟楼敲过九下。月光铺在石板上，像一层薄霜。'
-                    '她沿着小径往前走，影子被拉得很长，直到拐进那扇'
-                    '半掩的木门。',
+                    '國風 · 周南\n\n'
+                    '關關雎鳩，在河之洲。窈窕淑女，君子好逑。\n\n'
+                    '參差荇菜，左右流之。窈窕淑女，寤寐求之。\n'
+                    '求之不得，寤寐思服。悠哉悠哉，輾轉反側。\n\n'
+                    '參差荇菜，左右采之。窈窕淑女，琴瑟友之。\n'
+                    '參差荇菜，左右芼之。窈窕淑女，鐘鼓樂之。\n\n'
+                    '——《詩經·關雎》（公版）',
                     style: TextStyle(
                       color: colors.foreground,
                       fontSize: 19,
@@ -518,7 +519,7 @@ void main() {
         tracks: tracks,
         home: const _ShotShell(initialIndex: 0),
       );
-      expect(find.textContaining('月光小径'), findsWidgets);
+      expect(find.textContaining('Alice'), findsWidgets);
       await _savePng(tester, '${prefix}_shell_novels.png');
     });
 
@@ -530,7 +531,7 @@ void main() {
         tracks: tracks,
         home: const _ShotShell(initialIndex: 1),
       );
-      expect(find.textContaining('夜色漫游'), findsWidgets);
+      expect(find.textContaining('Sample Comic'), findsWidgets);
       await _savePng(tester, '${prefix}_shell_comics.png');
     });
 
@@ -608,7 +609,7 @@ void main() {
         withMusicQueue: false,
         home: _readerGlassPage(dark: dark),
       );
-      expect(find.textContaining('月光小径'), findsWidgets);
+      expect(find.textContaining('詩經'), findsWidgets);
       await _savePng(tester, '${prefix}_reader_glass.png');
     });
 

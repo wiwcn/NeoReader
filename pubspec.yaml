@@ -86,7 +86,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/samples/
+    - assets/samples/books/
     - assets/samples/music/
     - assets/samples/music/covers/
 

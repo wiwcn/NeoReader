@@ -21,12 +21,13 @@ NeoMedia is for people who want books, comics, and music to stay on their phone:
 - **No account / cloud / Pro** — install and use; nothing gated behind a subscription
 - **One shell, four tabs** — Novels, Comics, Music, Settings
 - **MD3 + frosted glass** — calm chrome for long sessions
+- **Ready on first open** — a few **public-domain classics** and **CC0 sample tracks** are seeded so you can try reading and listening immediately
 
 ---
 
 ## Screenshots
 
-Light and dark sets, captured from real UI widgets (~1080×2340).
+Light and dark sets, captured from real UI widgets (~1080×2340). Library shots show real public-domain titles (Alice, Aesop, 《詩經》, and more).
 
 ### Shell
 
@@ -74,6 +75,9 @@ Scan tracks on the phone and listen to full albums offline. Now Playing uses a *
 ### Settings & stats
 Light / dark, language, and reading defaults in one place. See how long you read today and how many days in a row — all local, never uploaded.
 
+### Sample content
+First launch seeds a small shelf of **public-domain** books (Project Gutenberg classics such as *Alice*, *Aesop*, *The Yellow Wallpaper*, *A Christmas Carol*, and Chinese 《詩經》) plus a tiny original sample comic, and **CC0** instrumental tracks for music. Swap them for your own library whenever you like — sources and licenses are listed in [ATTRIBUTION.md](./ATTRIBUTION.md).
+
 ---
 
 ## Platforms
@@ -108,4 +112,4 @@ Shell organization takes cues from [Fushi](https://github.com/hajisensai/Fushi).
 
 ## Acknowledgments
 
-Feature scope was inspired by the offline capability list of open-source [Koodo Reader](https://github.com/koodo-reader/koodo-reader); this repository’s Flutter code is an independent implementation. Fonts, motion packages, and other credits: [ATTRIBUTION.md](./ATTRIBUTION.md).
+Feature scope was inspired by the offline capability list of open-source [Koodo Reader](https://github.com/koodo-reader/koodo-reader); this repository’s Flutter code is an independent implementation. Fonts, sample books / music, motion packages, and other credits: [ATTRIBUTION.md](./ATTRIBUTION.md).

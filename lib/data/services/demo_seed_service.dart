@@ -7,17 +7,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'import_service.dart';
 
-/// Copies bundled sample books into the library once (for demos / screenshots).
+/// Copies bundled public-domain / own-work sample books into the library once
+/// (for demos / first launch). Independent of [MusicSeedService].
 class DemoSeedService {
-  static const _prefKey = 'neoreader_demo_seeded_v1';
+  /// Bump when sample book set changes so existing installs re-seed once.
+  static const _prefKey = 'neomedia_demo_seeded_v2';
 
   static const samples = <String>[
-    'assets/samples/welcome.txt',
-    'assets/samples/guide.md',
-    'assets/samples/essay.html',
-    'assets/samples/story.fb2',
-    'assets/samples/demo_comic.cbz',
-    'assets/samples/note.docx',
+    'assets/samples/books/alice_in_wonderland.epub',
+    'assets/samples/books/aesops_fables.epub',
+    'assets/samples/books/yellow_wallpaper.epub',
+    'assets/samples/books/christmas_carol.epub',
+    'assets/samples/books/shijing.epub',
+    'assets/samples/books/sample_comic.cbz',
   ];
 
   Future<int> seedIfNeeded({bool force = false}) async {
@@ -31,7 +33,7 @@ class DemoSeedService {
       try {
         final data = await rootBundle.load(asset);
         final name = p.basename(asset);
-        final out = File(p.join(tmp.path, 'neoreader_seed_$name'));
+        final out = File(p.join(tmp.path, 'neomedia_seed_$name'));
         await out.writeAsBytes(
           data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
           flush: true,

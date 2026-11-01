@@ -21,12 +21,13 @@ English → [README.md](./README.md)
 - **无账号 / 无云 / 无 Pro** — 下载下来就能用，没有订阅门槛
 - **一壳四页** — 小说、漫画、音乐、设置，底部一键切换
 - **MD3 + 毛玻璃** — 现代、安静、适合长时间待在里面
+- **开箱即读即听** — 首次打开会种入若干 **公版名著** 与 **CC0 示例曲**，方便马上体验
 
 ---
 
 ## 界面一览
 
-浅色 / 深色各一套，来自真实界面组件截图（约 1080×2340）。
+浅色 / 深色各一套，来自真实界面组件截图（约 1080×2340）。书库截图中的书名为真实公版书名（Alice、Aesop、《詩經》等）。
 
 ### 壳：四页导航
 
@@ -74,6 +75,9 @@ English → [README.md](./README.md)
 ### 设置与统计
 浅色 / 深色、界面语言、阅读默认项一处搞定。阅读统计看得见今天读了多久、连续几天在读——纯本地，不上云。
 
+### 示例内容
+首次打开会种入一小架 **公版** 书（Project Gutenberg 名著，如 *Alice*、*Aesop*、*The Yellow Wallpaper*、*A Christmas Carol*，以及中文《詩經》）、一本自有抽象示例漫画，以及 **CC0** 器乐示例曲，方便开箱体验。随时可用自己的书与歌替换；来源与许可见 [ATTRIBUTION.md](./ATTRIBUTION.md)。
+
 ---
 
 ## 平台
@@ -108,4 +112,4 @@ Android / iOS。
 
 ## 鸣谢
 
-功能蓝本曾参考开源项目 [Koodo Reader](https://github.com/koodo-reader/koodo-reader) 的离线能力列表；本仓库的 Flutter 代码为独立实现。字体、动效包与其他致谢见 [ATTRIBUTION.md](./ATTRIBUTION.md)。
+功能蓝本曾参考开源项目 [Koodo Reader](https://github.com/koodo-reader/koodo-reader) 的离线能力列表；本仓库的 Flutter 代码为独立实现。字体、示例书 / 示例曲、动效包与其他致谢见 [ATTRIBUTION.md](./ATTRIBUTION.md)。
