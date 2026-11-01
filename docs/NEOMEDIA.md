@@ -214,18 +214,20 @@ NeoMedia（离线媒体中心，MVP 更收）：
 
 ### 6.1 MVP（下一阶段必须可演示）
 
-- [ ] 选择文件夹 / 媒体库路径并 **本地扫描**（音频扩展名白名单）
-- [ ] 解析基础标签与封面（title / artist / album / track / duration；嵌入封面或同目录 `cover.jpg`）
-- [ ] 库浏览：歌曲、专辑、艺人；排序与简单搜索
-- [ ] 播放引擎：`just_audio` + `audio_service`（后台、通知栏 / 锁屏、耳机键）
-- [ ] 队列：播放、下一首、加入队列、清空、基本重排；持久化当前队列
-- [ ] 播放模式：顺序 / 循环列表 / 单曲循环 / 随机
-- [ ] 用户播放列表：新建 / 重命名 / 删除 / 增删曲目；导入导出 `.m3u` / `.m3u8`（至少导出）
-- [ ] Miniplayer + 全屏 Now Playing（Harmonoid 向：大封面轮播、极简控件、干净浅色 MD3-ish）
-- [ ] **真实波形 seekbar**（预计算振幅 peaks，按文件缓存；scrub hit-testing；非装饰波浪）
-- [ ] 约定小巧思：scrub 局部放大；可选 playhead amp 脉冲 / pause 呼吸；有余力则封面取色、双击收藏、滑动切歌
-- [ ] 与现有 MD3 + 毛玻璃视觉统一；中英设置项
-- [ ] 无账号、默认真离线（扫描与播放不访问网络）
+- [x] 选择文件夹 / 媒体库路径并 **本地扫描**（音频扩展名白名单）
+- [x] 解析基础标签与封面（title / artist / album / track / duration；嵌入封面或同目录 `cover.jpg`）
+- [x] 库浏览：歌曲、专辑、艺人；排序与简单搜索
+- [x] 播放引擎：`just_audio` + `audio_service`（后台、通知栏 / 锁屏、耳机键）
+- [x] 队列：播放、下一首、加入队列、清空、基本重排；持久化当前队列
+- [x] 播放模式：顺序 / 循环列表 / 单曲循环 / 随机
+- [x] 用户播放列表：新建 / 重命名 / 删除 / 增删曲目；导入导出 `.m3u` / `.m3u8`（至少导出）
+- [x] Miniplayer + 全屏 Now Playing（Harmonoid 向：大封面轮播、极简控件、干净浅色 MD3-ish）
+- [x] **真实波形 seekbar**（预计算振幅 peaks，按文件缓存；scrub hit-testing；非装饰波浪）
+- [x] 约定小巧思：scrub 局部放大；可选 playhead amp 脉冲 / pause 呼吸；有余力则封面取色、双击收藏、滑动切歌
+- [x] 与现有 MD3 + 毛玻璃视觉统一；中英设置项
+- [x] 无账号、默认真离线（扫描与播放不访问网络）
+
+> **LG G8 ThinQ**：适配重点为 **Hi-Fi Quad DAC / 有线高音质路径、Boombox 正常媒体音量、耳机媒体键**（见 `lib/music/README.md`）；非仅屏幕尺寸。`audio_session` 使用 USAGE_MEDIA + CONTENT_TYPE_MUSIC。
 
 ### 6.2 Enhance（MVP 后增强）
 
@@ -278,7 +280,7 @@ EN: *MVP = local scan + just_audio/audio_service + queue + playlists. Lyrics lat
 | 阶段 | 内容 | 状态意向 |
 |------|------|----------|
 | **P0** | NeoReader 既有能力维持；本设计文档以 **Fushi 为主参考** 校正落地 | 文档 ✅ |
-| **P1 — Music MVP** | 本地扫描、库浏览、just_audio + audio_service、队列、用户歌单、Harmonoid 向 Now Playing、**真实波形 seek**（含基础 scrub 放大） | **Next** |
+| **P1 — Music MVP** | 本地扫描、库浏览、just_audio + audio_service、队列、用户歌单、Harmonoid 向 Now Playing、**真实波形 seek**（含基础 scrub 放大）；G8 DAC/媒体会话 | **Done (MVP)** |
 | **P2 — Music Enhance** | 智能/自动列表、本地歌词 UI、EQ/速度/睡眠、库管理打磨；波形取色 / playhead 脉冲 / pause 呼吸等小巧思细化 | 其后 |
 | **P3 — Comic polish** | 完整 RAR/7z 漫画、漫画专用阅读手势与目录 | 与 P2 可并行部分项 |
 | **P4 — Optional servers** | Subsonic / OpenSubsonic（及可选 Jellyfin 只读）可选连接 + 缓存 | Later |

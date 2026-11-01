@@ -4,7 +4,7 @@
 
 产品正由 **NeoReader** 演进为 **NeoMedia**：离线优先的聚合媒体中心（小说 · 漫画 · 音乐 · GalGame）。  
 **主参考：[Fushi](https://github.com/hajisensai/Fushi)**（[fushi.moe](https://fushi.moe/)）的多媒体壳；**不是** Feishin，也**不以** Anki / 词典沉浸为核心。  
-**下一阶段主线：完整本地音乐播放器（Fushi 相对薄弱处的第一大补强）**；GalGame / Video 延期。  
+**Music MVP 已落地**（`lib/music/`：本地扫描 / just_audio+audio_service / 队列歌单 / Harmonoid Now Playing / 真实波形；**LG G8** 侧重 Hi-Fi Quad DAC 媒体属性，见模块 README）。下一阶段：Music Enhance。；GalGame / Video 延期。  
 **Music UI：Harmonoid**（极简 Now Playing / 大封面轮播）+ **真实音轨波形 seek**（预计算振幅，非装饰波浪；含 scrub 放大等小巧思）。  
 Feishin / Namida / Retro Music / Auxio / Aura / Linthra 仅作音乐域次要风格 / 能力参考。完整愿景、IA、清单与技术草案见：
 

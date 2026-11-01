@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../providers/providers.dart';
+import '../annotations/annotations_screen.dart';
 import '../../widgets/glass_scaffold_bg.dart';
 import '../../widgets/motion.dart';
 import 'settings_about_page.dart';
@@ -13,7 +14,7 @@ import 'settings_privacy_page.dart';
 import 'settings_reading_page.dart';
 import 'settings_stats_page.dart';
 
-enum _SettingsCategory { appearance, reading, library, privacy, stats, about }
+enum _SettingsCategory { appearance, reading, library, privacy, stats, annotations, about }
 
 class _Cat {
   const _Cat(this.type, this.icon, this.title, this.subtitle);
@@ -70,6 +71,12 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
         Icons.insights_outlined,
         strings.settingsStats,
         strings.settingsStatsSub,
+      ),
+      _Cat(
+        _SettingsCategory.annotations,
+        Icons.sticky_note_2_outlined,
+        strings.annotations,
+        strings.isZh ? '书签 / 高亮 / 笔记' : 'Bookmarks / highlights / notes',
       ),
       _Cat(
         _SettingsCategory.about,
@@ -234,6 +241,7 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
       _SettingsCategory.library => SettingsLibraryPage(showAppBar: showAppBar),
       _SettingsCategory.privacy => SettingsPrivacyPage(showAppBar: showAppBar),
       _SettingsCategory.stats => SettingsStatsPage(showAppBar: showAppBar),
+      _SettingsCategory.annotations => const AnnotationsScreen(),
       _SettingsCategory.about => SettingsAboutPage(showAppBar: showAppBar),
     };
   }

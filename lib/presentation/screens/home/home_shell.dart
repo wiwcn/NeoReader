@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/services/demo_seed_service.dart';
+import '../../../music/providers/music_providers.dart';
+import '../../../music/ui/mini_player.dart';
+import '../../../music/ui/music_home_screen.dart';
 import '../../providers/providers.dart';
 import '../../widgets/glass_scaffold_bg.dart';
 import '../../widgets/motion.dart';
-import '../annotations/annotations_screen.dart';
+import '../library/comic_library_screen.dart';
 import '../library/library_screen.dart';
-import '../settings/settings_screen.dart';
-import '../stats/stats_screen.dart';
+import '../settings/settings_hub_screen.dart';
 
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
@@ -32,46 +34,57 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       if (n > 0 && mounted) {
         await ref.read(libraryProvider.notifier).refresh();
       }
+      // Warm music audio session (DAC-friendly attributes) without blocking UI.
+      ref.read(musicHandlerProvider);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final strings = ref.watch(stringsProvider);
+    final music = ref.watch(musicStringsProvider);
+    final hasMini = ref.watch(currentTrackProvider) != null;
+
     final pages = const [
       LibraryScreen(),
-      AnnotationsScreen(),
-      StatsScreen(),
-      SettingsScreen(),
+      ComicLibraryScreen(),
+      MusicHomeScreen(),
+      SettingsHubScreen(),
     ];
 
     return GlassScaffoldBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: FadeIndexedStack(index: _index, children: pages),
+        body: Column(
+          children: [
+            Expanded(
+              child: FadeIndexedStack(index: _index, children: pages),
+            ),
+            if (hasMini) const MiniPlayer(),
+          ],
+        ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),
           destinations: [
             NavigationDestination(
-              icon: const Icon(Icons.local_library_outlined),
-              selectedIcon: const Icon(Icons.local_library_rounded),
-              label: strings.library,
+              icon: const Icon(Icons.menu_book_outlined),
+              selectedIcon: const Icon(Icons.menu_book_rounded),
+              label: music.novel,
             ),
             NavigationDestination(
-              icon: const Icon(Icons.sticky_note_2_outlined),
-              selectedIcon: const Icon(Icons.sticky_note_2_rounded),
-              label: strings.annotations,
+              icon: const Icon(Icons.auto_stories_outlined),
+              selectedIcon: const Icon(Icons.auto_stories_rounded),
+              label: music.comic,
             ),
             NavigationDestination(
-              icon: const Icon(Icons.insights_outlined),
-              selectedIcon: const Icon(Icons.insights_rounded),
-              label: strings.stats,
+              icon: const Icon(Icons.library_music_outlined),
+              selectedIcon: const Icon(Icons.library_music_rounded),
+              label: music.music,
             ),
             NavigationDestination(
-              icon: const Icon(Icons.settings_outlined),
-              selectedIcon: const Icon(Icons.settings_rounded),
-              label: strings.settings,
+              icon: const Icon(Icons.more_horiz_rounded),
+              selectedIcon: const Icon(Icons.more_horiz_rounded),
+              label: music.more,
             ),
           ],
         ),
