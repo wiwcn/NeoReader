@@ -33,15 +33,18 @@ class AppTheme {
   static const Color lightCanvasMid = Color(0xFFF7F8FA);
   static const Color lightCanvasDeep = Color(0xFFF5F6F8);
 
-  /// Near-black cool scaffold (not pure #000).
-  static const Color darkCanvas = Color(0xFF0E1012);
-  static const Color darkSurfaceDim = Color(0xFF0A0C0E);
-  static const Color darkSurfaceBright = Color(0xFF1A1D21);
-  static const Color darkContainerLowest = Color(0xFF090B0D);
-  static const Color darkContainerLow = Color(0xFF14171A);
-  static const Color darkContainer = Color(0xFF191C20);
-  static const Color darkContainerHigh = Color(0xFF1F2328);
-  static const Color darkContainerHighest = Color(0xFF252A30);
+  /// OLED true black — Now Playing / fullscreen music canvases.
+  static const Color oledBlack = Color(0xFF000000);
+
+  /// Near-true-black cool scaffold (OLED-friendly; cards use elevated containers).
+  static const Color darkCanvas = Color(0xFF000000);
+  static const Color darkSurfaceDim = Color(0xFF000000);
+  static const Color darkSurfaceBright = Color(0xFF16191D);
+  static const Color darkContainerLowest = Color(0xFF000000);
+  static const Color darkContainerLow = Color(0xFF121518);
+  static const Color darkContainer = Color(0xFF181B1F);
+  static const Color darkContainerHigh = Color(0xFF1E2227);
+  static const Color darkContainerHighest = Color(0xFF24292F);
   static const Color darkOnSurface = Color(0xFFE6E8EB);
   static const Color darkOnSurfaceVariant = Color(0xFFB0B6BE);
   static const Color darkOutline = Color(0xFF8A9099);
@@ -404,7 +407,7 @@ class GlassSurface extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     // Content cards: low frost so BackdropFilter reads against the wash.
     // Chrome/AppBar should pass a lower [opacity] (~0.06–0.10).
-    final fillAlpha = opacity ?? (isDark ? 0.09 : 0.14);
+    final fillAlpha = opacity ?? (isDark ? 0.06 : 0.14);
     final fill = Colors.white.withValues(alpha: fillAlpha.clamp(0.0, 1.0));
     // Light white rim (not dark hairline) — reads as glass edge on tinted wash.
     final stroke = isDark
@@ -492,7 +495,8 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
         border: false,
         elevate: false,
         // Chrome: lower than content cards so it does not double-stack frost.
-        opacity: isDark ? 0.05 : 0.08,
+        // Lower frost on dark so pure-black OLED scaffolds stay black.
+        opacity: isDark ? 0.03 : 0.08,
         child: const SizedBox.expand(),
       ),
     );

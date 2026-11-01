@@ -17,6 +17,7 @@ class ArtistDetailPage extends ConsumerWidget {
     final ms = ref.watch(musicStringsProvider);
 
     return GlassScaffoldBackground(
+      oledTrueBlack: true,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: GlassAppBar(title: Text(artist.name)),

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -100,6 +101,7 @@ class _NowPlayingPageState extends ConsumerState<NowPlayingPage> {
     final peaks = peakKey == null ? null : _peakCache[peakKey];
 
     return GlassScaffoldBackground(
+      oledTrueBlack: true,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: GlassAppBar(
@@ -119,40 +121,53 @@ class _NowPlayingPageState extends ConsumerState<NowPlayingPage> {
                   children: [
                     const SizedBox(height: 8),
                     // Large cover carousel (Harmonoid) — swipe = prev/next.
+                    // Explicit square geometry (not AspectRatio-in-tall-slot).
                     Expanded(
                       flex: 5,
-                      child: PageView.builder(
-                        controller: _pageController,
-                        itemCount: queue.length,
-                        onPageChanged: (i) async {
-                          if (i == index) return;
-                          final h = await ref.read(musicHandlerProvider.future);
-                          await h.playTrackAt(i);
-                        },
-                        itemBuilder: (context, i) {
-                          final t = queue[i];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 12,
-                            ),
-                            child: GestureDetector(
-                              onDoubleTap: () async {
-                                await ref
-                                    .read(musicLibraryProvider.notifier)
-                                    .toggleFavorite(t);
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        t.isFavorite ? ms.unfavorite : ms.favorite,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: _HeroCover(path: t.coverPath),
-                            ),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return PageView.builder(
+                            controller: _pageController,
+                            itemCount: queue.length,
+                            onPageChanged: (i) async {
+                              if (i == index) return;
+                              final h =
+                                  await ref.read(musicHandlerProvider.future);
+                              await h.playTrackAt(i);
+                            },
+                            itemBuilder: (context, i) {
+                              final t = queue[i];
+                              final active = i == index;
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: GestureDetector(
+                                  onDoubleTap: () async {
+                                    await ref
+                                        .read(musicLibraryProvider.notifier)
+                                        .toggleFavorite(t);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            t.isFavorite
+                                                ? ms.unfavorite
+                                                : ms.favorite,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: _HeroCover(
+                                    path: t.coverPath,
+                                    active: active,
+                                    slotWidth: constraints.maxWidth,
+                                    slotHeight: constraints.maxHeight,
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
@@ -338,44 +353,72 @@ class _NowPlayingPageState extends ConsumerState<NowPlayingPage> {
   }
 }
 
+/// Strict 1:1 cover floated on the theme canvas — no black tray / heavy shadow.
 class _HeroCover extends StatelessWidget {
-  const _HeroCover({required this.path});
+  const _HeroCover({
+    required this.path,
+    required this.active,
+    required this.slotWidth,
+    required this.slotHeight,
+  });
+
   final String? path;
+  final bool active;
+  final double slotWidth;
+  final double slotHeight;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return AspectRatio(
-      aspectRatio: 1,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: cs.shadow.withValues(
-                alpha: Theme.of(context).brightness == Brightness.dark
-                    ? 0.45
-                    : 0.18,
-              ),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: CoverImage(
-            path: path,
-            placeholder: ColoredBox(
-              color: cs.primaryContainer,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // PageView page width ≈ viewportFraction * slot; keep square in remaining height.
+    final pageWidth = slotWidth * 0.82 - 16; // viewportFraction + horizontal pad
+    final side = math.min(pageWidth, slotHeight).clamp(0.0, double.infinity);
+    final scale = active ? 1.0 : 0.92;
+
+    Widget cover = SizedBox(
+      width: side,
+      height: side,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: CoverImage(
+          path: path,
+          fit: BoxFit.cover,
+          placeholder: ColoredBox(
+            color: cs.primaryContainer,
+            child: Center(
               child: Icon(
                 Icons.album_rounded,
-                size: 96,
+                size: side * 0.28,
                 color: cs.onPrimaryContainer.withValues(alpha: 0.7),
               ),
             ),
           ),
         ),
+      ),
+    );
+
+    // Light mode only: hairline soft lift. Dark/OLED: no shadow tray.
+    if (!isDark) {
+      cover = DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: cs.shadow.withValues(alpha: 0.10),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: cover,
+      );
+    }
+
+    return Center(
+      child: Transform.scale(
+        scale: scale,
+        child: cover,
       ),
     );
   }

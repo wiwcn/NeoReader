@@ -19,6 +19,7 @@ class AlbumDetailPage extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     return GlassScaffoldBackground(
+      oledTrueBlack: true,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: GlassAppBar(title: Text(album.name)),

@@ -19,6 +19,7 @@ class PlaylistDetailPage extends ConsumerWidget {
     final match = playlists.where((p) => p.id == playlistId).toList();
     if (match.isEmpty) {
       return GlassScaffoldBackground(
+        oledTrueBlack: true,
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: GlassAppBar(title: Text(ms.playlists)),
@@ -35,6 +36,7 @@ class PlaylistDetailPage extends ConsumerWidget {
     ];
 
     return GlassScaffoldBackground(
+      oledTrueBlack: true,
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: GlassAppBar(title: Text(playlist.name)),
