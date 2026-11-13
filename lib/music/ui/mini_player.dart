@@ -1,7 +1,9 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../presentation/widgets/motion.dart';
 import '../providers/music_providers.dart';
 import 'cover_image.dart';
 import 'now_playing_page.dart';
@@ -14,7 +16,8 @@ class MiniPlayer extends ConsumerWidget {
 
   void _openNowPlaying(BuildContext context) {
     Navigator.of(context, rootNavigator: true).push(
-      MaterialPageRoute<void>(
+      SharedAxisPageRoute<void>(
+        transitionType: SharedAxisTransitionType.vertical,
         builder: (_) => const NowPlayingPage(),
       ),
     );

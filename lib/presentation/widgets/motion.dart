@@ -19,6 +19,21 @@ abstract final class AppMotion {
 
   static const Curve enter = Curves.easeOutCubic;
   static const Curve press = Curves.easeOut;
+
+  // ── MD3 easing set ─────────────────────────────────────────────────────
+  /// Emphasized — default for hero/container transitions.
+  static const Curve emphasized = Cubic(0.2, 0.0, 0.0, 1.0);
+
+  /// Decelerate-heavy — elements entering the screen.
+  static const Curve emphasizedDecelerate = Cubic(0.05, 0.7, 0.1, 1.0);
+
+  /// Accelerate-heavy — elements leaving the screen.
+  static const Curve emphasizedAccelerate = Cubic(0.3, 0.0, 0.8, 0.15);
+
+  // ── MD3 duration ladder (subset used by product UI) ────────────────────
+  static const Duration short4 = Duration(milliseconds: 200);
+  static const Duration medium1 = Duration(milliseconds: 250);
+  static const Duration medium2 = Duration(milliseconds: 300);
 }
 
 /// Thin wrapper around [flutter_staggered_animations] for one import site.

@@ -7,7 +7,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../presentation/widgets/app_empty_state.dart';
+import '../../presentation/widgets/app_search_field.dart';
 import '../../presentation/widgets/glass_scaffold_bg.dart';
+import '../../presentation/widgets/motion.dart';
 import '../models/album.dart';
 import '../models/track.dart';
 import '../providers/music_providers.dart';
@@ -120,7 +123,6 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
   @override
   Widget build(BuildContext context) {
     final ms = ref.watch(musicStringsProvider);
-    final cs = Theme.of(context).colorScheme;
 
     return GlassScaffoldBackground(
       child: Scaffold(
@@ -128,25 +130,13 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
         appBar: GlassAppBar(
           title: Text(ms.music),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(96),
+            preferredSize: const Size.fromHeight(108),
             child: Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: ms.searchMusic,
-                      isDense: true,
-                      filled: true,
-                      fillColor: Theme.of(context).brightness == Brightness.dark
-                          ? cs.surfaceContainerHighest.withValues(alpha: 0.55)
-                          : cs.surface.withValues(alpha: 0.55),
-                      prefixIcon: const Icon(Icons.search_rounded, size: 22),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                  child: AppSearchField(
+                    hintText: ms.searchMusic,
                     onChanged: (v) =>
                         ref.read(musicQueryProvider.notifier).state = v,
                   ),
@@ -200,25 +190,39 @@ class _MusicHomeScreenState extends ConsumerState<MusicHomeScreen>
                 _PlaylistsTab(onPlay: _playTracks),
               ],
             ),
-            if (_scanning)
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 88,
-                child: Material(
-                  elevation: 0,
-                  borderRadius: BorderRadius.circular(12),
-                  color: cs.surfaceContainerHigh.withValues(alpha: 0.92),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(
-                      _scanLabel,
-                      maxLines: 2,
-                      style: TextStyle(color: cs.onSurface),
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 88,
+              child: IgnorePointer(
+                ignoring: !_scanning,
+                child: AnimatedSwitcher(
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : AppMotion.medium1,
+                  switchInCurve: AppMotion.emphasizedDecelerate,
+                  switchOutCurve: AppMotion.emphasizedAccelerate,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.18),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
                     ),
                   ),
+                  child: _scanning
+                      ? SolidCard(
+                          key: const ValueKey('scan-banner'),
+                          borderRadius: 14,
+                          padding: const EdgeInsets.all(12),
+                          child: Text(_scanLabel, maxLines: 2),
+                        )
+                      : const SizedBox.shrink(key: ValueKey('scan-idle')),
                 ),
               ),
+            ),
           ],
         ),
       ),
@@ -240,25 +244,37 @@ class _TracksTab extends ConsumerWidget {
       error: (e, _) => Center(child: Text('$e')),
       data: (tracks) {
         if (tracks.isEmpty) {
-          return _MusicEmptyState(message: ms.emptyLibrary, actionLabel: ms.scanFolder, onAction: onScan);
+          return AppEmptyState(
+            icon: Icons.library_music_rounded,
+            title: ms.emptyLibrary,
+            actionLabel: ms.scanFolder,
+            actionIcon: Icons.folder_open_rounded,
+            onAction: () => onScan(),
+          );
         }
-        return ListView.builder(
-          padding: const EdgeInsets.only(bottom: 96),
-          itemCount: tracks.length,
-          itemBuilder: (context, i) {
-            final t = tracks[i];
-            return TrackTile(
-              track: t,
-              onTap: () => onPlay(tracks, start: i),
-              onLongPress: () => showTrackActions(
-                context,
-                ref: ref,
-                track: t,
-                queueContext: tracks,
+        return staggeredListView(
+          context: context,
+          listView: ListView.builder(
+            padding: const EdgeInsets.only(bottom: 96),
+            itemCount: tracks.length,
+            itemBuilder: (context, i) {
+              final t = tracks[i];
+              return StaggeredFadeSlide(
                 index: i,
-              ),
-            );
-          },
+                child: TrackTile(
+                  track: t,
+                  onTap: () => onPlay(tracks, start: i),
+                  onLongPress: () => showTrackActions(
+                    context,
+                    ref: ref,
+                    track: t,
+                    queueContext: tracks,
+                    index: i,
+                  ),
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -279,36 +295,44 @@ class _AlbumsTab extends ConsumerWidget {
       error: (e, _) => Center(child: Text('$e')),
       data: (albums) {
         if (albums.isEmpty) {
-          return _MusicEmptyState(
-            message: ms.emptyLibrary,
+          return AppEmptyState(
+            icon: Icons.library_music_rounded,
+            title: ms.emptyLibrary,
             actionLabel: ms.scanFolder,
-            onAction: onScan,
+            actionIcon: Icons.folder_open_rounded,
+            onAction: () => onScan(),
           );
         }
-        return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 96),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            // Square cover + ~2-line title row (~0.72–0.78).
-            childAspectRatio: 0.70,
+        return staggeredListView(
+          context: context,
+          listView: GridView.builder(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 96),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              // Square cover + ~2-line title row (~0.72–0.78).
+              childAspectRatio: 0.70,
+            ),
+            itemCount: albums.length,
+            itemBuilder: (context, i) {
+              final a = albums[i];
+              return StaggeredFadeSlide(
+                index: i,
+                child: _AlbumCard(
+                  album: a,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      SharedAxisPageRoute<void>(
+                        builder: (_) => AlbumDetailPage(album: a),
+                      ),
+                    );
+                  },
+                  onPlay: () => onPlay(a.tracks),
+                ),
+              );
+            },
           ),
-          itemCount: albums.length,
-          itemBuilder: (context, i) {
-            final a = albums[i];
-            return _AlbumCard(
-              album: a,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => AlbumDetailPage(album: a),
-                  ),
-                );
-              },
-              onPlay: () => onPlay(a.tracks),
-            );
-          },
         );
       },
     );
@@ -380,53 +404,6 @@ class _AlbumCard extends StatelessWidget {
   }
 }
 
-class _MusicEmptyState extends StatelessWidget {
-  const _MusicEmptyState({
-    required this.message,
-    required this.actionLabel,
-    required this.onAction,
-  });
-
-  final String message;
-  final String actionLabel;
-  final Future<void> Function() onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: SolidCard(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.library_music_rounded, size: 56, color: cs.primary),
-              const SizedBox(height: 16),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 20),
-              FilledButton.tonalIcon(
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(48, 48),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
-                onPressed: () => onAction(),
-                icon: const Icon(Icons.folder_open_rounded),
-                label: Text(actionLabel),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _ArtistsTab extends ConsumerWidget {
   const _ArtistsTab({required this.onPlay, required this.onScan});
   final Future<void> Function(List<Track> tracks, {int start}) onPlay;
@@ -441,37 +418,54 @@ class _ArtistsTab extends ConsumerWidget {
       error: (e, _) => Center(child: Text('$e')),
       data: (artists) {
         if (artists.isEmpty) {
-          return _MusicEmptyState(
-            message: ms.emptyLibrary,
+          return AppEmptyState(
+            icon: Icons.library_music_rounded,
+            title: ms.emptyLibrary,
             actionLabel: ms.scanFolder,
-            onAction: onScan,
+            actionIcon: Icons.folder_open_rounded,
+            onAction: () => onScan(),
           );
         }
-        return ListView.builder(
-          padding: const EdgeInsets.only(bottom: 96),
-          itemCount: artists.length,
-          itemBuilder: (context, i) {
-            final a = artists[i];
-            return ListTile(
-              leading: CircleAvatar(
-                child: Text(a.name.isNotEmpty ? a.name.characters.first : '?'),
-              ),
-              title: Text(a.name),
-              subtitle: Text('${a.trackCount} ${ms.tracksCount}'),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => ArtistDetailPage(artist: a),
+        return staggeredListView(
+          context: context,
+          listView: ListView.separated(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+            itemCount: artists.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
+            itemBuilder: (context, i) {
+              final a = artists[i];
+              return StaggeredFadeSlide(
+                index: i,
+                child: SolidCard(
+                  borderRadius: 16,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 2,
+                    ),
+                    leading: CircleAvatar(
+                      child: Text(
+                        a.name.isNotEmpty ? a.name.characters.first : '?',
+                      ),
+                    ),
+                    title: Text(a.name),
+                    subtitle: Text('${a.trackCount} ${ms.tracksCount}'),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        SharedAxisPageRoute<void>(
+                          builder: (_) => ArtistDetailPage(artist: a),
+                        ),
+                      );
+                    },
+                    trailing: IconButton(
+                      onPressed: () => onPlay(a.tracks),
+                      icon: const Icon(Icons.play_arrow_rounded),
+                    ),
                   ),
-                );
-              },
-              trailing: IconButton(
-                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                onPressed: () => onPlay(a.tracks),
-                icon: const Icon(Icons.play_arrow_rounded),
-              ),
-            );
-          },
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -520,85 +514,124 @@ class _PlaylistsTab extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('$e')),
       data: (playlists) {
-        return ListView(
-          padding: const EdgeInsets.only(bottom: 96),
-          children: [
-            ListTile(
-              leading: const Icon(Icons.add_rounded),
-              title: Text(ms.newPlaylist),
-              onTap: () => _create(context, ref),
-            ),
-            ...playlists.map((pl) {
-              return ListTile(
-                leading: const Icon(Icons.queue_music_rounded),
-                title: Text(pl.name),
-                subtitle: Text('${pl.count} ${ms.tracksCount}'),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => PlaylistDetailPage(playlistId: pl.id),
-                    ),
-                  );
-                },
-                trailing: PopupMenuButton<String>(
-                  onSelected: (v) async {
-                    if (v == 'rename') {
-                      final c = TextEditingController(text: pl.name);
-                      final name = await showDialog<String>(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          backgroundColor:
-                              Theme.of(ctx).colorScheme.surfaceContainerHigh,
-                          title: Text(ms.renamePlaylist),
-                          content: TextField(controller: c),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx),
-                              child: Text(ms.isZh ? '取消' : 'Cancel'),
-                            ),
-                            FilledButton(
-                              onPressed: () => Navigator.pop(ctx, c.text.trim()),
-                              child: Text(ms.isZh ? '确定' : 'OK'),
-                            ),
-                          ],
+        return staggeredListView(
+          context: context,
+          listView: ListView.separated(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+            itemCount: playlists.length + 1,
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
+            itemBuilder: (context, i) {
+              if (i == 0) {
+                return SolidCard(
+                  borderRadius: 16,
+                  child: ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 12),
+                    leading: const Icon(Icons.add_rounded),
+                    title: Text(ms.newPlaylist),
+                    onTap: () => _create(context, ref),
+                  ),
+                );
+              }
+              final pl = playlists[i - 1];
+              return StaggeredFadeSlide(
+                index: i,
+                child: SolidCard(
+                  borderRadius: 16,
+                  child: ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 12),
+                    leading: const Icon(Icons.queue_music_rounded),
+                    title: Text(pl.name),
+                    subtitle: Text('${pl.count} ${ms.tracksCount}'),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        SharedAxisPageRoute<void>(
+                          builder: (_) =>
+                              PlaylistDetailPage(playlistId: pl.id),
                         ),
                       );
-                      if (name != null && name.isNotEmpty) {
-                        await ref.read(playlistsProvider.notifier).rename(pl.id, name);
-                      }
-                    } else if (v == 'delete') {
-                      await ref.read(playlistsProvider.notifier).delete(pl.id);
-                    } else if (v == 'export') {
-                      final repo = ref.read(musicRepositoryProvider);
-                      final all = await repo.allTracks();
-                      final byId = {for (final t in all) t.id: t};
-                      final tracks = [
-                        for (final id in pl.trackIds)
-                          if (byId[id] != null) byId[id]!,
-                      ];
-                      final docs = await getApplicationDocumentsDirectory();
-                      final out = Directory('${docs.path}/exports');
-                      final file = await ref.read(m3uServiceProvider).exportPlaylistM3u(
-                            playlist: pl,
-                            tracks: tracks,
-                            outDir: out,
+                    },
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (v) async {
+                        if (v == 'rename') {
+                          final c = TextEditingController(text: pl.name);
+                          final name = await showDialog<String>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text(ms.renamePlaylist),
+                              content: TextField(controller: c),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child:
+                                      Text(ms.isZh ? '取消' : 'Cancel'),
+                                ),
+                                FilledButton(
+                                  onPressed: () =>
+                                      Navigator.pop(ctx, c.text.trim()),
+                                  child: Text(ms.isZh ? '确定' : 'OK'),
+                                ),
+                              ],
+                            ),
                           );
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${ms.exported}: ${file.path}')),
-                        );
-                      }
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    PopupMenuItem(value: 'rename', child: Text(ms.renamePlaylist)),
-                    PopupMenuItem(value: 'export', child: Text(ms.exportM3u)),
-                    PopupMenuItem(value: 'delete', child: Text(ms.deletePlaylist)),
-                  ],
+                          if (name != null && name.isNotEmpty) {
+                            await ref
+                                .read(playlistsProvider.notifier)
+                                .rename(pl.id, name);
+                          }
+                        } else if (v == 'delete') {
+                          await ref
+                              .read(playlistsProvider.notifier)
+                              .delete(pl.id);
+                        } else if (v == 'export') {
+                          final repo = ref.read(musicRepositoryProvider);
+                          final all = await repo.allTracks();
+                          final byId = {for (final t in all) t.id: t};
+                          final tracks = [
+                            for (final id in pl.trackIds)
+                              if (byId[id] != null) byId[id]!,
+                          ];
+                          final docs =
+                              await getApplicationDocumentsDirectory();
+                          final out = Directory('${docs.path}/exports');
+                          final file = await ref
+                              .read(m3uServiceProvider)
+                              .exportPlaylistM3u(
+                                playlist: pl,
+                                tracks: tracks,
+                                outDir: out,
+                              );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    Text('${ms.exported}: ${file.path}'),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      itemBuilder: (_) => [
+                        PopupMenuItem(
+                          value: 'rename',
+                          child: Text(ms.renamePlaylist),
+                        ),
+                        PopupMenuItem(
+                          value: 'export',
+                          child: Text(ms.exportM3u),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text(ms.deletePlaylist),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               );
-            }),
-          ],
+            },
+          ),
         );
       },
     );

@@ -149,7 +149,7 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
     return staggeredListView(
       context: context,
       listView: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         itemCount: items.length,
         separatorBuilder: (context, index) => const SizedBox(height: 10),
         itemBuilder: (context, i) {
@@ -159,7 +159,7 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
             index: i,
             // Solid row card — selection tint via Material fill.
             child: SolidCard(
-              borderRadius: 18,
+              borderRadius: 16,
               color: selected
                   ? Color.lerp(
                       cs.surfaceContainerHigh,
@@ -169,7 +169,7 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
                   : null,
               child: Material(
                 color: Colors.transparent,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(
                   onTap: () {
@@ -194,11 +194,15 @@ class _SettingsHubScreenState extends ConsumerState<SettingsHubScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: cs.primary.withValues(alpha: 0.12),
+                            color: cs.primaryContainer.withValues(alpha: 0.62),
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
-                          child: Icon(item.icon, size: 22, color: cs.primary),
+                          child: Icon(
+                            item.icon,
+                            size: 22,
+                            color: cs.onPrimaryContainer,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

@@ -10,6 +10,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../domain/models/app_settings.dart';
 import '../../../domain/models/book.dart';
 import '../../providers/providers.dart';
+import '../../widgets/app_search_field.dart';
 import '../../widgets/book_cover.dart';
 import '../../widgets/empty_library.dart';
 import '../../widgets/glass_scaffold_bg.dart';
@@ -32,7 +33,6 @@ class LibraryScreen extends ConsumerWidget {
     final booksAsync = ref.watch(filteredLibraryProvider);
     final settings = ref.watch(settingsProvider).value ?? const AppSettings();
     final layout = settings.libraryLayout;
-    final cs = Theme.of(context).colorScheme;
 
     return GlassScaffoldBackground(
       child: Scaffold(
@@ -90,35 +90,11 @@ class LibraryScreen extends ConsumerWidget {
           ],
           // Search lives in chrome — filled pill, NOT a second GlassSurface.
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(52),
+            preferredSize: const Size.fromHeight(64),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: strings.searchHint,
-                  isDense: true,
-                  filled: true,
-                  fillColor: cs.surface.withValues(alpha: 0.45),
-                  prefixIcon: const Icon(Icons.search_rounded, size: 22),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide(
-                      color: cs.primary.withValues(alpha: 0.35),
-                    ),
-                  ),
-                ),
+              child: AppSearchField(
+                hintText: strings.searchHint,
                 onChanged: (v) =>
                     ref.read(libraryQueryProvider.notifier).state = v,
               ),
@@ -135,10 +111,35 @@ class LibraryScreen extends ConsumerWidget {
                 onImport: () => _import(context, ref, strings),
               );
             }
-            if (layout == LibraryLayout.grid) {
-              return _buildGrid(context, ref, strings, books);
-            }
-            return _buildList(context, ref, strings, books);
+            final content = layout == LibraryLayout.grid
+                ? _buildGrid(context, ref, strings, books)
+                : _buildList(context, ref, strings, books);
+            final reduce = MediaQuery.disableAnimationsOf(context);
+            // Layout switch cross-fades with a subtle scale (MD3 emphasized).
+            return AnimatedSwitcher(
+              duration: reduce ? Duration.zero : AppMotion.medium1,
+              reverseDuration: reduce ? Duration.zero : AppMotion.short4,
+              switchInCurve: AppMotion.emphasizedDecelerate,
+              switchOutCurve: AppMotion.emphasizedAccelerate,
+              layoutBuilder: (currentChild, previousChildren) => Stack(
+                fit: StackFit.expand,
+                children: [
+                  ...previousChildren,
+                  if (currentChild != null) currentChild,
+                ],
+              ),
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.985, end: 1).animate(animation),
+                  child: child,
+                ),
+              ),
+              child: KeyedSubtree(
+                key: ValueKey<LibraryLayout>(layout),
+                child: content,
+              ),
+            );
           },
         ),
       ),
@@ -154,7 +155,7 @@ class LibraryScreen extends ConsumerWidget {
     return staggeredListView(
       context: context,
       listView: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 96),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
         itemCount: books.length,
         separatorBuilder: (context, index) => const SizedBox(height: 10),
         itemBuilder: (context, i) {
@@ -189,7 +190,7 @@ class LibraryScreen extends ConsumerWidget {
     return staggeredListView(
       context: context,
       listView: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 96),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: 12,
@@ -218,7 +219,7 @@ class LibraryScreen extends ConsumerWidget {
 
   Future<void> _openDetails(BuildContext context, Book book) async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(
+      SharedAxisPageRoute<void>(
         builder: (_) => BookDetailsPage(bookId: book.id),
       ),
     );

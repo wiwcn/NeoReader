@@ -50,10 +50,262 @@ class AppTheme {
   static const Color darkOutline = Color(0xFF8A9099);
   static const Color darkOutlineVariant = Color(0xFF3A3F46);
 
-  static TextTheme _textTheme(TextTheme base) {
-    return base.apply(
+  /// MD3 type scale tuned for CJK: taller line boxes, tighter tracking on
+  /// display/title roles, comfortable 1.5 leading on body copy.
+  static TextTheme _textTheme(
+    TextTheme base, {
+    Color? bodyColor,
+    Color? displayColor,
+  }) {
+    final t = base.apply(
       fontFamily: fontFamily,
       fontFamilyFallback: fontFamilyFallback,
+      bodyColor: bodyColor,
+      displayColor: displayColor,
+    );
+    return t.copyWith(
+      displayLarge: t.displayLarge?.copyWith(height: 1.12, letterSpacing: -0.8),
+      displayMedium:
+          t.displayMedium?.copyWith(height: 1.16, letterSpacing: -0.5),
+      displaySmall:
+          t.displaySmall?.copyWith(height: 1.18, letterSpacing: -0.4),
+      headlineLarge:
+          t.headlineLarge?.copyWith(height: 1.22, letterSpacing: -0.2),
+      headlineMedium:
+          t.headlineMedium?.copyWith(height: 1.24, letterSpacing: -0.1),
+      headlineSmall: t.headlineSmall?.copyWith(height: 1.28, letterSpacing: 0),
+      titleLarge: t.titleLarge?.copyWith(height: 1.30, letterSpacing: 0),
+      titleMedium: t.titleMedium?.copyWith(height: 1.36, letterSpacing: 0.15),
+      titleSmall: t.titleSmall?.copyWith(height: 1.36, letterSpacing: 0.1),
+      bodyLarge: t.bodyLarge?.copyWith(height: 1.55, letterSpacing: 0.3),
+      bodyMedium: t.bodyMedium?.copyWith(height: 1.52, letterSpacing: 0.2),
+      bodySmall: t.bodySmall?.copyWith(height: 1.45, letterSpacing: 0.3),
+      labelLarge: t.labelLarge?.copyWith(height: 1.35, letterSpacing: 0.1),
+      labelMedium: t.labelMedium?.copyWith(height: 1.35, letterSpacing: 0.4),
+      labelSmall: t.labelSmall?.copyWith(height: 1.35, letterSpacing: 0.5),
+    );
+  }
+
+  /// Shared MD3 component styling for both brightnesses.
+  ///
+  /// Light/dark only own their surface palette; controls, fields, menus and
+  /// surfaces stay pixel-identical in shape and motion.
+  static ThemeData _decorate(
+    ThemeData theme,
+    ColorScheme scheme,
+    Color accent,
+  ) {
+    final isDark = scheme.brightness == Brightness.dark;
+    final fieldFill = isDark
+        ? scheme.surfaceContainerHighest.withValues(alpha: 0.60)
+        : scheme.surfaceContainerHigh.withValues(alpha: 0.72);
+    final labelStyle = TextStyle(
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0.1,
+    );
+    final bodyStyle = TextStyle(
+      fontFamily: fontFamily,
+      fontFamilyFallback: fontFamilyFallback,
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0.2,
+      color: scheme.onSurface,
+    );
+    final rounded16 = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    );
+    final rounded28 = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(28),
+    );
+    final field = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide.none,
+    );
+
+    return theme.copyWith(
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(48, 44),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+          shape: const StadiumBorder(),
+          textStyle: labelStyle,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(48, 44),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+          shape: const StadiumBorder(),
+          side: BorderSide(color: scheme.outlineVariant),
+          textStyle: labelStyle,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          minimumSize: const Size(44, 40),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          shape: const StadiumBorder(),
+          textStyle: labelStyle,
+        ),
+      ),
+      iconButtonTheme: const IconButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size(44, 44)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: fieldFill,
+        isDense: true,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        hintStyle: bodyStyle.copyWith(color: scheme.onSurfaceVariant),
+        prefixIconColor: scheme.onSurfaceVariant,
+        suffixIconColor: scheme.onSurfaceVariant,
+        border: field,
+        enabledBorder: field,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: accent.withValues(alpha: 0.55),
+            width: 1.2,
+          ),
+        ),
+      ),
+      searchBarTheme: SearchBarThemeData(
+        elevation: const WidgetStatePropertyAll(0.0),
+        backgroundColor: WidgetStatePropertyAll(fieldFill),
+        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+        shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+        padding: const WidgetStatePropertyAll(
+          EdgeInsets.symmetric(horizontal: 8),
+        ),
+        shape: WidgetStatePropertyAll(rounded28),
+        textStyle: WidgetStatePropertyAll(bodyStyle),
+        hintStyle: WidgetStatePropertyAll(
+          bodyStyle.copyWith(color: scheme.onSurfaceVariant),
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: const WidgetStatePropertyAll(Size(48, 40)),
+          shape: const WidgetStatePropertyAll(StadiumBorder()),
+          side: WidgetStateProperty.resolveWith(
+            (states) => BorderSide(
+              color: states.contains(WidgetState.selected)
+                  ? Colors.transparent
+                  : scheme.outlineVariant,
+            ),
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? accent.withValues(alpha: 0.16)
+                : Colors.transparent,
+          ),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? scheme.onPrimary
+              : scheme.onSurfaceVariant,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? accent
+              : scheme.surfaceContainerHighest,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: accent,
+        inactiveTrackColor: scheme.surfaceContainerHighest,
+        thumbColor: accent,
+        overlayColor: accent.withValues(alpha: 0.12),
+        trackHeight: 4,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: scheme.surfaceContainerHigh,
+        selectedColor: accent.withValues(alpha: 0.16),
+        disabledColor: scheme.surfaceContainerHigh.withValues(alpha: 0.5),
+        labelStyle: bodyStyle,
+        secondaryLabelStyle: bodyStyle.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
+        side: BorderSide(
+          color: scheme.outlineVariant.withValues(alpha: 0.7),
+        ),
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: scheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 2,
+        shape: rounded16,
+        textStyle: bodyStyle,
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(scheme.surfaceContainerHigh),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          elevation: const WidgetStatePropertyAll(2.0),
+          shape: WidgetStatePropertyAll(rounded16),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: scheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: rounded28,
+        titleTextStyle: TextStyle(
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+          fontSize: 22,
+          height: 1.3,
+          fontWeight: FontWeight.w600,
+          color: scheme.onSurface,
+        ),
+        contentTextStyle: bodyStyle.copyWith(color: scheme.onSurfaceVariant),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: scheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        modalElevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: accent,
+        linearTrackColor: scheme.surfaceContainerHighest,
+        circularTrackColor: scheme.surfaceContainerHighest,
+        linearMinHeight: 4,
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: accent,
+        selectionColor: accent.withValues(alpha: 0.24),
+        selectionHandleColor: accent,
+      ),
+      tooltipTheme: TooltipThemeData(
+        waitDuration: const Duration(milliseconds: 500),
+        decoration: BoxDecoration(
+          color: scheme.inverseSurface,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        textStyle: TextStyle(
+          fontFamily: fontFamily,
+          fontFamilyFallback: fontFamilyFallback,
+          fontSize: 12,
+          color: scheme.onInverseSurface,
+        ),
+      ),
     );
   }
 
@@ -126,7 +378,8 @@ class AppTheme {
     final scheme = _refineLightScheme(seeded);
     // No fontFamily on ThemeData — Icons must keep MaterialIcons.
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
-    return base.copyWith(
+    return _decorate(
+      base.copyWith(
       textTheme: _textTheme(base.textTheme),
       primaryTextTheme: _textTheme(base.primaryTextTheme),
       iconTheme: IconThemeData(size: 24, color: scheme.onSurface),
@@ -152,7 +405,9 @@ class AppTheme {
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
+        height: 72,
         indicatorColor: seedColor.withValues(alpha: 0.18),
+        indicatorShape: const StadiumBorder(),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontFamily: fontFamily,
@@ -208,22 +463,11 @@ class AppTheme {
         textColor: scheme.onSurface,
         selectedColor: seedColor,
         selectedTileColor: seedColor.withValues(alpha: 0.10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
-      dialogTheme: DialogThemeData(
-        backgroundColor: scheme.surfaceContainerHigh,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: scheme.surfaceContainerHigh,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        modalElevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-      ),
+      scheme,
+      seedColor,
     );
   }
 
@@ -234,11 +478,13 @@ class AppTheme {
     );
     final scheme = _refineDarkScheme(seeded);
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
-    return base.copyWith(
-      textTheme: _textTheme(base.textTheme.apply(
+    return _decorate(
+      base.copyWith(
+      textTheme: _textTheme(
+        base.textTheme,
         bodyColor: darkOnSurface,
         displayColor: darkOnSurface,
-      )),
+      ),
       primaryTextTheme: _textTheme(base.primaryTextTheme),
       iconTheme: const IconThemeData(size: 24, color: darkOnSurface),
       primaryIconTheme: IconThemeData(size: 24, color: scheme.onPrimary),
@@ -264,7 +510,9 @@ class AppTheme {
         elevation: 0,
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
+        height: 72,
         indicatorColor: seedColor.withValues(alpha: 0.26),
+        indicatorShape: const StadiumBorder(),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontFamily: fontFamily,
@@ -323,22 +571,11 @@ class AppTheme {
         textColor: darkOnSurface,
         selectedColor: Color.lerp(darkOnSurface, seedColor, 0.45)!,
         selectedTileColor: seedColor.withValues(alpha: 0.14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
-      dialogTheme: DialogThemeData(
-        backgroundColor: darkContainerHigh,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: darkContainerHigh,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        modalElevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-      ),
+      scheme,
+      seedColor,
     );
   }
 }
