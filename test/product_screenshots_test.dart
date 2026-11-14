@@ -41,13 +41,9 @@ import 'package:neo_reader/presentation/widgets/motion.dart';
 const _phoneSize = Size(360, 780);
 const _pixelRatio = 3.0;
 
-final _outDir = Directory(
-  '/workspace/koodo-flutter-offline-app/docs/screenshots',
-);
-const _coverDirPath =
-    '/workspace/koodo-flutter-offline-app/test/fixtures/music_covers';
-const _bookCoverDirPath =
-    '/workspace/koodo-flutter-offline-app/test/fixtures/book_covers';
+final _outDir = Directory('docs/screenshots');
+const _coverDirPath = 'test/fixtures/music_covers';
+const _bookCoverDirPath = 'test/fixtures/book_covers';
 
 Float32List _syntheticPeaks({int n = 800, int seed = 7}) {
   final rnd = math.Random(seed);

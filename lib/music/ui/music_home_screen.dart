@@ -255,7 +255,7 @@ class _TracksTab extends ConsumerWidget {
         return staggeredListView(
           context: context,
           listView: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 96),
+            padding: const EdgeInsets.only(bottom: 156),
             itemCount: tracks.length,
             itemBuilder: (context, i) {
               final t = tracks[i];
@@ -306,7 +306,7 @@ class _AlbumsTab extends ConsumerWidget {
         return staggeredListView(
           context: context,
           listView: GridView.builder(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 96),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 156),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               mainAxisSpacing: 12,
@@ -429,7 +429,7 @@ class _ArtistsTab extends ConsumerWidget {
         return staggeredListView(
           context: context,
           listView: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 156),
             itemCount: artists.length,
             separatorBuilder: (context, index) => const SizedBox(height: 8),
             itemBuilder: (context, i) {
@@ -517,7 +517,7 @@ class _PlaylistsTab extends ConsumerWidget {
         return staggeredListView(
           context: context,
           listView: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 156),
             itemCount: playlists.length + 1,
             separatorBuilder: (context, index) => const SizedBox(height: 8),
             itemBuilder: (context, i) {

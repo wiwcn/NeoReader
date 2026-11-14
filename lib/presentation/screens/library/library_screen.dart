@@ -125,7 +125,7 @@ class LibraryScreen extends ConsumerWidget {
                 fit: StackFit.expand,
                 children: [
                   ...previousChildren,
-                  if (currentChild != null) currentChild,
+                  ?currentChild,
                 ],
               ),
               transitionBuilder: (child, animation) => FadeTransition(
@@ -155,7 +155,7 @@ class LibraryScreen extends ConsumerWidget {
     return staggeredListView(
       context: context,
       listView: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 156),
         itemCount: books.length,
         separatorBuilder: (context, index) => const SizedBox(height: 10),
         itemBuilder: (context, i) {
@@ -190,7 +190,7 @@ class LibraryScreen extends ConsumerWidget {
     return staggeredListView(
       context: context,
       listView: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 156),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: 12,
