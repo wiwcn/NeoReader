@@ -8,20 +8,6 @@ import '../../widgets/glass_scaffold_bg.dart';
 class StatsScreen extends ConsumerWidget {
   const StatsScreen({super.key});
 
-  /// Reserve icon + two lines of value + label so all four tiles match, even
-  /// when「12 小时 40 分钟」wraps while「5」does not.
-  double _statMinHeight(BuildContext context) {
-    final scaler = MediaQuery.textScalerOf(context);
-    final text = Theme.of(context).textTheme;
-    final value = text.headlineSmall;
-    final label = text.bodySmall;
-    return 36 +
-        12 +
-        scaler.scale(value?.fontSize ?? 24) * (value?.height ?? 1.28) * 2 +
-        2 +
-        scaler.scale(label?.fontSize ?? 12) * (label?.height ?? 1.45);
-  }
-
   String _fmt(int seconds, {required bool isZh}) {
     if (seconds < 60) return isZh ? '$seconds 秒' : '${seconds}s';
     final m = seconds ~/ 60;
@@ -49,7 +35,7 @@ class StatsScreen extends ConsumerWidget {
             return ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
               children: [
-                _statRow(
+                _statGrid([
                   _statCard(
                     context,
                     strings.todayReading,
@@ -62,9 +48,6 @@ class StatsScreen extends ConsumerWidget {
                     _fmt(s.totalSeconds, isZh: isZh),
                     Icons.schedule_rounded,
                   ),
-                ),
-                const SizedBox(height: 12),
-                _statRow(
                   _statCard(
                     context,
                     strings.booksInProgress,
@@ -77,7 +60,7 @@ class StatsScreen extends ConsumerWidget {
                     '${s.booksFinished}',
                     Icons.check_circle_outline_rounded,
                   ),
-                ),
+                ]),
                 const SizedBox(height: 12),
                 SolidCard(
                   padding: const EdgeInsets.all(16),
@@ -197,42 +180,71 @@ class StatsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     return SolidCard(
       padding: const EdgeInsets.all(16),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: _statMinHeight(context)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _StatMedallion(icon: icon),
-            const Spacer(),
-            Text(
-              value,
-              style: theme.textTheme.headlineSmall,
-              maxLines: 2,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _StatMedallion(icon: icon),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.bottomLeft,
+                    child: SizedBox(
+                      width: constraints.maxWidth,
+                      child: Text(
+                        value,
+                        style: theme.textTheme.headlineSmall,
+                        maxLines: 2,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  /// Side-by-side tiles must share one height, not centre against each other.
-  Widget _statRow(Widget left, Widget right) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(child: left),
-          const SizedBox(width: 12),
-          Expanded(child: right),
-        ],
-      ),
+  /// Square tiles: 2×2 on phones, a single 4-up row on wide windows. Keeping
+  /// the height tied to the width stops tiles from stretching into long bars.
+  Widget _statGrid(List<Widget> tiles) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 12.0;
+        final columns = constraints.maxWidth >= 700 ? 4 : 2;
+        final rawSide =
+            (constraints.maxWidth - gap * (columns - 1)) / columns;
+        final side = rawSide > 220 ? 220.0 : rawSide;
+        final gridWidth = side * columns + gap * (columns - 1);
+        return Center(
+          child: SizedBox(
+            width: gridWidth,
+            child: Wrap(
+              spacing: gap,
+              runSpacing: gap,
+              children: [
+                for (final tile in tiles)
+                  SizedBox.square(dimension: side, child: tile),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
