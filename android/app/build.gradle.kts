@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.wiwcn.neoreader"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android requires API 37 AAR metadata.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
