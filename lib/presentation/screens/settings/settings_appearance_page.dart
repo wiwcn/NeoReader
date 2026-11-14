@@ -12,12 +12,12 @@ class SettingsAppearancePage extends ConsumerWidget {
   final bool showAppBar;
 
   static const _seeds = <int>[
-    0xFF2E7D32,
-    0xFF1565C0,
-    0xFF6A1B9A,
-    0xFFC62828,
-    0xFFEF6C00,
-    0xFF00838F,
+    0xFF5DA88F,
+    0xFF5B8FB0,
+    0xFF8A7FB0,
+    0xFFC27A7A,
+    0xFFC79A5B,
+    0xFF5AA6A4,
   ];
 
   @override

@@ -8,6 +8,20 @@ import '../../widgets/glass_scaffold_bg.dart';
 class StatsScreen extends ConsumerWidget {
   const StatsScreen({super.key});
 
+  /// Reserve icon + two lines of value + label so all four tiles match, even
+  /// when「12 小时 40 分钟」wraps while「5」does not.
+  double _statMinHeight(BuildContext context) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final text = Theme.of(context).textTheme;
+    final value = text.headlineSmall;
+    final label = text.bodySmall;
+    return 36 +
+        12 +
+        scaler.scale(value?.fontSize ?? 24) * (value?.height ?? 1.28) * 2 +
+        2 +
+        scaler.scale(label?.fontSize ?? 12) * (label?.height ?? 1.45);
+  }
+
   String _fmt(int seconds, {required bool isZh}) {
     if (seconds < 60) return isZh ? '$seconds 秒' : '${seconds}s';
     final m = seconds ~/ 60;
@@ -33,76 +47,67 @@ class StatsScreen extends ConsumerWidget {
           data: (s) {
             final isZh = strings.isZh;
             return ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _statCard(
-                        context,
-                        strings.todayReading,
-                        _fmt(s.todaySeconds, isZh: isZh),
-                        Icons.today_rounded,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _statCard(
-                        context,
-                        strings.totalReading,
-                        _fmt(s.totalSeconds, isZh: isZh),
-                        Icons.schedule_rounded,
-                      ),
-                    ),
-                  ],
+                _statRow(
+                  _statCard(
+                    context,
+                    strings.todayReading,
+                    _fmt(s.todaySeconds, isZh: isZh),
+                    Icons.today_rounded,
+                  ),
+                  _statCard(
+                    context,
+                    strings.totalReading,
+                    _fmt(s.totalSeconds, isZh: isZh),
+                    Icons.schedule_rounded,
+                  ),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _statCard(
-                        context,
-                        strings.booksInProgress,
-                        '${s.booksStarted}',
-                        Icons.menu_book_rounded,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _statCard(
-                        context,
-                        isZh ? '已读完' : 'Finished',
-                        '${s.booksFinished}',
-                        Icons.check_circle_outline_rounded,
-                      ),
-                    ),
-                  ],
+                _statRow(
+                  _statCard(
+                    context,
+                    strings.booksInProgress,
+                    '${s.booksStarted}',
+                    Icons.menu_book_rounded,
+                  ),
+                  _statCard(
+                    context,
+                    isZh ? '已读完' : 'Finished',
+                    '${s.booksFinished}',
+                    Icons.check_circle_outline_rounded,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 SolidCard(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.local_fire_department_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 36,
+                      _StatMedallion(
+                        icon: Icons.local_fire_department_rounded,
+                        size: 44,
+                        iconSize: 24,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              strings.readingStreak,
-                              style: Theme.of(context).textTheme.titleMedium,
+                              '${s.currentStreakDays} ${strings.streakDays}',
+                              style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              isZh
-                                  ? '${s.currentStreakDays} ${strings.streakDays}'
-                                  : '${s.currentStreakDays} ${strings.streakDays}',
-                              style: Theme.of(context).textTheme.headlineSmall,
+                              strings.readingStreak,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
                             ),
                           ],
                         ),
@@ -131,7 +136,7 @@ class StatsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 SolidCard(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -189,17 +194,73 @@ class StatsScreen extends ConsumerWidget {
     String value,
     IconData icon,
   ) {
+    final theme = Theme.of(context);
     return SolidCard(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: _statMinHeight(context)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _StatMedallion(icon: icon),
+            const Spacer(),
+            Text(
+              value,
+              style: theme.textTheme.headlineSmall,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Side-by-side tiles must share one height, not centre against each other.
+  Widget _statRow(Widget left, Widget right) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: 8),
-          Text(value, style: Theme.of(context).textTheme.headlineSmall),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          Expanded(child: left),
+          const SizedBox(width: 12),
+          Expanded(child: right),
         ],
       ),
+    );
+  }
+}
+
+/// Small tonal icon chip used by stat tiles — MD3 primary-container pairing.
+class _StatMedallion extends StatelessWidget {
+  const _StatMedallion({
+    required this.icon,
+    this.size = 36,
+    this.iconSize = 20,
+  });
+
+  final IconData icon;
+  final double size;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: cs.primaryContainer.withValues(alpha: 0.72),
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Icon(icon, size: iconSize, color: cs.onPrimaryContainer),
     );
   }
 }

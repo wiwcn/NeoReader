@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 /// muddy green-gray [ColorScheme.fromSeed] tends to paint when [seed] is green.
 /// Primary stays seed-driven and is used as accent only.
 class AppTheme {
-  static const Color seed = Color(0xFF2E7D32);
+  static const Color seed = Color(0xFF5DA88F);
 
   /// Bundled Noto Sans SC (assets/fonts). Covers Latin + Simplified Chinese offline.
   static const String fontFamily = 'NotoSansSC';
@@ -28,27 +28,27 @@ class AppTheme {
     'sans-serif',
   ];
 
-  // ── Semantic neutrals (cool) — seed-independent canvas ──────────────────
-  static const Color lightCanvas = Color(0xFFFAFBFC);
-  static const Color lightCanvasMid = Color(0xFFF7F8FA);
-  static const Color lightCanvasDeep = Color(0xFFF5F6F8);
+  // ── Semantic neutrals (jade-tinted) — seed-independent canvas ───────────
+  static const Color lightCanvas = Color(0xFFF7FAF8);
+  static const Color lightCanvasMid = Color(0xFFF2F6F4);
+  static const Color lightCanvasDeep = Color(0xFFEDF3F0);
 
   /// OLED true black — Now Playing / fullscreen music canvases.
   static const Color oledBlack = Color(0xFF000000);
 
-  /// Near-true-black cool scaffold (OLED-friendly; cards use elevated containers).
+  /// Near-true-black scaffold with a whisper of jade (OLED-friendly).
   static const Color darkCanvas = Color(0xFF000000);
   static const Color darkSurfaceDim = Color(0xFF000000);
-  static const Color darkSurfaceBright = Color(0xFF16191D);
+  static const Color darkSurfaceBright = Color(0xFF141A17);
   static const Color darkContainerLowest = Color(0xFF000000);
-  static const Color darkContainerLow = Color(0xFF121518);
-  static const Color darkContainer = Color(0xFF181B1F);
-  static const Color darkContainerHigh = Color(0xFF1E2227);
-  static const Color darkContainerHighest = Color(0xFF24292F);
-  static const Color darkOnSurface = Color(0xFFE6E8EB);
-  static const Color darkOnSurfaceVariant = Color(0xFFB0B6BE);
-  static const Color darkOutline = Color(0xFF8A9099);
-  static const Color darkOutlineVariant = Color(0xFF3A3F46);
+  static const Color darkContainerLow = Color(0xFF0F1412);
+  static const Color darkContainer = Color(0xFF141A17);
+  static const Color darkContainerHigh = Color(0xFF1A211D);
+  static const Color darkContainerHighest = Color(0xFF222B26);
+  static const Color darkOnSurface = Color(0xFFE6ECE8);
+  static const Color darkOnSurfaceVariant = Color(0xFFADB9B2);
+  static const Color darkOutline = Color(0xFF85948C);
+  static const Color darkOutlineVariant = Color(0xFF37433C);
 
   /// MD3 type scale tuned for CJK: taller line boxes, tighter tracking on
   /// display/title roles, comfortable 1.5 leading on body copy.
@@ -337,9 +337,9 @@ class AppTheme {
       outlineVariant: darkOutlineVariant,
       // Soften seed-tinted containers so frost cards stay neutral.
       primaryContainer:
-          Color.lerp(darkContainerHigh, seeded.primary, 0.32)!,
+          Color.lerp(darkContainerHigh, seeded.primary, 0.30)!,
       onPrimaryContainer:
-          Color.lerp(darkOnSurface, seeded.primary, 0.12)!,
+          Color.lerp(darkOnSurface, seeded.primary, 0.18)!,
       secondaryContainer:
           Color.lerp(darkContainer, seeded.secondary, 0.22)!,
       onSecondaryContainer: darkOnSurface,
@@ -358,15 +358,15 @@ class AppTheme {
     return seeded.copyWith(
       surface: lightCanvas,
       surfaceContainerLowest: Colors.white,
-      surfaceContainerLow: const Color(0xFFF3F4F6),
-      surfaceContainer: const Color(0xFFEEEFF2),
-      surfaceContainerHigh: const Color(0xFFE8EAED),
-      surfaceContainerHighest: const Color(0xFFE2E4E8),
-      // Soften green-mud containers from a green seed.
+      surfaceContainerLow: const Color(0xFFF2F5F3),
+      surfaceContainer: const Color(0xFFECF1EE),
+      surfaceContainerHigh: const Color(0xFFE6EDE9),
+      surfaceContainerHighest: const Color(0xFFDFE8E3),
+      // Airy, seed-aware pastel containers instead of muddy green.
       primaryContainer:
-          Color.lerp(const Color(0xFFE8F5E9), seeded.primaryContainer, 0.55)!,
+          Color.lerp(Colors.white, seeded.primaryContainer, 0.45)!,
       secondaryContainer:
-          Color.lerp(const Color(0xFFF0F1F3), seeded.secondaryContainer, 0.45)!,
+          Color.lerp(Colors.white, seeded.secondaryContainer, 0.38)!,
     );
   }
 
@@ -406,7 +406,7 @@ class AppTheme {
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         height: 72,
-        indicatorColor: seedColor.withValues(alpha: 0.18),
+        indicatorColor: scheme.secondaryContainer,
         indicatorShape: const StadiumBorder(),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
@@ -423,14 +423,14 @@ class AppTheme {
           (states) => IconThemeData(
             size: 24,
             color: states.contains(WidgetState.selected)
-                ? seedColor
+                ? scheme.primary
                 : scheme.onSurfaceVariant,
           ),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: seedColor.withValues(alpha: 0.92),
-        foregroundColor: Colors.white,
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
         elevation: 2,
         focusElevation: 2,
         highlightElevation: 2,
@@ -454,20 +454,20 @@ class AppTheme {
       ),
       tabBarTheme: TabBarThemeData(
         dividerColor: Colors.transparent,
-        indicatorColor: seedColor,
+        indicatorColor: scheme.primary,
         labelColor: scheme.onSurface,
         unselectedLabelColor: scheme.onSurfaceVariant,
       ),
       listTileTheme: ListTileThemeData(
         iconColor: scheme.onSurfaceVariant,
         textColor: scheme.onSurface,
-        selectedColor: seedColor,
-        selectedTileColor: seedColor.withValues(alpha: 0.10),
+        selectedColor: scheme.primary,
+        selectedTileColor: scheme.primary.withValues(alpha: 0.08),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       ),
       scheme,
-      seedColor,
+      scheme.primary,
     );
   }
 
@@ -511,7 +511,7 @@ class AppTheme {
         shadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         height: 72,
-        indicatorColor: seedColor.withValues(alpha: 0.26),
+        indicatorColor: scheme.primaryContainer,
         indicatorShape: const StadiumBorder(),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
@@ -530,15 +530,14 @@ class AppTheme {
           (states) => IconThemeData(
             size: 24,
             color: states.contains(WidgetState.selected)
-                ? Color.lerp(darkOnSurface, seedColor, 0.35)!
+                ? scheme.primary
                 : darkOnSurfaceVariant,
           ),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: Color.lerp(seedColor, darkContainerHigh, 0.12)!
-            .withValues(alpha: 0.95),
-        foregroundColor: Colors.white,
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
         elevation: 1,
         focusElevation: 1,
         highlightElevation: 1,
@@ -562,20 +561,20 @@ class AppTheme {
       ),
       tabBarTheme: TabBarThemeData(
         dividerColor: Colors.transparent,
-        indicatorColor: seedColor,
+        indicatorColor: scheme.primary,
         labelColor: darkOnSurface,
         unselectedLabelColor: darkOnSurfaceVariant,
       ),
       listTileTheme: ListTileThemeData(
         iconColor: darkOnSurfaceVariant,
         textColor: darkOnSurface,
-        selectedColor: Color.lerp(darkOnSurface, seedColor, 0.45)!,
-        selectedTileColor: seedColor.withValues(alpha: 0.14),
+        selectedColor: scheme.primary,
+        selectedTileColor: scheme.primary.withValues(alpha: 0.12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       ),
       scheme,
-      seedColor,
+      scheme.primary,
     );
   }
 }

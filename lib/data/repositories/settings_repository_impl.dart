@@ -24,6 +24,15 @@ class SettingsRepositoryImpl implements SettingsRepository {
   static const _kShowDuration = 'show_reading_duration';
   static const _kTermConv = 'term_conversion';
 
+  /// The previous default green is migrated to the refreshed jade palette.
+  static const _legacyDefaultSeed = 0xFF2E7D32;
+
+  static int _seed(int? stored) {
+    final fallback = AppSettings().seedColorValue;
+    if (stored == null || stored == _legacyDefaultSeed) return fallback;
+    return stored;
+  }
+
   @override
   Future<AppSettings> load() async {
     final p = await SharedPreferences.getInstance();
@@ -39,7 +48,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
         (e) => e.name == p.getString(_kReading),
         orElse: () => ReadingThemeMode.day,
       ),
-      seedColorValue: p.getInt(_kSeed) ?? 0xFF2E7D32,
+      seedColorValue: _seed(p.getInt(_kSeed)),
       glassBlur: p.getDouble(_kGlass) ?? 0.55,
       pageTurnMode: PageTurnMode.values.firstWhere(
         (e) => e.name == p.getString(_kPageTurn),

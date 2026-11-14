@@ -23,7 +23,7 @@ class AppSettings extends Equatable {
     this.fontSize = 19,
     this.lineHeight = 1.75,
     this.readingTheme = ReadingThemeMode.day,
-    this.seedColorValue = 0xFF2E7D32,
+    this.seedColorValue = 0xFF5DA88F,
     this.glassBlur = 0.55,
     this.pageTurnMode = PageTurnMode.scroll,
     this.writingMode = WritingMode.horizontal,
